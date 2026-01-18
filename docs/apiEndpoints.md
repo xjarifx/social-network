@@ -1,4 +1,5 @@
 ### Authentication
+
 ```
 POST   /api/auth/register                    # Register new user
 POST   /api/auth/login                       # Login
@@ -14,6 +15,7 @@ DELETE /api/auth/sessions/:sessionId         # Revoke specific session
 ```
 
 ### Users
+
 ```
 GET    /api/users/:userId                    # Get user profile
 PATCH  /api/users/:userId                    # Update own profile
@@ -24,6 +26,7 @@ GET    /api/users/search                     # Search users (q, limit, offset)
 POST   /api/users/:userId/media/profile-picture    # Upload profile pic
 POST   /api/users/:userId/media/cover-photo        # Upload cover photo
 DELETE /api/users/:userId/media/:mediaId           # Delete media
+GET    /api/users/:userId/media                   # List user media (type, limit, offset)
 
 # Preferences
 GET    /api/users/:userId/preferences        # Get user preferences
@@ -31,6 +34,7 @@ PATCH  /api/users/:userId/preferences        # Update preferences
 ```
 
 ### Friendships
+
 ```
 POST   /api/friendships                      # Send friend request
 GET    /api/friendships                      # Get friends list (status filter)
@@ -43,6 +47,7 @@ GET    /api/friendships/suggestions          # Friend suggestions (optional)
 ```
 
 ### Blocks
+
 ```
 POST   /api/blocks                           # Block a user
 GET    /api/blocks                           # List blocked users
@@ -51,6 +56,7 @@ GET    /api/blocks/check/:userId             # Check if user is blocked
 ```
 
 ### Posts
+
 ```
 POST   /api/posts                            # Create post (with optional media)
 GET    /api/posts/:postId                    # Get single post
@@ -62,12 +68,14 @@ GET    /api/users/:userId/posts              # User timeline
 # Media for posts
 POST   /api/posts/:postId/media              # Add media to post
 DELETE /api/posts/:postId/media/:mediaId     # Remove media from post
+PATCH  /api/posts/:postId/media/order        # Update post media order
 
 # Moderation
 POST   /api/posts/:postId/report             # Report post
 ```
 
 ### Likes
+
 ```
 POST   /api/posts/:postId/likes              # Like post
 DELETE /api/posts/:postId/likes              # Unlike post
@@ -76,6 +84,7 @@ GET    /api/posts/:postId/likes/check        # Check if current user liked
 ```
 
 ### Comments
+
 ```
 POST   /api/posts/:postId/comments           # Create comment
 GET    /api/posts/:postId/comments           # Get comments (limit, offset)
@@ -92,6 +101,7 @@ POST   /api/comments/:commentId/report       # Report comment
 ```
 
 ### Notifications
+
 ```
 GET    /api/notifications                    # Get notifications (is_read filter)
 GET    /api/notifications/unread/count       # Count unread notifications
@@ -102,6 +112,7 @@ DELETE /api/notifications/clear-all          # Clear all read notifications
 ```
 
 ### Reports (Admin/Moderation - optional for MVP)
+
 ```
 GET    /api/reports                          # List all reports (admin)
 GET    /api/reports/:reportId                # Get report details
@@ -109,7 +120,9 @@ PATCH  /api/reports/:reportId                # Update report status
 ```
 
 ### Activity (Analytics - optional)
+
 ```
 GET    /api/users/:userId/activity           # User activity log
 GET    /api/analytics/daily-active-users     # DAU (admin)
 GET    /api/analytics/engagement             # Engagement metrics (admin)
+```
