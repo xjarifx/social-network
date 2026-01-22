@@ -8,407 +8,108 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// ENUMS
-enum UserStatus {
-  active
-  inactive
-  suspended
-  deleted
-}
-
-enum PrivacySetting {
-  public
-  friends_only
-}
-
 enum FriendshipStatus {
-  pending
-  accepted
-}
-
-enum MediaType {
-  profile_picture
-  cover_photo
-  post_image
-}
-
-enum PostPrivacy {
-  public
-  friends_only
+  PENDING
+  ACCEPTED
 }
 
 enum NotificationType {
-  friend_request
-  friend_accept
-  post_like
-  post_comment
-  comment_reply
+  LIKE
+  COMMENT
+  FRIEND_REQUEST
 }
 
-enum ReferenceType {
-  post
-  comment
-  friendship
-}
-
-enum ReportedType {
-  post
-  comment
-  user
-}
-
-enum ReportReason {
-  spam
-  harassment
-  inappropriate
-  hate_speech
-  other
-}
-
-enum ReportStatus {
-  pending
-  reviewed
-  action_taken
-  dismissed
-}
-
-enum Theme {
-  light
-  dark
-  system
-}
-
-enum ActivityAction {
-  login
-  logout
-  post_create
-  post_delete
-  post_update
-  profile_update
-  friend_request_sent
-  friend_request_accepted
-  comment_create
-  comment_delete
-}
-
-// MODELS
-
-// 1. USERS TABLE
 model User {
-  id                           String    @id @default(uuid()) @db.Uuid
-  email                        String    @unique @db.VarChar(255)
-  username                     String    @unique @db.VarChar(50)
-  passwordHash                 String    @map("password_hash") @db.VarChar(255)
-  firstName                    String    @map("first_name") @db.VarChar(100)
-  lastName                     String    @map("last_name") @db.VarChar(100)
-  bio                          String?   @db.Text
-  dateOfBirth                  DateTime  @map("date_of_birth") @db.Date
-  showBirthYear                Boolean   @default(true) @map("show_birth_year")
-  status                       UserStatus @default(active)
-  privacySetting               PrivacySetting @default(public) @map("privacy_setting")
-  emailVerified                Boolean   @default(false) @map("email_verified")
-  emailVerificationToken       String?   @map("email_verification_token") @db.VarChar(255)
-  emailVerificationExpiresAt   DateTime? @map("email_verification_expires_at")
-  createdAt                    DateTime  @default(now()) @map("created_at")
-  updatedAt                    DateTime  @default(now()) @updatedAt @map("updated_at")
-  lastLoginAt                  DateTime? @map("last_login_at")
-  deletedAt                    DateTime? @map("deleted_at")
+  id        String   @id @default(uuid())
+  username  String   @unique
+  email     String   @unique
+  password  String
+  firstName String   @map("first_name")
+  lastName  String   @map("last_name")
+  createdAt DateTime @default(now()) @map("created_at")
 
-  // Relations
-  sessions                     Session[]
-  friendshipsInitiated         Friendship[] @relation("UserFriendships")
-  friendshipsReceived          Friendship[] @relation("FriendFriendships")
-  friendshipActions            Friendship[] @relation("ActionUser")
-  blocksInitiated              Block[] @relation("BlockerUser")
-  blocksReceived               Block[] @relation("BlockedUser")
-  media                        Media[]
-  posts                        Post[]
-  likes                        Like[]
-  comments                     Comment[]
-  notificationsReceived        Notification[] @relation("NotificationUser")
-  notificationsTriggered       Notification[] @relation("NotificationActor")
-  feedCache                    FeedCache[]
-  preferences                  UserPreference?
-  reportsSubmitted             Report[] @relation("ReporterUser")
-  reportsReviewed              Report[] @relation("ReviewerUser")
-  activityLogs                 ActivityLog[]
+  posts                Post[]
+  comments             Comment[]
+  likes                Like[]
+  sentFriendships      Friendship[]   @relation("SentFriendships")
+  receivedFriendships  Friendship[]   @relation("ReceivedFriendships")
+  notifications        Notification[] @relation("UserNotifications")
+  triggeredNotifications Notification[] @relation("RelatedUserNotifications")
 
-  @@index([status, createdAt])
-  @@index([emailVerified])
-  @@index([username])
   @@map("users")
 }
 
-// 2. SESSIONS TABLE
-model Session {
-  id           String    @id @default(uuid()) @db.Uuid
-  userId       String    @map("user_id") @db.Uuid
-  tokenHash    String    @unique @map("token_hash") @db.VarChar(255)
-  ipAddress    String?   @map("ip_address") @db.Inet
-  userAgent    String?   @map("user_agent") @db.Text
-  expiresAt    DateTime  @map("expires_at")
-  createdAt    DateTime  @default(now()) @map("created_at")
-  lastUsedAt   DateTime  @default(now()) @map("last_used_at")
-
-  // Relations
-  user         User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@index([userId, expiresAt(sort: Desc)])
-  @@index([expiresAt])
-  @@map("sessions")
-}
-
-// 3. FRIENDSHIPS TABLE
-model Friendship {
-  id             String           @id @default(uuid()) @db.Uuid
-  userId         String           @map("user_id") @db.Uuid
-  friendId       String           @map("friend_id") @db.Uuid
-  status         FriendshipStatus @default(pending)
-  actionUserId   String?          @map("action_user_id") @db.Uuid
-  createdAt      DateTime         @default(now()) @map("created_at")
-  updatedAt      DateTime         @default(now()) @updatedAt @map("updated_at")
-  acceptedAt     DateTime?        @map("accepted_at")
-
-  // Relations
-  user           User             @relation("UserFriendships", fields: [userId], references: [id], onDelete: Cascade)
-  friend         User             @relation("FriendFriendships", fields: [friendId], references: [id], onDelete: Cascade)
-  actionUser     User?            @relation("ActionUser", fields: [actionUserId], references: [id], onDelete: SetNull)
-
-  @@unique([userId, friendId])
-  @@index([userId, status, acceptedAt(sort: Desc)])
-  @@index([friendId, status, acceptedAt(sort: Desc)])
-  @@map("friendships")
-}
-
-// 4. BLOCKS TABLE
-model Block {
-  id         String   @id @default(uuid()) @db.Uuid
-  blockerId  String   @map("blocker_id") @db.Uuid
-  blockedId  String   @map("blocked_id") @db.Uuid
-  reason     String?  @db.Text
-  createdAt  DateTime @default(now()) @map("created_at")
-
-  // Relations
-  blocker    User     @relation("BlockerUser", fields: [blockerId], references: [id], onDelete: Cascade)
-  blocked    User     @relation("BlockedUser", fields: [blockedId], references: [id], onDelete: Cascade)
-
-  @@unique([blockerId, blockedId])
-  @@index([blockedId])
-  @@map("blocks")
-}
-
-// 5. MEDIA TABLE
-model Media {
-  id           String      @id @default(uuid()) @db.Uuid
-  userId       String      @map("user_id") @db.Uuid
-  type         MediaType
-  url          String      @db.VarChar(500)
-  storagePath  String      @map("storage_path") @db.VarChar(500)
-  fileSize     Int         @map("file_size")
-  mimeType     String      @map("mime_type") @db.VarChar(100)
-  width        Int?
-  height       Int?
-  isActive     Boolean     @default(true) @map("is_active")
-  createdAt    DateTime    @default(now()) @map("created_at")
-  deletedAt    DateTime?   @map("deleted_at")
-
-  // Relations
-  user         User        @relation(fields: [userId], references: [id], onDelete: Cascade)
-  postMedia    PostMedia[]
-
-  @@index([userId, type, isActive, createdAt(sort: Desc)])
-  @@index([isActive, createdAt])
-  @@map("media")
-}
-
-// 6. POSTS TABLE
 model Post {
-  id             String       @id @default(uuid()) @db.Uuid
-  userId         String       @map("user_id") @db.Uuid
-  content        String       @db.Text
-  privacy        PostPrivacy  @default(friends_only)
-  likesCount     Int          @default(0) @map("likes_count")
-  commentsCount  Int          @default(0) @map("comments_count")
-  sharesCount    Int          @default(0) @map("shares_count")
-  isEdited       Boolean      @default(false) @map("is_edited")
-  isDeleted      Boolean      @default(false) @map("is_deleted")
-  isFlagged      Boolean      @default(false) @map("is_flagged")
-  flagCount      Int          @default(0) @map("flag_count")
-  createdAt      DateTime     @default(now()) @map("created_at")
-  updatedAt      DateTime     @default(now()) @updatedAt @map("updated_at")
-  deletedAt      DateTime?    @map("deleted_at")
+  id            String   @id @default(uuid())
+  authorId      String   @map("author_id")
+  content       String   @db.Text
+  likesCount    Int      @default(0) @map("likes_count")
+  commentsCount Int      @default(0) @map("comments_count")
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @updatedAt @map("updated_at")
 
-  // Relations
-  user           User         @relation(fields: [userId], references: [id], onDelete: Cascade)
-  postMedia      PostMedia[]
-  likes          Like[]
-  comments       Comment[]
-  feedCache      FeedCache[]
+  author        User          @relation(fields: [authorId], references: [id])
+  comments      Comment[]
+  likes         Like[]
+  notifications Notification[]
 
-  @@index([userId, isDeleted, createdAt(sort: Desc)])
-  @@index([isDeleted, isFlagged, createdAt(sort: Desc)])
-  @@index([createdAt(sort: Desc)])
   @@map("posts")
 }
 
-// 7. POST_MEDIA TABLE
-model PostMedia {
-  id            String   @id @default(uuid()) @db.Uuid
-  postId        String   @map("post_id") @db.Uuid
-  mediaId       String   @map("media_id") @db.Uuid
-  displayOrder  Int      @default(0) @map("display_order")
-  createdAt     DateTime @default(now()) @map("created_at")
-
-  // Relations
-  post          Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
-  media         Media    @relation(fields: [mediaId], references: [id], onDelete: Cascade)
-
-  @@unique([postId, mediaId])
-  @@unique([postId, displayOrder])
-  @@index([postId, displayOrder])
-  @@index([mediaId])
-  @@map("post_media")
-}
-
-// 8. LIKES TABLE
-model Like {
-  id        String   @id @default(uuid()) @db.Uuid
-  userId    String   @map("user_id") @db.Uuid
-  postId    String   @map("post_id") @db.Uuid
+model Comment {
+  id        String   @id @default(uuid())
+  postId    String   @map("post_id")
+  authorId  String   @map("author_id")
+  content   String   @db.Text
   createdAt DateTime @default(now()) @map("created_at")
 
-  // Relations
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  post   Post @relation(fields: [postId], references: [id], onDelete: Cascade)
+  author User @relation(fields: [authorId], references: [id])
 
-  @@unique([userId, postId])
-  @@index([postId, createdAt(sort: Desc)])
-  @@index([userId, createdAt(sort: Desc)])
-  @@map("likes")
-}
-
-// 9. COMMENTS TABLE
-model Comment {
-  id                String    @id @default(uuid()) @db.Uuid
-  userId            String    @map("user_id") @db.Uuid
-  postId            String    @map("post_id") @db.Uuid
-  parentCommentId   String?   @map("parent_comment_id") @db.Uuid
-  content           String    @db.Text
-  isEdited          Boolean   @default(false) @map("is_edited")
-  isDeleted         Boolean   @default(false) @map("is_deleted")
-  isFlagged         Boolean   @default(false) @map("is_flagged")
-  createdAt         DateTime  @default(now()) @map("created_at")
-  updatedAt         DateTime  @default(now()) @updatedAt @map("updated_at")
-  deletedAt         DateTime? @map("deleted_at")
-
-  // Relations
-  user              User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  post              Post      @relation(fields: [postId], references: [id], onDelete: Cascade)
-  parentComment     Comment?  @relation("CommentReplies", fields: [parentCommentId], references: [id], onDelete: Cascade)
-  replies           Comment[] @relation("CommentReplies")
-
-  @@index([postId, isDeleted, createdAt(sort: Asc)])
-  @@index([parentCommentId, isDeleted, createdAt(sort: Asc)])
-  @@index([userId, isDeleted, createdAt(sort: Desc)])
   @@map("comments")
 }
 
-// 10. NOTIFICATIONS TABLE
+model Like {
+  id        String   @id @default(uuid())
+  userId    String   @map("user_id")
+  postId    String   @map("post_id")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id])
+  post Post @relation(fields: [postId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, postId])
+  @@map("likes")
+}
+
+model Friendship {
+  id          String           @id @default(uuid())
+  senderId    String           @map("sender_id")
+  recipientId String           @map("recipient_id")
+  status      FriendshipStatus @default(PENDING)
+  createdAt   DateTime         @default(now()) @map("created_at")
+  updatedAt   DateTime         @updatedAt @map("updated_at")
+
+  sender    User @relation("SentFriendships", fields: [senderId], references: [id])
+  recipient User @relation("ReceivedFriendships", fields: [recipientId], references: [id])
+
+  @@unique([senderId, recipientId])
+  @@map("friendships")
+}
+
 model Notification {
-  id            String            @id @default(uuid()) @db.Uuid
-  userId        String            @map("user_id") @db.Uuid
-  actorId       String            @map("actor_id") @db.Uuid
+  id            String           @id @default(uuid())
+  userId        String           @map("user_id")
   type          NotificationType
-  referenceType ReferenceType?    @map("reference_type")
-  referenceId   String?           @map("reference_id") @db.Uuid
-  isRead        Boolean           @default(false) @map("is_read")
-  createdAt     DateTime          @default(now()) @map("created_at")
-  readAt        DateTime?         @map("read_at")
+  relatedUserId String           @map("related_user_id")
+  relatedPostId String?          @map("related_post_id")
+  message       String
+  read          Boolean          @default(false)
+  createdAt     DateTime         @default(now()) @map("created_at")
 
-  // Relations
-  user          User              @relation("NotificationUser", fields: [userId], references: [id], onDelete: Cascade)
-  actor         User              @relation("NotificationActor", fields: [actorId], references: [id], onDelete: Cascade)
+  user        User  @relation("UserNotifications", fields: [userId], references: [id])
+  relatedUser User  @relation("RelatedUserNotifications", fields: [relatedUserId], references: [id])
+  relatedPost Post? @relation(fields: [relatedPostId], references: [id])
 
-  @@index([userId, isRead, createdAt(sort: Desc)])
-  @@index([userId, createdAt(sort: Desc)])
-  @@index([referenceType, referenceId])
-  @@index([createdAt])
   @@map("notifications")
 }
-
-// 11. FEED_CACHE TABLE
-model FeedCache {
-  userId         String   @map("user_id") @db.Uuid
-  postId         String   @map("post_id") @db.Uuid
-  postCreatedAt  DateTime @map("post_created_at")
-  cachedAt       DateTime @default(now()) @map("cached_at")
-
-  // Relations
-  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  post           Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
-
-  @@id([userId, postId])
-  @@index([userId, postCreatedAt(sort: Desc)])
-  @@index([cachedAt])
-  @@map("feed_cache")
-}
-
-// 12. USER_PREFERENCES TABLE
-model UserPreference {
-  userId                      String   @id @map("user_id") @db.Uuid
-  notificationFriendRequest   Boolean  @default(true) @map("notification_friend_request")
-  notificationPostLike        Boolean  @default(true) @map("notification_post_like")
-  notificationPostComment     Boolean  @default(true) @map("notification_post_comment")
-  notificationCommentReply    Boolean  @default(true) @map("notification_comment_reply")
-  emailNotifications          Boolean  @default(true) @map("email_notifications")
-  theme                       Theme    @default(system)
-  updatedAt                   DateTime @default(now()) @updatedAt @map("updated_at")
-
-  // Relations
-  user                        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@map("user_preferences")
-}
-
-// 13. REPORTS TABLE
-model Report {
-  id            String        @id @default(uuid()) @db.Uuid
-  reporterId    String?       @map("reporter_id") @db.Uuid
-  reportedType  ReportedType  @map("reported_type")
-  reportedId    String        @map("reported_id") @db.Uuid
-  reason        ReportReason
-  description   String?       @db.Text
-  status        ReportStatus  @default(pending)
-  reviewedBy    String?       @map("reviewed_by") @db.Uuid
-  createdAt     DateTime      @default(now()) @map("created_at")
-  reviewedAt    DateTime?     @map("reviewed_at")
-
-  // Relations
-  reporter      User?         @relation("ReporterUser", fields: [reporterId], references: [id], onDelete: SetNull)
-  reviewer      User?         @relation("ReviewerUser", fields: [reviewedBy], references: [id], onDelete: SetNull)
-
-  @@index([reportedType, reportedId, status])
-  @@index([status, createdAt])
-  @@index([reporterId])
-  @@map("reports")
-}
-
-// 14. ACTIVITY_LOG TABLE
-model ActivityLog {
-  id          String          @id @default(uuid()) @db.Uuid
-  userId      String?         @map("user_id") @db.Uuid
-  action      ActivityAction
-  ipAddress   String?         @map("ip_address") @db.Inet
-  userAgent   String?         @map("user_agent") @db.Text
-  metadata    Json?           @db.JsonB
-  createdAt   DateTime        @default(now()) @map("created_at")
-
-  // Relations
-  user        User?           @relation(fields: [userId], references: [id], onDelete: SetNull)
-
-  @@index([userId, createdAt(sort: Desc)])
-  @@index([action, createdAt(sort: Desc)])
-  @@index([createdAt])
-  @@map("activity_log")
-}
-
