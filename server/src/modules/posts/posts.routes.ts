@@ -26,6 +26,5 @@ router.delete("/:postId/likes", authenticate, unlikePostHandler);
 // comments
 router.post("/:postId/comments", authenticate, createCommentHandler);
 router.get("/:postId/comments", getCommentsHandler);
-// update and delete comment routes are now in index.ts
 
 export default router;
