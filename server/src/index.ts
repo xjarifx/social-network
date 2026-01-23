@@ -12,5 +12,5 @@ app.use(express.urlencoded({ extended: true }));
 app.use(`${prefix}/auth`, authRouter);
 
 app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
+  console.log(`Server is running on port http://localhost:${PORT}`);
 });
