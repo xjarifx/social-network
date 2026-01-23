@@ -37,6 +37,7 @@ DELETE /posts/:postId/likes     # Unlike a post
 ```
 POST   /posts/:postId/comments  # Create comment on post
 GET    /posts/:postId/comments  # Get all comments (limit, offset)
+PATCH  /comments/:commentId     # Update own comment
 DELETE /comments/:commentId     # Delete own comment
 ```
 
