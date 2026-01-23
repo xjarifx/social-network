@@ -3,55 +3,54 @@
 ## Authentication Endpoints
 
 ```
-POST   /api/auth/register           # Register new user
-POST   /api/auth/login              # Login user
-POST   /api/auth/logout             # Logout user
-GET    /api/auth/me                 # Get current user
+POST   /auth/register           # Register new user
+POST   /auth/login              # Login user
+POST   /auth/logout             # Logout user
 ```
 
 ## User Endpoints
 
 ```
-GET    /api/users/:userId          # Get user profile
-PATCH  /api/users/:userId          # Update own profile
+GET    /users/:userId          # Get user profile
+PATCH  /users/:userId          # Update own profile
 ```
 
 ## Post Endpoints
 
 ```
-POST   /api/posts                   # Create new post
-GET    /api/posts/feed              # Get personalized feed (limit, offset)
-GET    /api/posts/:postId           # Get single post
-DELETE /api/posts/:postId           # Delete own post
-GET    /api/users/:userId/posts     # Get user's posts (timeline)
+POST   /posts                   # Create new post
+GET    /posts/:postId           # Get single post
+PATCH  /posts/:postId           # Update own post
+DELETE /posts/:postId           # Delete own post
+GET    /users/:userId/posts     # Get user's posts (timeline)
 ```
 
 ## Like Endpoints
 
 ```
-POST   /api/posts/:postId/likes     # Like a post
-DELETE /api/posts/:postId/likes     # Unlike a post
+POST   /posts/:postId/likes     # Like a post
+DELETE /posts/:postId/likes     # Unlike a post
 ```
 
 ## Comment Endpoints
 
 ```
-POST   /api/posts/:postId/comments  # Create comment on post
-GET    /api/posts/:postId/comments  # Get all comments (limit, offset)
-DELETE /api/comments/:commentId     # Delete own comment
+POST   /posts/:postId/comments  # Create comment on post
+GET    /posts/:postId/comments  # Get all comments (limit, offset)
+DELETE /comments/:commentId     # Delete own comment
 ```
 
 ## Friend Endpoints
 
 ```
-POST   /api/friendships             # Send friend request
-GET    /api/friendships             # Get user's friends
-PATCH  /api/friendships/:friendshipId  # Accept friend request
-DELETE /api/friendships/:friendshipId  # Reject/unfriend
+POST   /friendships             # Send friend request
+GET    /friendships             # Get user's friends
+PATCH  /friendships/:friendshipId  # Accept friend request
+DELETE /friendships/:friendshipId  # Reject/unfriend
 ```
 
 ## Notification Endpoints
 
 ```
-GET    /api/notifications           # Get all notifications (limit, offset)
+GET    /notifications           # Get all notifications (limit, offset)
 ```
