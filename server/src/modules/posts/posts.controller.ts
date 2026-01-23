@@ -4,7 +4,6 @@ import {
   getPostById,
   updatePost,
   deletePost,
-  getUserPosts,
 } from "./posts.service.js";
 
 export const createNewPost = async (
@@ -111,31 +110,5 @@ export const deletePostContent = async (
     }
     console.error("Delete post error:", error);
     res.status(500).json({ error: "Unable to delete post" });
-  }
-};
-
-export const getTimelineUserPosts = async (
-  req: Request,
-  res: Response,
-): Promise<void> => {
-  try {
-    const userId = Array.isArray(req.params.userId)
-      ? req.params.userId[0]
-      : req.params.userId;
-    const limit = req.query.limit ? parseInt(req.query.limit as string) : 10;
-    const offset = req.query.offset ? parseInt(req.query.offset as string) : 0;
-
-    const postsData = await getUserPosts(userId, limit, offset);
-
-    res.status(200).json(postsData);
-  } catch (error) {
-    if (error instanceof Error) {
-      if (error.message === "USER_NOT_FOUND") {
-        res.status(404).json({ error: "User not found" });
-        return;
-      }
-    }
-    console.error("Get user posts error:", error);
-    res.status(500).json({ error: "Unable to fetch user posts" });
   }
 };

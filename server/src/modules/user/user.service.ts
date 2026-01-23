@@ -24,6 +24,67 @@ export const getUserProfile = async (userId: string) => {
   return user;
 };
 
+export const getUserTimeline = async (
+  userId: string,
+  limit: number = 10,
+  offset: number = 0,
+) => {
+  // Check if user exists
+  const user = await prisma.user.findUnique({
+    where: { id: userId },
+  });
+
+  if (!user) {
+    throw new Error("USER_NOT_FOUND");
+  }
+
+  // Get user's posts with pagination
+  const posts = await prisma.post.findMany({
+    where: { authorId: userId },
+    include: {
+      author: {
+        select: {
+          id: true,
+          username: true,
+          email: true,
+          firstName: true,
+          lastName: true,
+        },
+      },
+      likes: {
+        select: {
+          userId: true,
+        },
+      },
+    },
+    orderBy: {
+      createdAt: "desc",
+    },
+    take: limit,
+    skip: offset,
+  });
+
+  const total = await prisma.post.count({
+    where: { authorId: userId },
+  });
+
+  return {
+    posts: posts.map((post) => ({
+      id: post.id,
+      content: post.content,
+      author: post.author,
+      likesCount: post.likesCount,
+      commentsCount: post.commentsCount,
+      likes: post.likes.map((like) => like.userId),
+      createdAt: post.createdAt,
+      updatedAt: post.updatedAt,
+    })),
+    total,
+    limit,
+    offset,
+  };
+};
+
 export const updateUserProfile = async (userId: string, input: any) => {
   // Validate input
   const validationResult = updateProfileSchema.safeParse({ body: input });

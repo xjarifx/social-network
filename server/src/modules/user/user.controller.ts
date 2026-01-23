@@ -1,5 +1,9 @@
 import type { Request, Response } from "express";
-import { getUserProfile, updateUserProfile } from "./user.service.js";
+import {
+  getUserProfile,
+  updateUserProfile,
+  getUserTimeline,
+} from "./user.service.js";
 
 export const getProfile = async (
   req: Request,
@@ -22,6 +26,32 @@ export const getProfile = async (
     }
     console.error("Get profile error:", error);
     res.status(500).json({ error: "Unable to fetch user profile" });
+  }
+};
+
+export const getTimeline = async (
+  req: Request,
+  res: Response,
+): Promise<void> => {
+  try {
+    const userId = Array.isArray(req.params.userId)
+      ? req.params.userId[0]
+      : req.params.userId;
+    const limit = req.query.limit ? parseInt(req.query.limit as string) : 10;
+    const offset = req.query.offset ? parseInt(req.query.offset as string) : 0;
+
+    const timelineData = await getUserTimeline(userId, limit, offset);
+
+    res.status(200).json(timelineData);
+  } catch (error) {
+    if (error instanceof Error) {
+      if (error.message === "USER_NOT_FOUND") {
+        res.status(404).json({ error: "User not found" });
+        return;
+      }
+    }
+    console.error("Get timeline error:", error);
+    res.status(500).json({ error: "Unable to fetch user timeline" });
   }
 };
 

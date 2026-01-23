@@ -11,8 +11,9 @@ POST   /auth/logout             # Logout user
 ## User Endpoints
 
 ```
-GET    /users/:userId          # Get user profile
-PATCH  /users/:userId          # Update own profile
+GET    /users/:userId           # Get user profile
+GET    /users/:userId/posts     # Get user's posts (timeline)
+PATCH  /users/:userId           # Update own profile
 ```
 
 ## Post Endpoints
@@ -22,7 +23,6 @@ POST   /posts                   # Create new post
 GET    /posts/:postId           # Get single post
 PATCH  /posts/:postId           # Update own post
 DELETE /posts/:postId           # Delete own post
-GET    /posts/users/:userId     # Get user's posts (timeline)
 ```
 
 ## Like Endpoints

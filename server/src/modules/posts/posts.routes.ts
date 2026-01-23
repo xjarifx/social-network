@@ -4,7 +4,6 @@ import {
   getPost,
   updatePostContent,
   deletePostContent,
-  getTimelineUserPosts,
 } from "./posts.controller.js";
 import { authenticate } from "../../middleware/authenticate.middleware.js";
 
@@ -21,9 +20,5 @@ router.patch("/:postId", authenticate, updatePostContent);
 
 // DELETE /posts/:postId - Delete own post (requires auth)
 router.delete("/:postId", authenticate, deletePostContent);
-
-// * ATTENTION *
-// GET /posts/users/:userId - Get user's posts/timeline (public)
-router.get("/users/:userId", getTimelineUserPosts);
 
 export default router;
