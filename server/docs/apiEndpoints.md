@@ -22,7 +22,7 @@ POST   /posts                   # Create new post
 GET    /posts/:postId           # Get single post
 PATCH  /posts/:postId           # Update own post
 DELETE /posts/:postId           # Delete own post
-GET    /posts/:userId           # Get user's posts (timeline)
+GET    /posts/users/:userId     # Get user's posts (timeline)
 ```
 
 ## Like Endpoints

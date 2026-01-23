@@ -23,7 +23,7 @@ router.patch("/:postId", authenticate, updatePostContent);
 router.delete("/:postId", authenticate, deletePostContent);
 
 // * ATTENTION *
-// GET /posts/:userId - Get user's posts/timeline (public)
-router.get("/:userId", getTimelineUserPosts);
+// GET /posts/users/:userId - Get user's posts/timeline (public)
+router.get("/users/:userId", getTimelineUserPosts);
 
 export default router;
