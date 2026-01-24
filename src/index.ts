@@ -10,13 +10,13 @@ import friendshipsRouter from "./modules/friendships/friend.routes.js";
 import notificationsRouter from "./modules/notifications/notification.routes.js";
 
 const app = express();
-const PORT = 3000;
+const PORT = Number(process.env.PORT);
 const prisma = new PrismaClient();
 
 // CORS Configuration
 app.use(
   cors({
-    origin: process.env.FRONTEND_URL || "http://localhost:5173",
+    origin: process.env.FRONTEND_URL || "",
     credentials: true,
     methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization"],
@@ -26,12 +26,12 @@ app.use(
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-app.use("/api/auth", authRouter);
-app.use("/api/users", userRouter);
-app.use("/api/posts", postsRouter);
-app.use("/api/comments", commentsRouter);
-app.use("/api/friendships", friendshipsRouter);
-app.use("/api/notifications", notificationsRouter);
+app.use("/v1/auth", authRouter);
+app.use("/v1/users", userRouter);
+app.use("/v1/posts", postsRouter);
+app.use("/v1/comments", commentsRouter);
+app.use("/v1/friendships", friendshipsRouter);
+app.use("/v1/notifications", notificationsRouter);
 
 // Test database connection and start server
 const startServer = async () => {
