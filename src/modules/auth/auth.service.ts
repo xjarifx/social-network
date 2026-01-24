@@ -28,18 +28,30 @@ export const registerUser = async (input: any) => {
   const { email, username, password, firstName, lastName } = input;
 
   // Check if email already exists
-  const existingEmail = await prisma.user.findUnique({
-    where: { email },
-  });
+  let existingEmail;
+  try {
+    existingEmail = await prisma.user.findUnique({
+      where: { email },
+    });
+  } catch (dbError) {
+    console.error("Database error checking email:", dbError);
+    throw dbError;
+  }
 
   if (existingEmail) {
     throw new Error("EMAIL_TAKEN");
   }
 
   // Check if username already exists
-  const existingUsername = await prisma.user.findUnique({
-    where: { username },
-  });
+  let existingUsername;
+  try {
+    existingUsername = await prisma.user.findUnique({
+      where: { username },
+    });
+  } catch (dbError) {
+    console.error("Database error checking username:", dbError);
+    throw dbError;
+  }
 
   if (existingUsername) {
     throw new Error("USERNAME_TAKEN");
@@ -49,15 +61,21 @@ export const registerUser = async (input: any) => {
   const hashedPassword = await bcrypt.hash(password, SALT_ROUNDS);
 
   // Create user
-  const user = await prisma.user.create({
-    data: {
-      email,
-      username,
-      password: hashedPassword,
-      firstName,
-      lastName,
-    },
-  });
+  let user;
+  try {
+    user = await prisma.user.create({
+      data: {
+        email,
+        username,
+        password: hashedPassword,
+        firstName,
+        lastName,
+      },
+    });
+  } catch (dbError) {
+    console.error("Database error creating user:", dbError);
+    throw dbError;
+  }
 
   // Generate JWT token
   const token = generateToken(user.id);
