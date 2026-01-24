@@ -1,20 +1,17 @@
 import { Router } from "express";
+import { authenticate } from "../../middleware/authenticate.middleware.js";
 import {
   sendRequest,
   getUserFriends,
   acceptRequest,
   rejectRequest,
 } from "./friend.controller.js";
-import { authenticate } from "../../middleware/authenticate.middleware.js";
 
 const router = Router();
 
-// Protect all friendship endpoints
-router.use(authenticate);
-
-router.post("/", sendRequest);
-router.get("/", getUserFriends);
-router.patch("/:friendshipId", acceptRequest);
-router.delete("/:friendshipId", rejectRequest);
+router.post("/", authenticate, sendRequest);
+router.get("/", authenticate, getUserFriends);
+router.patch("/:friendshipId", authenticate, acceptRequest);
+router.delete("/:friendshipId", authenticate, rejectRequest);
 
 export default router;
