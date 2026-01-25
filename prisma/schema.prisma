@@ -5,50 +5,46 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  url      = env("DATABASE_URL")
-}
-
-enum FriendshipStatus {
-  PENDING
-  ACCEPTED
 }
 
 enum NotificationType {
   LIKE
   COMMENT
-  FRIEND_REQUEST
+  NEW_FOLLOWER
 }
 
 model User {
-  id        String   @id @default(uuid())
-  username  String   @unique
-  email     String   @unique
+  id        String    @id @default(uuid())
+  username  String    @unique
+  email     String    @unique
   password  String
-  firstName String   @map("first_name")
-  lastName  String   @map("last_name")
-  createdAt DateTime @default(now()) @map("created_at")
+  firstName String    @map("first_name")
+  lastName  String    @map("last_name")
+  createdAt DateTime  @default(now()) @map("created_at")
+  deletedAt DateTime? @map("deleted_at")
 
-  posts                Post[]
-  comments             Comment[]
-  likes                Like[]
-  sentFriendships      Friendship[]   @relation("SentFriendships")
-  receivedFriendships  Friendship[]   @relation("ReceivedFriendships")
-  notifications        Notification[] @relation("UserNotifications")
-  triggeredNotifications Notification[] @relation("RelatedUserNotifications")
+  posts                      Post[]
+  comments                   Comment[]
+  likes                      Like[]
+  followers                  Follower[] @relation("UserFollowers")
+  following                  Follower[] @relation("UserFollowing")
+  notifications              Notification[] @relation("UserNotifications")
+  triggeredNotifications     Notification[] @relation("RelatedUserNotifications")
 
   @@map("users")
 }
 
 model Post {
-  id            String   @id @default(uuid())
-  authorId      String   @map("author_id")
-  content       String   @db.Text
-  likesCount    Int      @default(0) @map("likes_count")
-  commentsCount Int      @default(0) @map("comments_count")
-  createdAt     DateTime @default(now()) @map("created_at")
-  updatedAt     DateTime @updatedAt @map("updated_at")
+  id            String    @id @default(uuid())
+  authorId      String    @map("author_id")
+  content       String    @db.Text
+  likesCount    Int       @default(0) @map("likes_count")
+  commentsCount Int       @default(0) @map("comments_count")
+  createdAt     DateTime  @default(now()) @map("created_at")
+  updatedAt     DateTime  @updatedAt @map("updated_at")
+  deletedAt     DateTime? @map("deleted_at")
 
-  author        User          @relation(fields: [authorId], references: [id])
+  author        User           @relation(fields: [authorId], references: [id], onDelete: Cascade)
   comments      Comment[]
   likes         Like[]
   notifications Notification[]
@@ -57,59 +53,61 @@ model Post {
 }
 
 model Comment {
-  id        String   @id @default(uuid())
-  postId    String   @map("post_id")
-  authorId  String   @map("author_id")
-  content   String   @db.Text
-  createdAt DateTime @default(now()) @map("created_at")
+  id        String    @id @default(uuid())
+  postId    String    @map("post_id")
+  authorId  String    @map("author_id")
+  content   String    @db.Text
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @updatedAt @map("updated_at")
+  deletedAt DateTime? @map("deleted_at")
 
   post   Post @relation(fields: [postId], references: [id], onDelete: Cascade)
-  author User @relation(fields: [authorId], references: [id])
+  author User @relation(fields: [authorId], references: [id], onDelete: Cascade)
 
   @@map("comments")
 }
 
 model Like {
-  id        String   @id @default(uuid())
-  userId    String   @map("user_id")
-  postId    String   @map("post_id")
-  createdAt DateTime @default(now()) @map("created_at")
+  id        String    @id @default(uuid())
+  userId    String    @map("user_id")
+  postId    String    @map("post_id")
+  createdAt DateTime  @default(now()) @map("created_at")
+  deletedAt DateTime? @map("deleted_at")
 
-  user User @relation(fields: [userId], references: [id])
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
   post Post @relation(fields: [postId], references: [id], onDelete: Cascade)
 
   @@unique([userId, postId])
   @@map("likes")
 }
 
-model Friendship {
-  id          String           @id @default(uuid())
-  senderId    String           @map("sender_id")
-  recipientId String           @map("recipient_id")
-  status      FriendshipStatus @default(PENDING)
-  createdAt   DateTime         @default(now()) @map("created_at")
-  updatedAt   DateTime         @updatedAt @map("updated_at")
+model Follower {
+  id          String   @id @default(uuid())
+  followerId  String   @map("follower_id")
+  followingId String   @map("following_id")
+  createdAt   DateTime @default(now()) @map("created_at")
 
-  sender    User @relation("SentFriendships", fields: [senderId], references: [id])
-  recipient User @relation("ReceivedFriendships", fields: [recipientId], references: [id])
+  follower  User @relation("UserFollowing", fields: [followerId], references: [id], onDelete: Cascade)
+  following User @relation("UserFollowers", fields: [followingId], references: [id], onDelete: Cascade)
 
-  @@unique([senderId, recipientId])
-  @@map("friendships")
+  @@unique([followerId, followingId])
+  @@map("followers")
 }
 
 model Notification {
-  id            String           @id @default(uuid())
-  userId        String           @map("user_id")
+  id            String            @id @default(uuid())
+  userId        String            @map("user_id")
   type          NotificationType
-  relatedUserId String           @map("related_user_id")
-  relatedPostId String?          @map("related_post_id")
+  relatedUserId String            @map("related_user_id")
+  relatedPostId String?           @map("related_post_id")
   message       String
-  read          Boolean          @default(false)
-  createdAt     DateTime         @default(now()) @map("created_at")
+  read          Boolean           @default(false)
+  createdAt     DateTime          @default(now()) @map("created_at")
+  deletedAt     DateTime?         @map("deleted_at")
 
-  user        User  @relation("UserNotifications", fields: [userId], references: [id])
-  relatedUser User  @relation("RelatedUserNotifications", fields: [relatedUserId], references: [id])
-  relatedPost Post? @relation(fields: [relatedPostId], references: [id])
+  user        User  @relation("UserNotifications", fields: [userId], references: [id], onDelete: Cascade)
+  relatedUser User  @relation("RelatedUserNotifications", fields: [relatedUserId], references: [id], onDelete: Cascade)
+  relatedPost Post? @relation(fields: [relatedPostId], references: [id], onDelete: Cascade)
 
   @@map("notifications")
 }
