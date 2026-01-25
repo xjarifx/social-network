@@ -32,6 +32,7 @@ post_id         → uuid → posts.id (cascade delete)
 author_id       → uuid → users.id (cascade delete)
 content         → text
 created_at      → timestamp
+updated_at      → timestamp
 deleted_at      → timestamp (nullable, soft delete)
 ```
 
@@ -40,12 +41,11 @@ deleted_at      → timestamp (nullable, soft delete)
 ```
 id              → uuid
 user_id         → uuid → users.id (cascade delete)
-post_id         → uuid → posts.id (cascade delete, optional)
-comment_id      → uuid → comments.id (cascade delete, optional)
+post_id         → uuid → posts.id (cascade delete)
 created_at      → timestamp
 deleted_at      → timestamp (nullable, soft delete)
 
-unique(user_id, post_id, comment_id)
+unique(user_id, post_id)
 ```
 
 ## followers

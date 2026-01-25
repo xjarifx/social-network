@@ -29,8 +29,6 @@ DELETE /posts/v1/:postId        # Delete own post
 ```
 POST   /likes/v1/post/:postId               # Like a post
 DELETE /likes/v1/post/:postId               # Unlike a post
-POST   /likes/v1/comment/:commentId         # Like a comment
-DELETE /likes/v1/comment/:commentId         # Unlike a comment
 GET    /likes/v1/:likeId                    # Get single like by ID
 ```
 
