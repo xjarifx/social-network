@@ -1,32 +1,111 @@
 import type { Request, Response } from "express";
-import { getNotifications } from "./notification.service.js";
-import { getNotificationsQuerySchema } from "./notification.validation.js";
-
-const ensureString = (val: unknown): string =>
-  typeof val === "string" ? val : Array.isArray(val) ? val[0] : "";
+import {
+  getNotifications,
+  getNotificationById,
+  updateNotificationRead,
+  deleteNotification,
+} from "./notification.service.js";
 
 export const listNotifications = async (
   req: Request,
   res: Response,
 ): Promise<void> => {
   try {
-    const validation = getNotificationsQuerySchema.safeParse({
-      query: req.query,
-    });
-
-    if (!validation.success) {
-      res.status(400).json({ error: validation.error.flatten() });
+    if (!req.userId) {
+      res.status(401).json({ error: "Unauthorized" });
       return;
     }
-
-    const { limit, offset } = validation.data.query;
-    const userId = ensureString(req.userId);
-
-    const result = await getNotifications(userId, limit, offset);
-
+    const result = await getNotifications(req.userId, req.query);
     res.status(200).json(result);
-  } catch (error) {
+  } catch (error: unknown) {
+    const err = error as { status?: number; error?: unknown };
+    if (err.status === 400) {
+      res.status(400).json({ error: err.error });
+      return;
+    }
     console.error("Get notifications error:", error);
     res.status(500).json({ error: "Unable to fetch notifications" });
+  }
+};
+
+export const getNotification = async (
+  req: Request,
+  res: Response,
+): Promise<void> => {
+  try {
+    if (!req.userId) {
+      res.status(401).json({ error: "Unauthorized" });
+      return;
+    }
+    const notification = await getNotificationById(req.userId, req.params);
+    res.status(200).json(notification);
+  } catch (error: unknown) {
+    const err = error as { status?: number; error?: unknown };
+    if (err.status === 400) {
+      res.status(400).json({ error: err.error });
+      return;
+    }
+    if (err.status === 404) {
+      res.status(404).json({ error: err.error });
+      return;
+    }
+    console.error("Get notification error:", error);
+    res.status(500).json({ error: "Unable to fetch notification" });
+  }
+};
+
+export const updateNotification = async (
+  req: Request,
+  res: Response,
+): Promise<void> => {
+  try {
+    if (!req.userId) {
+      res.status(401).json({ error: "Unauthorized" });
+      return;
+    }
+    const updated = await updateNotificationRead(
+      req.userId,
+      req.params,
+      req.body,
+    );
+    res.status(200).json(updated);
+  } catch (error: unknown) {
+    const err = error as { status?: number; error?: unknown };
+    if (err.status === 400) {
+      res.status(400).json({ error: err.error });
+      return;
+    }
+    if (err.status === 404) {
+      res.status(404).json({ error: err.error });
+      return;
+    }
+    console.error("Update notification error:", error);
+    res.status(500).json({ error: "Unable to update notification" });
+  }
+};
+
+export const removeNotification = async (
+  req: Request,
+  res: Response,
+): Promise<void> => {
+  try {
+    if (!req.userId) {
+      res.status(401).json({ error: "Unauthorized" });
+      return;
+    }
+    await deleteNotification(req.userId, req.params);
+    res.status(204).send();
+  } catch (error: unknown) {
+    const err = error as { status?: number; error?: unknown };
+    if (err.status === 400) {
+      res.status(400).json({ error: err.error });
+      return;
+    }
+    if (err.status === 404) {
+      res.status(404).json({ error: err.error });
+      return;
+    }
+    console.error("Delete notification error:", error);
+    res.status(500).json({ error: "Unable to delete notification" });
   }
 };
