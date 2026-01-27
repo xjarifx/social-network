@@ -24,9 +24,13 @@ app.use(
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+// Auth
 app.use("api/v1/auth", authRouter);
+// Users & followers
 app.use("api/v1/users", userRouter);
+// Posts, likes & Comments
 app.use("api/v1/posts", postsRouter);
+// Notifications
 app.use("api/v1/notifications", notificationsRouter);
 
 const startServer = async () => {

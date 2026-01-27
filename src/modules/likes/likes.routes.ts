@@ -4,7 +4,13 @@ import { likePostHandler, unlikePostHandler } from "./likes.controller.js";
 
 const router = Router();
 
+// LIKES
+
+// like a post
 router.post("/", authenticate, likePostHandler);
-router.delete("/", authenticate, unlikePostHandler);
+// unlike a post
+router.delete("/:likeId", authenticate, unlikePostHandler);
+// get list of users who liked the post
+router.get("/", authenticate, unlikePostHandler);
 
 export default router;

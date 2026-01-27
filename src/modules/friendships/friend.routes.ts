@@ -9,9 +9,15 @@ import {
 
 const router = Router();
 
-router.post("/", authenticate, );
-router.delete("/:followerId", authenticate, );
-router.get("/", authenticate, );
-router.get("/", authenticate, );
+// FOLLOW
+
+// follow a user
+router.post("/", authenticate);
+// unfollow a user
+router.delete("/:followerId", authenticate);
+// get followers of a user
+router.get("/", authenticate);
+// get following of a user
+router.get("/", authenticate);
 
 export default router;

@@ -4,15 +4,24 @@ import { authenticate } from "../../middleware/authenticate.middleware.js";
 
 const router = Router();
 
-// users
-router.get("/:userId", getProfile);
-router.patch("/me", authenticate, updateProfile);
-router.get("/:userId/posts", authenticate);
+// USER
 
-// followers
+// get user profile
+router.get("/:userId", getProfile);
+// update OWN profile
+router.patch("/me", authenticate, updateProfile);
+// User POSTS (timeline)
+router.patch("/:userId/posts", postRouter);
+
+// FOLLOW
+
+// follow a user
 router.post("/:userId/followers", followRouter);
+// unfollow a user
 router.delete("/:userId/followers", followRouter);
+// get followers of a user
 router.get("/:userId/followers", followRouter);
+// get following of a user
 router.get("/:userId/following", followRouter);
 
 export default router;

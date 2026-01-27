@@ -18,9 +18,9 @@ PATCH  /api/v1/users/me                                     # Update current use
 
 ```
 POST   /api/v1/posts                                    # Create new post
-GET    /api/v1/posts/feed?limit=20&offset=0             # Get feed posts from followed users
+GET    /api/v1/posts/feed?limit=20&offset=0             # NEWS FEED
 GET    /api/v1/posts/:postId                            # Fetch single post by ID
-GET    /api/v1/users/:userId/posts?limit=20&offset=0    # Get all posts by specific user
+GET    /api/v1/users/:userId/posts?limit=20&offset=0    # USER POSTS (timeline)
 PATCH  /api/v1/posts/:postId                            # Update post content
 DELETE /api/v1/posts/:postId                            # Delete post
 ```

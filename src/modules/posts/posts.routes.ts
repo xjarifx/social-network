@@ -11,21 +11,43 @@ import commentsRouter from "../comments/comments.routes.js";
 
 const router = Router();
 
-// post
+// POSTS
+
+// create post
 router.post("/", authenticate, createNewPost);
+// NEWS FEED (at this moment only followed users' posts)
 router.get("/feed", authenticate);
+// TIMELINE (own posts or another user's posts as per userId)
+router.get("/", authenticate);
+// get single post
 router.get("/:postId", getPost);
+// update post
 router.patch("/:postId", authenticate, updatePostContent);
+// delete post
 router.delete("/:postId", authenticate, deletePostContent);
 
-// likes
-router.post("/:postId/likes", likeRouter);
-router.delete("/:postId/likes", likeRouter);
+// ----------------------------------------------------------------
 
-// comments
+// LIKES
+
+// create like
+router.post("/:postId/likes", likeRouter);
+// remove like
+router.delete("/:postId/likes", likeRouter);
+// get list of users who liked the post
+router.get("/:postId/likes", likeRouter);
+
+// ----------------------------------------------------------------
+
+// COMMENTS
+
+// create comment
 router.post("/:postId/comments", commentsRouter);
+// get comments
 router.get("/:postId/comments", commentsRouter);
+// update comment
 router.patch("/:postId/comments", commentsRouter);
+// delete comment
 router.delete("/:postId/comments", commentsRouter);
 
 export default router;
