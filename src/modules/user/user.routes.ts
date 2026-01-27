@@ -4,13 +4,15 @@ import { authenticate } from "../../middleware/authenticate.middleware.js";
 
 const router = Router();
 
-// GET /api/users/:userId - Get user profile (public)
+// users
 router.get("/:userId", getProfile);
+router.patch("/me", authenticate, updateProfile);
+router.get("/:userId/posts", authenticate);
 
-// GET /api/users/:userId/posts - Get user's posts/timeline (public)
-router.get("/:userId/posts", getTimeline);
-
-// PATCH /api/users/:userId - Update own profile (requires auth)
-router.patch("/:userId", authenticate, updateProfile);
+// followers
+router.post("/:userId/followers", followRouter);
+router.delete("/:userId/followers", followRouter);
+router.get("/:userId/followers", followRouter);
+router.get("/:userId/following", followRouter);
 
 export default router;

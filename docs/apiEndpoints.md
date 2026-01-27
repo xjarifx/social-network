@@ -12,8 +12,6 @@ POST   /api/v1/auth/refresh      # Refresh access token using refresh token
 ```
 GET    /api/v1/users/:userId                                # Fetch user profile by ID
 PATCH  /api/v1/users/me                                     # Update current user's profile
-GET    /api/v1/users/:userId/followers?limit=20&offset=0    # Get list of user's followers
-GET    /api/v1/users/:userId/following?limit=20&offset=0    # Get list of users that user is following
 ```
 
 ## Post Endpoints

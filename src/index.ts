@@ -5,8 +5,6 @@ import { PrismaClient } from "./generated/prisma/index.js";
 import authRouter from "./modules/auth/auth.routes.js";
 import userRouter from "./modules/user/user.routes.js";
 import postsRouter from "./modules/posts/posts.routes.js";
-import commentsRouter from "./modules/posts/comments.routes.js";
-import friendshipsRouter from "./modules/friendships/friend.routes.js";
 import notificationsRouter from "./modules/notifications/notification.routes.js";
 
 const app = express();
@@ -26,49 +24,18 @@ app.use(
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-app.use("/v1/auth", authRouter);
-app.use("/v1/users", userRouter);
-app.use("/v1/posts", postsRouter);
-app.use("/v1/comments", commentsRouter);
-app.use("/v1/friendships", friendshipsRouter);
-app.use("/v1/notifications", notificationsRouter);
+app.use("api/v1/auth", authRouter);
+app.use("api/v1/users", userRouter);
+app.use("api/v1/posts", postsRouter);
+app.use("api/v1/notifications", notificationsRouter);
 
-// Test database connection and start server
 const startServer = async () => {
-  try {
-    // Test database connection
-    await prisma.$connect();
-    console.log("✅ Database connected successfully");
+  await prisma.$connect();
+  console.log("✅ Database connected");
 
-    // Test a simple query to ensure database is fully operational
-    await prisma.$queryRaw`SELECT 1`;
-    console.log("✅ Database is operational");
-
-    // Start the server
-    app.listen(PORT, () => {
-      console.log(`✅ Server is running on http://localhost:${PORT}`);
-      console.log("\n🚀 Application is ready to accept requests\n");
-    });
-  } catch (error) {
-    console.error("❌ Failed to connect to database:", error);
-    console.error("⚠️  Server will not start without database connection");
-    process.exit(1);
-  }
+  app.listen(PORT, () => {
+    console.log(`✅ Server is running on http://localhost:${PORT}`);
+  });
 };
-
-// Handle graceful shutdown
-process.on("SIGINT", async () => {
-  console.log("\n⏳ Shutting down gracefully...");
-  await prisma.$disconnect();
-  console.log("✅ Database disconnected");
-  process.exit(0);
-});
-
-process.on("SIGTERM", async () => {
-  console.log("\n⏳ Shutting down gracefully...");
-  await prisma.$disconnect();
-  console.log("✅ Database disconnected");
-  process.exit(0);
-});
 
 startServer();

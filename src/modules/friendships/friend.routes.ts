@@ -9,9 +9,9 @@ import {
 
 const router = Router();
 
-router.post("/", authenticate, sendRequest);
-router.get("/", authenticate, getUserFriends);
-router.patch("/:friendshipId", authenticate, acceptRequest);
-router.delete("/:friendshipId", authenticate, rejectRequest);
+router.post("/", authenticate, );
+router.delete("/:followerId", authenticate, );
+router.get("/", authenticate, );
+router.get("/", authenticate, );
 
 export default router;
