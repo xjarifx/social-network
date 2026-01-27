@@ -72,3 +72,14 @@ read             → boolean (default false)
 created_at       → timestamp
 deleted_at       → timestamp (nullable, soft delete)
 ```
+
+## refresh_tokens
+
+```
+id          → uuid
+user_id     → uuid → users.id (cascade delete)
+token       → string (unique)
+expires_at  → timestamp
+created_at  → timestamp
+revoked_at  → timestamp (nullable)
+```
