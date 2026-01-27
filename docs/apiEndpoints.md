@@ -28,8 +28,8 @@ DELETE /api/v1/posts/:postId                            # Delete post
 ## Like Endpoints
 
 ```
-POST   /api/v1/posts/:postId/likes                      # Like a post
-DELETE /api/v1/posts/:postId/likes/:likeId              # Remove like from post
+POST   /api/v1/posts/:postId/likes                      # Like a post (authenticated user likes the post)
+DELETE /api/v1/posts/:postId/likes                      # Remove like from post (authenticated user unlikes the post)
 GET    /api/v1/posts/:postId/likes?limit=20&offset=0    # Get list of users who liked the post
 ```
 
@@ -46,8 +46,8 @@ DELETE /api/v1/posts/:postId/comments/:commentId        # Delete comment
 ## Follow Endpoints
 
 ```
-POST   /api/v1/users/:userId/followers                      # Follow a user
-DELETE /api/v1/users/:userId/followers/:followerId          # Unfollow a user
+POST   /api/v1/users/:userId/follow                         # Follow a user (authenticated user follows :userId)
+DELETE /api/v1/users/:userId/follow                         # Unfollow a user (authenticated user unfollows :userId)
 GET    /api/v1/users/:userId/followers?limit=20&offset=0    # Get list of user's followers
 GET    /api/v1/users/:userId/following?limit=20&offset=0    # Get list of users that user is following
 ```
