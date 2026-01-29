@@ -1,9 +1,19 @@
 import { PrismaClient } from "../../generated/prisma/index.js";
-import { updateProfileSchema } from "./user.validation.js";
+import { updateProfileSchema, userIdParamSchema } from "./user.validation.js";
 
 const prisma = new PrismaClient();
 
-export const getUserProfile = async (userId: string) => {
+export const ensureString = (val: unknown): string =>
+  typeof val === "string" ? val : Array.isArray(val) ? val[0] : "";
+
+export const getUserProfile = async (params: Record<string, unknown>) => {
+  const validation = userIdParamSchema.safeParse({ params });
+  if (!validation.success) {
+    throw { status: 400, error: validation.error.flatten() };
+  }
+
+  const userId = validation.data.params.userId;
+
   // Fetch user by ID
   const user = await prisma.user.findUnique({
     where: { id: userId },
@@ -18,24 +28,32 @@ export const getUserProfile = async (userId: string) => {
   });
 
   if (!user) {
-    throw new Error("USER_NOT_FOUND");
+    throw { status: 404, error: "User not found" };
   }
 
   return user;
 };
 
 export const getUserTimeline = async (
-  userId: string,
-  limit: number = 10,
-  offset: number = 0,
+  params: Record<string, unknown>,
+  query: Record<string, unknown>,
 ) => {
+  const paramValidation = userIdParamSchema.safeParse({ params });
+  if (!paramValidation.success) {
+    throw { status: 400, error: paramValidation.error.flatten() };
+  }
+
+  const userId = paramValidation.data.params.userId;
+  const limit = query.limit ? parseInt(query.limit as string) : 10;
+  const offset = query.offset ? parseInt(query.offset as string) : 0;
+
   // Check if user exists
   const user = await prisma.user.findUnique({
     where: { id: userId },
   });
 
   if (!user) {
-    throw new Error("USER_NOT_FOUND");
+    throw { status: 404, error: "User not found" };
   }
 
   // Get user's posts with pagination
@@ -85,15 +103,27 @@ export const getUserTimeline = async (
   };
 };
 
-export const updateUserProfile = async (userId: string, input: any) => {
-  // Validate input
-  const validationResult = updateProfileSchema.safeParse({ body: input });
+export const updateUserProfile = async (
+  userId: string,
+  params: Record<string, unknown>,
+  body: Record<string, unknown>,
+) => {
+  const paramValidation = userIdParamSchema.safeParse({ params });
+  if (!paramValidation.success) {
+    throw { status: 400, error: paramValidation.error.flatten() };
+  }
 
-  if (!validationResult.success) {
-    const errors = validationResult.error.issues
-      .map((err) => `${err.path.join(".")}: ${err.message}`)
-      .join("; ");
-    throw new Error(`VALIDATION_ERROR: ${errors}`);
+  const profileUserId = paramValidation.data.params.userId;
+
+  // Check if user is updating their own profile
+  if (profileUserId !== userId) {
+    throw { status: 403, error: "Cannot update other user's profile" };
+  }
+
+  // Validate input
+  const bodyValidation = updateProfileSchema.safeParse({ body });
+  if (!bodyValidation.success) {
+    throw { status: 400, error: bodyValidation.error.flatten() };
   }
 
   // Check if user exists
@@ -102,10 +132,10 @@ export const updateUserProfile = async (userId: string, input: any) => {
   });
 
   if (!user) {
-    throw new Error("USER_NOT_FOUND");
+    throw { status: 404, error: "User not found" };
   }
 
-  const { firstName, lastName } = input;
+  const { firstName, lastName } = bodyValidation.data.body;
 
   // Update user profile
   const updatedUser = await prisma.user.update({

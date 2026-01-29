@@ -10,19 +10,17 @@ export const getProfile = async (
   res: Response,
 ): Promise<void> => {
   try {
-    const userId = Array.isArray(req.params.userId)
-      ? req.params.userId[0]
-      : req.params.userId;
-
-    const user = await getUserProfile(userId);
-
+    const user = await getUserProfile(req.params);
     res.status(200).json(user);
-  } catch (error) {
-    if (error instanceof Error) {
-      if (error.message === "USER_NOT_FOUND") {
-        res.status(404).json({ error: "User not found" });
-        return;
-      }
+  } catch (error: unknown) {
+    const err = error as { status?: number; error?: unknown };
+    if (err.status === 400) {
+      res.status(400).json({ error: err.error });
+      return;
+    }
+    if (err.status === 404) {
+      res.status(404).json({ error: err.error });
+      return;
     }
     console.error("Get profile error:", error);
     res.status(500).json({ error: "Unable to fetch user profile" });
@@ -34,21 +32,17 @@ export const getTimeline = async (
   res: Response,
 ): Promise<void> => {
   try {
-    const userId = Array.isArray(req.params.userId)
-      ? req.params.userId[0]
-      : req.params.userId;
-    const limit = req.query.limit ? parseInt(req.query.limit as string) : 10;
-    const offset = req.query.offset ? parseInt(req.query.offset as string) : 0;
-
-    const timelineData = await getUserTimeline(userId, limit, offset);
-
+    const timelineData = await getUserTimeline(req.params, req.query);
     res.status(200).json(timelineData);
-  } catch (error) {
-    if (error instanceof Error) {
-      if (error.message === "USER_NOT_FOUND") {
-        res.status(404).json({ error: "User not found" });
-        return;
-      }
+  } catch (error: unknown) {
+    const err = error as { status?: number; error?: unknown };
+    if (err.status === 400) {
+      res.status(400).json({ error: err.error });
+      return;
+    }
+    if (err.status === 404) {
+      res.status(404).json({ error: err.error });
+      return;
     }
     console.error("Get timeline error:", error);
     res.status(500).json({ error: "Unable to fetch user timeline" });
@@ -60,35 +54,22 @@ export const updateProfile = async (
   res: Response,
 ): Promise<void> => {
   try {
-    const userId = Array.isArray(req.params.userId)
-      ? req.params.userId[0]
-      : req.params.userId;
-    const currentUserId = (req as any).userId; // From auth middleware
-
-    // Check if user is updating their own profile
-    if (userId !== currentUserId) {
-      res.status(403).json({ error: "Cannot update other user's profile" });
+    const currentUserId = req.userId as string;
+    const updatedUser = await updateUserProfile(currentUserId, req.params, req.body);
+    res.status(200).json(updatedUser);
+  } catch (error: unknown) {
+    const err = error as { status?: number; error?: unknown };
+    if (err.status === 400) {
+      res.status(400).json({ error: err.error });
       return;
     }
-
-    const { firstName, lastName } = req.body;
-
-    const updatedUser = await updateUserProfile(userId, {
-      firstName,
-      lastName,
-    });
-
-    res.status(200).json(updatedUser);
-  } catch (error) {
-    if (error instanceof Error) {
-      if (error.message === "USER_NOT_FOUND") {
-        res.status(404).json({ error: "User not found" });
-        return;
-      }
-      if (error.message.startsWith("VALIDATION_ERROR")) {
-        res.status(400).json({ error: error.message });
-        return;
-      }
+    if (err.status === 403) {
+      res.status(403).json({ error: err.error });
+      return;
+    }
+    if (err.status === 404) {
+      res.status(404).json({ error: err.error });
+      return;
     }
     console.error("Update profile error:", error);
     res.status(500).json({ error: "Unable to update user profile" });

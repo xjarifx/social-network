@@ -1,20 +1,31 @@
 import { PrismaClient } from "../../generated/prisma/index.js";
+import { followUserSchema, unfollowParamSchema } from "./follow.validation.js";
 
 const prisma = new PrismaClient();
 
-export const followUser = async (followerId: string, followingId: string) => {
-  if (!followingId) {
-    throw new Error("INVALID_INPUT");
+export const ensureString = (val: unknown): string =>
+  typeof val === "string" ? val : Array.isArray(val) ? val[0] : "";
+
+export const followUser = async (
+  followerId: string,
+  body: Record<string, unknown>,
+) => {
+  const validation = followUserSchema.safeParse({ body });
+  if (!validation.success) {
+    throw { status: 400, error: validation.error.flatten() };
   }
+
+  const { followingId } = validation.data.body;
+
   if (followerId === followingId) {
-    throw new Error("SELF_FOLLOW");
+    throw { status: 400, error: "Cannot follow yourself" };
   }
 
   const user = await prisma.user.findUnique({
     where: { id: followingId },
   });
   if (!user) {
-    throw new Error("USER_NOT_FOUND");
+    throw { status: 404, error: "User not found" };
   }
 
   const existing = await prisma.follower.findFirst({
@@ -25,7 +36,7 @@ export const followUser = async (followerId: string, followingId: string) => {
   });
 
   if (existing) {
-    throw new Error("ALREADY_FOLLOWING");
+    throw { status: 409, error: "Already following this user" };
   }
 
   return await prisma.follower.create({
@@ -86,8 +97,15 @@ export const getFollowing = async (userId: string) => {
 
 export const unfollowUser = async (
   followerId: string,
-  followingId: string,
+  params: Record<string, unknown>,
 ) => {
+  const validation = unfollowParamSchema.safeParse({ params });
+  if (!validation.success) {
+    throw { status: 400, error: validation.error.flatten() };
+  }
+
+  const { followingId } = validation.data.params;
+
   const follow = await prisma.follower.findFirst({
     where: {
       followerId,
@@ -96,11 +114,11 @@ export const unfollowUser = async (
   });
 
   if (!follow) {
-    throw new Error("NOT_FOUND");
+    throw { status: 404, error: "Follow relationship not found" };
   }
 
   if (follow.followerId !== followerId) {
-    throw new Error("FORBIDDEN");
+    throw { status: 403, error: "Not allowed to modify this follow relationship" };
   }
 
   await prisma.follower.delete({ where: { id: follow.id } });

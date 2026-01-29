@@ -5,38 +5,25 @@ import {
   getFollowing,
   unfollowUser,
 } from "./follow.service.js";
-import { followUserSchema } from "./follow.validation.js";
-
-const ensureString = (val: unknown): string =>
-  typeof val === "string" ? val : Array.isArray(val) ? val[0] : "";
 
 export const follow = async (req: Request, res: Response): Promise<void> => {
   try {
-    const validation = followUserSchema.safeParse({ body: req.body });
-    if (!validation.success) {
-      res.status(400).json({ error: validation.error.flatten() });
+    const authUserId = req.userId as string;
+    const result = await followUser(authUserId, req.body);
+    res.status(201).json(result);
+  } catch (error: unknown) {
+    const err = error as { status?: number; error?: unknown };
+    if (err.status === 400) {
+      res.status(400).json({ error: err.error });
       return;
     }
-    const { followingId } = validation.data.body;
-    const authUserId = req.userId as string;
-    const result = await followUser(authUserId, followingId!);
-    res.status(201).json(result);
-  } catch (error) {
-    if (error instanceof Error) {
-      switch (error.message) {
-        case "INVALID_INPUT":
-          res.status(400).json({ error: "Invalid input" });
-          return;
-        case "SELF_FOLLOW":
-          res.status(400).json({ error: "Cannot follow yourself" });
-          return;
-        case "USER_NOT_FOUND":
-          res.status(404).json({ error: "User not found" });
-          return;
-        case "ALREADY_FOLLOWING":
-          res.status(409).json({ error: "Already following this user" });
-          return;
-      }
+    if (err.status === 404) {
+      res.status(404).json({ error: err.error });
+      return;
+    }
+    if (err.status === 409) {
+      res.status(409).json({ error: err.error });
+      return;
     }
     res.status(500).json({ error: "Failed to follow user" });
   }
@@ -47,9 +34,10 @@ export const getUserFollowers = async (
   res: Response,
 ): Promise<void> => {
   try {
-    const followers = await getFollowers(ensureString(req.userId));
+    const followers = await getFollowers(req.userId);
     res.status(200).json(followers);
   } catch (error) {
+    console.error("Get followers error:", error);
     res.status(500).json({ error: "Failed to get followers" });
   }
 };
@@ -59,30 +47,31 @@ export const getUserFollowing = async (
   res: Response,
 ): Promise<void> => {
   try {
-    const following = await getFollowing(ensureString(req.userId));
+    const following = await getFollowing(req.userId);
     res.status(200).json(following);
   } catch (error) {
+    console.error("Get following error:", error);
     res.status(500).json({ error: "Failed to get following" });
   }
 };
 
 export const unfollow = async (req: Request, res: Response): Promise<void> => {
   try {
-    const { followingId } = req.params;
-    await unfollowUser(ensureString(req.userId), ensureString(followingId));
+    await unfollowUser(req.userId as string, req.params);
     res.status(204).send();
-  } catch (error) {
-    if (error instanceof Error) {
-      switch (error.message) {
-        case "NOT_FOUND":
-          res.status(404).json({ error: "Follow relationship not found" });
-          return;
-        case "FORBIDDEN":
-          res
-            .status(403)
-            .json({ error: "Not allowed to modify this follow relationship" });
-          return;
-      }
+  } catch (error: unknown) {
+    const err = error as { status?: number; error?: unknown };
+    if (err.status === 400) {
+      res.status(400).json({ error: err.error });
+      return;
+    }
+    if (err.status === 404) {
+      res.status(404).json({ error: err.error });
+      return;
+    }
+    if (err.status === 403) {
+      res.status(403).json({ error: err.error });
+      return;
     }
     res.status(500).json({ error: "Failed to unfollow user" });
   }

@@ -1,5 +1,11 @@
 import z from "zod";
 
+export const userIdParamSchema = z.object({
+  params: z.object({
+    userId: z.string().uuid("Invalid user ID format"),
+  }),
+});
+
 export const updateProfileSchema = z.object({
   body: z
     .object({
