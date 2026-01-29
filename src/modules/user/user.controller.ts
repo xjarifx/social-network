@@ -55,7 +55,11 @@ export const updateProfile = async (
 ): Promise<void> => {
   try {
     const currentUserId = req.userId as string;
-    const updatedUser = await updateUserProfile(currentUserId, req.params, req.body);
+    const updatedUser = await updateUserProfile(
+      currentUserId,
+      req.params,
+      req.body,
+    );
     res.status(200).json(updatedUser);
   } catch (error: unknown) {
     const err = error as { status?: number; error?: unknown };

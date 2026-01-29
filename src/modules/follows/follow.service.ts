@@ -118,7 +118,10 @@ export const unfollowUser = async (
   }
 
   if (follow.followerId !== followerId) {
-    throw { status: 403, error: "Not allowed to modify this follow relationship" };
+    throw {
+      status: 403,
+      error: "Not allowed to modify this follow relationship",
+    };
   }
 
   await prisma.follower.delete({ where: { id: follow.id } });

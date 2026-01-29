@@ -12,6 +12,8 @@ export const followUserSchema = z.object({
 
 export const unfollowParamSchema = z.object({
   params: z.object({
-    followingId: z.string().uuid({ message: "followingId must be a valid UUID" }),
+    followingId: z
+      .string()
+      .uuid({ message: "followingId must be a valid UUID" }),
   }),
 });
