@@ -11,18 +11,14 @@ export const createNewPost = async (
   res: Response,
 ): Promise<void> => {
   try {
-    const userId = (req as any).userId; // From auth middleware
-    const { content } = req.body;
-
-    const post = await createPost(userId, { content });
+    const post = await createPost(req.userId, req.body);
 
     res.status(201).json(post);
-  } catch (error) {
-    if (error instanceof Error) {
-      if (error.message.startsWith("VALIDATION_ERROR")) {
-        res.status(400).json({ error: error.message });
-        return;
-      }
+  } catch (error: unknown) {
+    const err = error as { status?: number; error?: unknown };
+    if (err.status === 400) {
+      res.status(400).json({ error: err.error });
+      return;
     }
     console.error("Create post error:", error);
     res.status(500).json({ error: "Unable to create post" });
@@ -31,19 +27,18 @@ export const createNewPost = async (
 
 export const getPost = async (req: Request, res: Response): Promise<void> => {
   try {
-    const postId = Array.isArray(req.params.postId)
-      ? req.params.postId[0]
-      : req.params.postId;
-
-    const post = await getPostById(postId);
+    const post = await getPostById(req.params);
 
     res.status(200).json(post);
-  } catch (error) {
-    if (error instanceof Error) {
-      if (error.message === "POST_NOT_FOUND") {
-        res.status(404).json({ error: "Post not found" });
-        return;
-      }
+  } catch (error: unknown) {
+    const err = error as { status?: number; error?: unknown };
+    if (err.status === 400) {
+      res.status(400).json({ error: err.error });
+      return;
+    }
+    if (err.status === 404) {
+      res.status(404).json({ error: err.error });
+      return;
     }
     console.error("Get post error:", error);
     res.status(500).json({ error: "Unable to fetch post" });
@@ -55,29 +50,22 @@ export const updatePostContent = async (
   res: Response,
 ): Promise<void> => {
   try {
-    const postId = Array.isArray(req.params.postId)
-      ? req.params.postId[0]
-      : req.params.postId;
-    const userId = (req as any).userId; // From auth middleware
-    const { content } = req.body;
-
-    const post = await updatePost(postId, userId, { content });
+    const post = await updatePost(req.userId, req.params, req.body);
 
     res.status(200).json(post);
-  } catch (error) {
-    if (error instanceof Error) {
-      if (error.message === "POST_NOT_FOUND") {
-        res.status(404).json({ error: "Post not found" });
-        return;
-      }
-      if (error.message === "UNAUTHORIZED") {
-        res.status(403).json({ error: "Cannot update other user's post" });
-        return;
-      }
-      if (error.message.startsWith("VALIDATION_ERROR")) {
-        res.status(400).json({ error: error.message });
-        return;
-      }
+  } catch (error: unknown) {
+    const err = error as { status?: number; error?: unknown };
+    if (err.status === 400) {
+      res.status(400).json({ error: err.error });
+      return;
+    }
+    if (err.status === 403) {
+      res.status(403).json({ error: err.error });
+      return;
+    }
+    if (err.status === 404) {
+      res.status(404).json({ error: err.error });
+      return;
     }
     console.error("Update post error:", error);
     res.status(500).json({ error: "Unable to update post" });
@@ -89,24 +77,22 @@ export const deletePostContent = async (
   res: Response,
 ): Promise<void> => {
   try {
-    const postId = Array.isArray(req.params.postId)
-      ? req.params.postId[0]
-      : req.params.postId;
-    const userId = (req as any).userId; // From auth middleware
-
-    const result = await deletePost(postId, userId);
+    const result = await deletePost(req.userId, req.params);
 
     res.status(200).json(result);
-  } catch (error) {
-    if (error instanceof Error) {
-      if (error.message === "POST_NOT_FOUND") {
-        res.status(404).json({ error: "Post not found" });
-        return;
-      }
-      if (error.message === "UNAUTHORIZED") {
-        res.status(403).json({ error: "Cannot delete other user's post" });
-        return;
-      }
+  } catch (error: unknown) {
+    const err = error as { status?: number; error?: unknown };
+    if (err.status === 400) {
+      res.status(400).json({ error: err.error });
+      return;
+    }
+    if (err.status === 403) {
+      res.status(403).json({ error: err.error });
+      return;
+    }
+    if (err.status === 404) {
+      res.status(404).json({ error: err.error });
+      return;
     }
     console.error("Delete post error:", error);
     res.status(500).json({ error: "Unable to delete post" });

@@ -1,26 +1,34 @@
 import { PrismaClient } from "../../generated/prisma/index.js";
-import { createPostSchema, updatePostSchema } from "./posts.validation.js";
+import {
+  createPostSchema,
+  postIdParamSchema,
+  updatePostSchema,
+} from "./posts.validation.js";
 
 const prisma = new PrismaClient();
 
-export const createPost = async (userId: string, input: any) => {
+export const ensureString = (val: unknown): string =>
+  typeof val === "string" ? val : Array.isArray(val) ? val[0] : "";
+
+export const createPost = async (
+  userId: unknown,
+  body: Record<string, unknown>,
+) => {
   // Validate input
-  const validationResult = createPostSchema.safeParse({ body: input });
+  const validationResult = createPostSchema.safeParse({ body });
 
   if (!validationResult.success) {
-    const errors = validationResult.error.issues
-      .map((err) => `${err.path.join(".")}: ${err.message}`)
-      .join("; ");
-    throw new Error(`VALIDATION_ERROR: ${errors}`);
+    throw { status: 400, error: validationResult.error.flatten() };
   }
 
-  const { content } = input;
+  const { content } = validationResult.data.body;
+  const authorId = ensureString(userId);
 
   // Create post
   const post = await prisma.post.create({
     data: {
       content,
-      authorId: userId,
+      authorId,
     },
     include: {
       author: {
@@ -46,7 +54,13 @@ export const createPost = async (userId: string, input: any) => {
   };
 };
 
-export const getPostById = async (postId: string) => {
+export const getPostById = async (params: Record<string, unknown>) => {
+  const paramValidation = postIdParamSchema.safeParse({ params });
+  if (!paramValidation.success) {
+    throw { status: 400, error: paramValidation.error.flatten() };
+  }
+
+  const { postId } = paramValidation.data.params;
   const post = await prisma.post.findUnique({
     where: { id: postId },
     include: {
@@ -87,7 +101,7 @@ export const getPostById = async (postId: string) => {
   });
 
   if (!post) {
-    throw new Error("POST_NOT_FOUND");
+    throw { status: 404, error: "Post not found" };
   }
 
   return {
@@ -104,19 +118,23 @@ export const getPostById = async (postId: string) => {
 };
 
 export const updatePost = async (
-  postId: string,
-  userId: string,
-  input: any,
+  userId: unknown,
+  params: Record<string, unknown>,
+  body: Record<string, unknown>,
 ) => {
-  // Validate input
-  const validationResult = updatePostSchema.safeParse({ body: input });
+  const paramValidation = postIdParamSchema.safeParse({ params });
+  if (!paramValidation.success) {
+    throw { status: 400, error: paramValidation.error.flatten() };
+  }
+
+  const validationResult = updatePostSchema.safeParse({ body });
 
   if (!validationResult.success) {
-    const errors = validationResult.error.issues
-      .map((err) => `${err.path.join(".")}: ${err.message}`)
-      .join("; ");
-    throw new Error(`VALIDATION_ERROR: ${errors}`);
+    throw { status: 400, error: validationResult.error.flatten() };
   }
+
+  const { postId } = paramValidation.data.params;
+  const authorId = ensureString(userId);
 
   // Check if post exists
   const post = await prisma.post.findUnique({
@@ -124,15 +142,15 @@ export const updatePost = async (
   });
 
   if (!post) {
-    throw new Error("POST_NOT_FOUND");
+    throw { status: 404, error: "Post not found" };
   }
 
   // Check if user is the post author
-  if (post.authorId !== userId) {
-    throw new Error("UNAUTHORIZED");
+  if (post.authorId !== authorId) {
+    throw { status: 403, error: "Cannot update other user's post" };
   }
 
-  const { content } = input;
+  const { content } = validationResult.data.body;
 
   // Update post
   const updatedPost = await prisma.post.update({
@@ -164,19 +182,30 @@ export const updatePost = async (
   };
 };
 
-export const deletePost = async (postId: string, userId: string) => {
+export const deletePost = async (
+  userId: unknown,
+  params: Record<string, unknown>,
+) => {
+  const paramValidation = postIdParamSchema.safeParse({ params });
+  if (!paramValidation.success) {
+    throw { status: 400, error: paramValidation.error.flatten() };
+  }
+
+  const { postId } = paramValidation.data.params;
+  const authorId = ensureString(userId);
+
   // Check if post exists
   const post = await prisma.post.findUnique({
     where: { id: postId },
   });
 
   if (!post) {
-    throw new Error("POST_NOT_FOUND");
+    throw { status: 404, error: "Post not found" };
   }
 
   // Check if user is the post author
-  if (post.authorId !== userId) {
-    throw new Error("UNAUTHORIZED");
+  if (post.authorId !== authorId) {
+    throw { status: 403, error: "Cannot delete other user's post" };
   }
 
   // Delete post (cascade delete will handle comments and likes)

@@ -1,5 +1,11 @@
 import z from "zod";
 
+export const postIdParamSchema = z.object({
+  params: z.object({
+    postId: z.string().uuid({ message: "Invalid post ID format" }),
+  }),
+});
+
 export const createPostSchema = z.object({
   body: z
     .object({

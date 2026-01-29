@@ -1,36 +1,51 @@
 import { PrismaClient } from "../../generated/prisma/index.js";
+import { likePostParamsSchema } from "./likes.validation.js";
 
 const prisma = new PrismaClient();
 
-export const likePost = async (userId: string, postId: string) => {
+export const ensureString = (val: unknown): string =>
+  typeof val === "string" ? val : Array.isArray(val) ? val[0] : "";
+
+export const likePost = async (
+  userId: unknown,
+  params: Record<string, unknown>,
+) => {
+  const paramValidation = likePostParamsSchema.safeParse({ params });
+  if (!paramValidation.success) {
+    throw { status: 400, error: paramValidation.error.flatten() };
+  }
+
+  const { postId } = paramValidation.data.params;
+  const likerId = ensureString(userId);
+
   // Check if post exists
   const post = await prisma.post.findUnique({
     where: { id: postId },
   });
 
   if (!post) {
-    throw new Error("POST_NOT_FOUND");
+    throw { status: 404, error: "Post not found" };
   }
 
   // Check if already liked
   const existingLike = await prisma.like.findUnique({
     where: {
       userId_postId: {
-        userId,
+        userId: likerId,
         postId,
       },
     },
   });
 
   if (existingLike) {
-    throw new Error("ALREADY_LIKED");
+    throw { status: 400, error: "Post already liked" };
   }
 
   // Create like and increment like count in a transaction
   const result = await prisma.$transaction(async (tx) => {
     const like = await tx.like.create({
       data: {
-        userId,
+        userId: likerId,
         postId,
       },
       include: {
@@ -75,28 +90,39 @@ export const likePost = async (userId: string, postId: string) => {
   };
 };
 
-export const unlikePost = async (userId: string, postId: string) => {
+export const unlikePost = async (
+  userId: unknown,
+  params: Record<string, unknown>,
+) => {
+  const paramValidation = likePostParamsSchema.safeParse({ params });
+  if (!paramValidation.success) {
+    throw { status: 400, error: paramValidation.error.flatten() };
+  }
+
+  const { postId } = paramValidation.data.params;
+  const likerId = ensureString(userId);
+
   // Check if post exists
   const post = await prisma.post.findUnique({
     where: { id: postId },
   });
 
   if (!post) {
-    throw new Error("POST_NOT_FOUND");
+    throw { status: 404, error: "Post not found" };
   }
 
   // Check if like exists
   const existingLike = await prisma.like.findUnique({
     where: {
       userId_postId: {
-        userId,
+        userId: likerId,
         postId,
       },
     },
   });
 
   if (!existingLike) {
-    throw new Error("LIKE_NOT_FOUND");
+    throw { status: 404, error: "Like not found" };
   }
 
   // Delete like and decrement like count in a transaction
@@ -104,7 +130,7 @@ export const unlikePost = async (userId: string, postId: string) => {
     await tx.like.delete({
       where: {
         userId_postId: {
-          userId,
+          userId: likerId,
           postId,
         },
       },

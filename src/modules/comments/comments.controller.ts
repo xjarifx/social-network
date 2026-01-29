@@ -11,25 +11,18 @@ export const createCommentHandler = async (
   res: Response,
 ): Promise<void> => {
   try {
-    const userId = (req as any).userId; // From auth middleware
-    const postId = Array.isArray(req.params.postId)
-      ? req.params.postId[0]
-      : req.params.postId;
-    const { content } = req.body;
-
-    const comment = await createComment(userId, postId, { content });
+    const comment = await createComment(req.userId, req.params, req.body);
 
     res.status(201).json(comment);
-  } catch (error) {
-    if (error instanceof Error) {
-      if (error.message === "POST_NOT_FOUND") {
-        res.status(404).json({ error: "Post not found" });
-        return;
-      }
-      if (error.message.startsWith("VALIDATION_ERROR")) {
-        res.status(400).json({ error: error.message });
-        return;
-      }
+  } catch (error: unknown) {
+    const err = error as { status?: number; error?: unknown };
+    if (err.status === 400) {
+      res.status(400).json({ error: err.error });
+      return;
+    }
+    if (err.status === 404) {
+      res.status(404).json({ error: err.error });
+      return;
     }
     console.error("Create comment error:", error);
     res.status(500).json({ error: "Unable to create comment" });
@@ -41,21 +34,18 @@ export const getCommentsHandler = async (
   res: Response,
 ): Promise<void> => {
   try {
-    const postId = Array.isArray(req.params.postId)
-      ? req.params.postId[0]
-      : req.params.postId;
-    const limit = req.query.limit ? parseInt(req.query.limit as string) : 10;
-    const offset = req.query.offset ? parseInt(req.query.offset as string) : 0;
-
-    const result = await getComments(postId, limit, offset);
+    const result = await getComments(req.params, req.query);
 
     res.status(200).json(result);
-  } catch (error) {
-    if (error instanceof Error) {
-      if (error.message === "POST_NOT_FOUND") {
-        res.status(404).json({ error: "Post not found" });
-        return;
-      }
+  } catch (error: unknown) {
+    const err = error as { status?: number; error?: unknown };
+    if (err.status === 400) {
+      res.status(400).json({ error: err.error });
+      return;
+    }
+    if (err.status === 404) {
+      res.status(404).json({ error: err.error });
+      return;
     }
     console.error("Get comments error:", error);
     res.status(500).json({ error: "Unable to fetch comments" });
@@ -67,29 +57,22 @@ export const updateCommentHandler = async (
   res: Response,
 ): Promise<void> => {
   try {
-    const commentId = Array.isArray(req.params.commentId)
-      ? req.params.commentId[0]
-      : req.params.commentId;
-    const userId = (req as any).userId; // From auth middleware
-    const { content } = req.body;
-
-    const comment = await updateComment(commentId, userId, { content });
+    const comment = await updateComment(req.userId, req.params, req.body);
 
     res.status(200).json(comment);
-  } catch (error) {
-    if (error instanceof Error) {
-      if (error.message === "COMMENT_NOT_FOUND") {
-        res.status(404).json({ error: "Comment not found" });
-        return;
-      }
-      if (error.message === "UNAUTHORIZED") {
-        res.status(403).json({ error: "Cannot update other user's comment" });
-        return;
-      }
-      if (error.message.startsWith("VALIDATION_ERROR")) {
-        res.status(400).json({ error: error.message });
-        return;
-      }
+  } catch (error: unknown) {
+    const err = error as { status?: number; error?: unknown };
+    if (err.status === 400) {
+      res.status(400).json({ error: err.error });
+      return;
+    }
+    if (err.status === 403) {
+      res.status(403).json({ error: err.error });
+      return;
+    }
+    if (err.status === 404) {
+      res.status(404).json({ error: err.error });
+      return;
     }
     console.error("Update comment error:", error);
     res.status(500).json({ error: "Unable to update comment" });
@@ -101,24 +84,22 @@ export const deleteCommentHandler = async (
   res: Response,
 ): Promise<void> => {
   try {
-    const commentId = Array.isArray(req.params.commentId)
-      ? req.params.commentId[0]
-      : req.params.commentId;
-    const userId = (req as any).userId; // From auth middleware
-
-    const result = await deleteComment(commentId, userId);
+    const result = await deleteComment(req.userId, req.params);
 
     res.status(200).json(result);
-  } catch (error) {
-    if (error instanceof Error) {
-      if (error.message === "COMMENT_NOT_FOUND") {
-        res.status(404).json({ error: "Comment not found" });
-        return;
-      }
-      if (error.message === "UNAUTHORIZED") {
-        res.status(403).json({ error: "Cannot delete other user's comment" });
-        return;
-      }
+  } catch (error: unknown) {
+    const err = error as { status?: number; error?: unknown };
+    if (err.status === 400) {
+      res.status(400).json({ error: err.error });
+      return;
+    }
+    if (err.status === 403) {
+      res.status(403).json({ error: err.error });
+      return;
+    }
+    if (err.status === 404) {
+      res.status(404).json({ error: err.error });
+      return;
     }
     console.error("Delete comment error:", error);
     res.status(500).json({ error: "Unable to delete comment" });
