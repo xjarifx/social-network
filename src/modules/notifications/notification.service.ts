@@ -11,9 +11,14 @@ export const ensureString = (val: unknown): string =>
   typeof val === "string" ? val : Array.isArray(val) ? val[0] : "";
 
 export const getNotifications = async (
-  userId: string,
+  userId: unknown,
   query: Record<string, unknown>,
 ) => {
+  const ownerId = ensureString(userId);
+  if (!ownerId) {
+    throw { status: 401, error: "Unauthorized" };
+  }
+
   const validation = getNotificationsQuerySchema.safeParse({ query });
   if (!validation.success) {
     throw { status: 400, error: validation.error.flatten() };
@@ -21,7 +26,7 @@ export const getNotifications = async (
 
   const { limit, offset, read } = validation.data.query;
   const where = {
-    userId,
+    userId: ownerId,
     ...(read !== undefined ? { read } : {}),
   } as const;
 
@@ -67,9 +72,14 @@ export const getNotifications = async (
 };
 
 export const getNotificationById = async (
-  userId: string,
+  userId: unknown,
   params: Record<string, unknown>,
 ) => {
+  const ownerId = ensureString(userId);
+  if (!ownerId) {
+    throw { status: 401, error: "Unauthorized" };
+  }
+
   const validation = notificationIdParamSchema.safeParse({ params });
   if (!validation.success) {
     throw { status: 400, error: validation.error.flatten() };
@@ -77,7 +87,7 @@ export const getNotificationById = async (
 
   const { notificationId } = validation.data.params;
   const notification = await prisma.notification.findFirst({
-    where: { id: notificationId, userId },
+    where: { id: notificationId, userId: ownerId },
     include: {
       relatedUser: {
         select: { id: true, username: true, firstName: true, lastName: true },
@@ -104,10 +114,15 @@ export const getNotificationById = async (
 };
 
 export const updateNotificationRead = async (
-  userId: string,
+  userId: unknown,
   params: Record<string, unknown>,
   body: Record<string, unknown>,
 ) => {
+  const ownerId = ensureString(userId);
+  if (!ownerId) {
+    throw { status: 401, error: "Unauthorized" };
+  }
+
   const paramValidation = notificationIdParamSchema.safeParse({ params });
   if (!paramValidation.success) {
     throw { status: 400, error: paramValidation.error.flatten() };
@@ -122,7 +137,7 @@ export const updateNotificationRead = async (
   const read = bodyValidation.data.body.read ?? true; // default: mark as read
 
   const { count } = await prisma.notification.updateMany({
-    where: { id: notificationId, userId },
+    where: { id: notificationId, userId: ownerId },
     data: { read },
   });
 
@@ -130,13 +145,18 @@ export const updateNotificationRead = async (
     throw { status: 404, error: "Notification not found" };
   }
 
-  return getNotificationById(userId, params);
+  return getNotificationById(ownerId, params);
 };
 
 export const deleteNotification = async (
-  userId: string,
+  userId: unknown,
   params: Record<string, unknown>,
 ) => {
+  const ownerId = ensureString(userId);
+  if (!ownerId) {
+    throw { status: 401, error: "Unauthorized" };
+  }
+
   const validation = notificationIdParamSchema.safeParse({ params });
   if (!validation.success) {
     throw { status: 400, error: validation.error.flatten() };
@@ -144,7 +164,7 @@ export const deleteNotification = async (
 
   const { notificationId } = validation.data.params;
   const { count } = await prisma.notification.deleteMany({
-    where: { id: notificationId, userId },
+    where: { id: notificationId, userId: ownerId },
   });
 
   if (count === 0) {

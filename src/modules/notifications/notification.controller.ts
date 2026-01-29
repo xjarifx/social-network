@@ -11,14 +11,14 @@ export const listNotifications = async (
   res: Response,
 ): Promise<void> => {
   try {
-    if (!req.userId) {
-      res.status(401).json({ error: "Unauthorized" });
-      return;
-    }
     const result = await getNotifications(req.userId, req.query);
     res.status(200).json(result);
   } catch (error: unknown) {
     const err = error as { status?: number; error?: unknown };
+    if (err.status === 401) {
+      res.status(401).json({ error: err.error });
+      return;
+    }
     if (err.status === 400) {
       res.status(400).json({ error: err.error });
       return;
@@ -33,14 +33,14 @@ export const getNotification = async (
   res: Response,
 ): Promise<void> => {
   try {
-    if (!req.userId) {
-      res.status(401).json({ error: "Unauthorized" });
-      return;
-    }
     const notification = await getNotificationById(req.userId, req.params);
     res.status(200).json(notification);
   } catch (error: unknown) {
     const err = error as { status?: number; error?: unknown };
+    if (err.status === 401) {
+      res.status(401).json({ error: err.error });
+      return;
+    }
     if (err.status === 400) {
       res.status(400).json({ error: err.error });
       return;
@@ -59,10 +59,6 @@ export const updateNotification = async (
   res: Response,
 ): Promise<void> => {
   try {
-    if (!req.userId) {
-      res.status(401).json({ error: "Unauthorized" });
-      return;
-    }
     const updated = await updateNotificationRead(
       req.userId,
       req.params,
@@ -71,6 +67,10 @@ export const updateNotification = async (
     res.status(200).json(updated);
   } catch (error: unknown) {
     const err = error as { status?: number; error?: unknown };
+    if (err.status === 401) {
+      res.status(401).json({ error: err.error });
+      return;
+    }
     if (err.status === 400) {
       res.status(400).json({ error: err.error });
       return;
@@ -89,14 +89,14 @@ export const removeNotification = async (
   res: Response,
 ): Promise<void> => {
   try {
-    if (!req.userId) {
-      res.status(401).json({ error: "Unauthorized" });
-      return;
-    }
     await deleteNotification(req.userId, req.params);
     res.status(204).send();
   } catch (error: unknown) {
     const err = error as { status?: number; error?: unknown };
+    if (err.status === 401) {
+      res.status(401).json({ error: err.error });
+      return;
+    }
     if (err.status === 400) {
       res.status(400).json({ error: err.error });
       return;
