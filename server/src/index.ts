@@ -6,6 +6,7 @@ import authRouter from "./modules/auth/auth.routes.js";
 import userRouter from "./modules/user/user.routes.js";
 import postsRouter from "./modules/posts/posts.routes.js";
 import notificationsRouter from "./modules/notifications/notification.routes.js";
+import blocksRouter from "./modules/blocks/block.routes.js";
 
 const app = express();
 const PORT = Number(process.env.PORT);
@@ -32,6 +33,8 @@ app.use("api/v1/users", userRouter);
 app.use("api/v1/posts", postsRouter);
 // Notifications
 app.use("api/v1/notifications", notificationsRouter);
+// Blocks
+app.use("api/v1/blocks", blocksRouter);
 
 const startServer = async () => {
   await prisma.$connect();

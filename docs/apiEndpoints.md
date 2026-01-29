@@ -60,3 +60,11 @@ GET    /api/v1/notifications/:notificationId              # Fetch single notific
 PATCH  /api/v1/notifications/:notificationId              # Mark notification as read/update status
 DELETE /api/v1/notifications/:notificationId              # Delete notification
 ```
+
+## Block Endpoints
+
+```
+POST   /api/v1/blocks                                     # Block a user (authenticated user blocks another user)
+DELETE /api/v1/blocks/:blockedId                          # Unblock a user (authenticated user unblocks :blockedId)
+GET    /api/v1/blocks                                     # Get list of blocked users
+```

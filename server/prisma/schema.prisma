@@ -33,6 +33,8 @@ model User {
   notifications              Notification[] @relation("UserNotifications")
   triggeredNotifications     Notification[] @relation("RelatedUserNotifications")
   refreshTokens              RefreshToken[]
+  blockedUsers               Block[] @relation("UserBlocks")
+  blockedBy                  Block[] @relation("BlockedUsers")
 
   @@map("users")
 }
@@ -126,4 +128,17 @@ model RefreshToken {
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("refresh_tokens")
+}
+
+model Block {
+  id        String   @id @default(uuid())
+  blockerId String   @map("blocker_id")
+  blockedId String   @map("blocked_id")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  blocker User @relation("UserBlocks", fields: [blockerId], references: [id], onDelete: Cascade)
+  blocked User @relation("BlockedUsers", fields: [blockedId], references: [id], onDelete: Cascade)
+
+  @@unique([blockerId, blockedId])
+  @@map("blocks")
 }
