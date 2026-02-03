@@ -11,6 +11,6 @@ router.post("/", authenticate, block);
 // Get all blocked users
 router.get("/", authenticate, getBlocked);
 // Unblock a user
-router.delete("/:blockedId", authenticate, unblock);
+router.delete("/:userId", authenticate, unblock);
 
 export default router;

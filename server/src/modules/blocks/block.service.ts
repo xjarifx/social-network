@@ -1,5 +1,9 @@
 import { PrismaClient } from "../../generated/prisma/index.js";
-import { blockUserSchema, unblockParamSchema } from "./block.validation.js";
+import {
+  blockUserSchema,
+  getBlockedQuerySchema,
+  unblockParamSchema,
+} from "./block.validation.js";
 
 const prisma = new PrismaClient();
 
@@ -52,17 +56,32 @@ export const blockUser = async (
   });
 };
 
-export const getBlockedUsers = async (userId: unknown) => {
+export const getBlockedUsers = async (
+  userId: unknown,
+  query: Record<string, unknown>,
+) => {
   const blockerUserId = ensureString(userId);
 
   if (!blockerUserId) {
     throw { status: 401, error: "Unauthorized" };
   }
 
+  const queryValidation = getBlockedQuerySchema.safeParse({ query });
+  if (!queryValidation.success) {
+    throw { status: 400, error: queryValidation.error.flatten() };
+  }
+
+  const { limit, offset } = queryValidation.data.query;
+
   const blocks = await prisma.block.findMany({
     where: {
       blockerId: blockerUserId,
     },
+    orderBy: {
+      createdAt: "desc",
+    },
+    take: limit,
+    skip: offset,
     include: {
       blocked: {
         select: {
@@ -75,11 +94,22 @@ export const getBlockedUsers = async (userId: unknown) => {
     },
   });
 
-  return blocks.map((b) => ({
-    id: b.id,
-    blockedAt: b.createdAt,
-    user: b.blocked,
-  }));
+  const total = await prisma.block.count({
+    where: {
+      blockerId: blockerUserId,
+    },
+  });
+
+  return {
+    blocked: blocks.map((b) => ({
+      id: b.id,
+      blockedAt: b.createdAt,
+      user: b.blocked,
+    })),
+    total,
+    limit,
+    offset,
+  };
 };
 
 export const unblockUser = async (
@@ -91,7 +121,7 @@ export const unblockUser = async (
     throw { status: 400, error: validation.error.flatten() };
   }
 
-  const { blockedId } = validation.data.params;
+  const { userId } = validation.data.params;
   const blockerUserId = ensureString(blockerId);
 
   if (!blockerUserId) {
@@ -101,7 +131,7 @@ export const unblockUser = async (
   const block = await prisma.block.findFirst({
     where: {
       blockerId: blockerUserId,
-      blockedId,
+      blockedId: userId,
     },
   });
 

@@ -65,6 +65,6 @@ DELETE /api/v1/notifications/:notificationId              # Delete notification
 
 ```
 POST   /api/v1/blocks                                     # Block a user (authenticated user blocks another user)
-DELETE /api/v1/blocks/:blockedId                          # Unblock a user (authenticated user unblocks :blockedId)
-GET    /api/v1/blocks                                     # Get list of blocked users
+DELETE /api/v1/blocks/:userId                             # Unblock a user (authenticated user unblocks :userId)
+GET    /api/v1/blocks?limit=20&offset=0                   # Get list of blocked users
 ```

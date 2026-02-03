@@ -33,7 +33,7 @@ export const getBlocked = async (
   res: Response,
 ): Promise<void> => {
   try {
-    const blocked = await getBlockedUsers(req.userId);
+    const blocked = await getBlockedUsers(req.userId, req.query);
     res.status(200).json(blocked);
   } catch (error: unknown) {
     const err = error as { status?: number; error?: unknown };
