@@ -7,6 +7,7 @@ import userRouter from "./modules/user/user.routes.js";
 import postsRouter from "./modules/posts/posts.routes.js";
 import notificationsRouter from "./modules/notifications/notification.routes.js";
 import blocksRouter from "./modules/blocks/block.routes.js";
+import { authLimiter, generalLimiter } from "./middleware/rateLimit.middleware.js";
 
 const app = express();
 const PORT = Number(process.env.PORT);
@@ -25,8 +26,11 @@ app.use(
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+// Apply general rate limiter to all API routes
+app.use("/api/v1", generalLimiter);
+
 // Auth
-app.use("api/v1/auth", authRouter);
+app.use("api/v1/auth", authLimiter, authRouter);
 // Users & followers
 app.use("api/v1/users", userRouter);
 // Posts, likes & Comments

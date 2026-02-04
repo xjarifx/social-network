@@ -1,5 +1,6 @@
 import { Router } from "express";
 import { authenticate } from "../../middleware/authenticate.middleware.js";
+import { createCommentLimiter } from "../../middleware/rateLimit.middleware.js";
 import {
   createCommentHandler,
   getCommentsHandler,
@@ -12,7 +13,7 @@ const router = Router();
 // COMMENTS
 
 // create a comment
-router.post("/", authenticate, createCommentHandler);
+router.post("/", authenticate, createCommentLimiter, createCommentHandler);
 // get all comments on the post
 router.get("/", getCommentsHandler);
 // get a single comment

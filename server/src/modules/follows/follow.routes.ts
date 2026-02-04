@@ -1,5 +1,6 @@
 import { Router } from "express";
 import { authenticate } from "../../middleware/authenticate.middleware.js";
+import { followLimiter } from "../../middleware/rateLimit.middleware.js";
 import {
   follow,
   getUserFollowers,
@@ -10,10 +11,10 @@ import {
 const router = Router();
 
 // Follow a user
-router.post("/", authenticate, follow);
+router.post("/", authenticate, followLimiter, follow);
 
 // Unfollow a user
-router.delete("/:followingId", authenticate, unfollow);
+router.delete("/:followingId", authenticate, followLimiter, unfollow);
 
 // Get followers of a user
 router.get("/followers", authenticate, getUserFollowers);
