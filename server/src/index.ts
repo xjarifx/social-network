@@ -7,7 +7,11 @@ import userRouter from "./modules/user/user.routes.js";
 import postsRouter from "./modules/posts/posts.routes.js";
 import notificationsRouter from "./modules/notifications/notification.routes.js";
 import blocksRouter from "./modules/blocks/block.routes.js";
-import { authLimiter, generalLimiter } from "./middleware/rateLimit.middleware.js";
+import billingRouter from "./modules/billing/billing.routes.js";
+import {
+  authLimiter,
+  generalLimiter,
+} from "./middleware/rateLimit.middleware.js";
 
 const app = express();
 const PORT = Number(process.env.PORT);
@@ -23,7 +27,13 @@ app.use(
   }),
 );
 
-app.use(express.json());
+app.use(
+  express.json({
+    verify: (req, _res, buf) => {
+      (req as typeof req & { rawBody?: Buffer }).rawBody = buf;
+    },
+  }),
+);
 app.use(express.urlencoded({ extended: true }));
 
 // Apply general rate limiter to all API routes
@@ -39,6 +49,8 @@ app.use("api/v1/posts", postsRouter);
 app.use("api/v1/notifications", notificationsRouter);
 // Blocks
 app.use("api/v1/blocks", blocksRouter);
+// Billing
+app.use("/api/v1/billing", billingRouter);
 
 const startServer = async () => {
   await prisma.$connect();

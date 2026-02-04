@@ -15,6 +15,11 @@ enum NotificationType {
   NEW_FOLLOWER
 }
 
+enum Plan {
+  FREE
+  PRO
+}
+
 model User {
   id        String    @id @default(uuid())
   username  String    @unique
@@ -24,6 +29,13 @@ model User {
   lastName  String    @map("last_name")
   createdAt DateTime  @default(now()) @map("created_at")
   deletedAt DateTime? @map("deleted_at")
+
+  plan                     Plan      @default(FREE)
+  planStatus               String?   @map("plan_status")
+  planStartedAt            DateTime? @map("plan_started_at")
+  stripeCustomerId         String?   @unique @map("stripe_customer_id")
+  stripeSubscriptionId     String?   @unique @map("stripe_subscription_id")
+  stripeCurrentPeriodEndAt DateTime? @map("stripe_current_period_end_at")
 
   posts                      Post[]
   comments                   Comment[]
