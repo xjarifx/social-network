@@ -33,7 +33,7 @@ cp client/.env.example client/.env
 Edit `client/.env`:
 
 ```
-VITE_API_URL=http://localhost:3000/api/v1
+API_URL=http://localhost:3000/api/v1
 ```
 
 ### 2. Start Backend Server
@@ -403,7 +403,7 @@ console.log("Auth State:", { user, isAuthenticated, error });
 Set environment variables in deployment settings:
 
 ```
-VITE_API_URL=https://your-backend-api.com/api/v1
+API_URL=https://your-backend-api.com/api/v1
 ```
 
 ### Backend Deployment (Railway/Heroku)
