@@ -10,6 +10,29 @@ const prisma = new PrismaClient();
 export const ensureString = (val: unknown): string =>
   typeof val === "string" ? val : Array.isArray(val) ? val[0] : "";
 
+const getPlanPostLimit = (plan: string | null | undefined): number =>
+  plan === "PRO" ? 100 : 20;
+
+const enforcePostLimitForUser = async (authorId: string, content: string) => {
+  const user = await prisma.user.findUnique({
+    where: { id: authorId },
+    select: { plan: true },
+  });
+
+  if (!user) {
+    throw { status: 404, error: "User not found" };
+  }
+
+  const limit = getPlanPostLimit(user.plan);
+  if (content.length > limit) {
+    const planName = user.plan === "PRO" ? "Pro" : "Free";
+    throw {
+      status: 400,
+      error: `Post content exceeds ${planName} plan limit of ${limit} characters`,
+    };
+  }
+};
+
 export const createPost = async (
   userId: unknown,
   body: Record<string, unknown>,
@@ -23,6 +46,8 @@ export const createPost = async (
 
   const { content } = validationResult.data.body;
   const authorId = ensureString(userId);
+
+  await enforcePostLimitForUser(authorId, content);
 
   // Create post
   const post = await prisma.post.create({
@@ -151,6 +176,8 @@ export const updatePost = async (
   }
 
   const { content } = validationResult.data.body;
+
+  await enforcePostLimitForUser(authorId, content);
 
   // Update post
   const updatedPost = await prisma.post.update({

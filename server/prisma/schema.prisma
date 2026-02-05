@@ -5,7 +5,7 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  // ignore this URL warning and don't remove it, otherwise migrations will not work
+  // ignore this "url" warning and don't remove it, otherwise migrations will not work
   url      = env("DATABASE_URL")
 }
 

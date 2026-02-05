@@ -12,7 +12,7 @@ export const createPostSchema = z.object({
       content: z
         .string()
         .min(1, { message: "Post content is required" })
-        .max(5000, { message: "Post content must be at most 5000 characters" }),
+        .max(100, { message: "Post content must be at most 100 characters" }),
     })
     .strict(),
 });
@@ -23,7 +23,7 @@ export const updatePostSchema = z.object({
       content: z
         .string()
         .min(1, { message: "Post content is required" })
-        .max(5000, { message: "Post content must be at most 5000 characters" }),
+        .max(100, { message: "Post content must be at most 100 characters" }),
     })
     .strict(),
 });
