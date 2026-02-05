@@ -3,7 +3,7 @@ import {
   getUserProfile,
   updateUserProfile,
   getUserTimeline,
-} from "./user.service.js";
+} from "./user.service";
 
 export const getProfile = async (
   req: Request,
@@ -32,7 +32,16 @@ export const getTimeline = async (
   res: Response,
 ): Promise<void> => {
   try {
-    const timelineData = await getUserTimeline(req.params, req.query);
+    const limit = req.query.limit
+      ? parseInt(req.query.limit as string, 10)
+      : undefined;
+    const offset = req.query.offset
+      ? parseInt(req.query.offset as string, 10)
+      : undefined;
+    const timelineData = await getUserTimeline(req.params, {
+      limit: limit as unknown as number,
+      offset: offset as unknown as number,
+    });
     res.status(200).json(timelineData);
   } catch (error: unknown) {
     const err = error as { status?: number; error?: unknown };

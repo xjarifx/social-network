@@ -1,13 +1,13 @@
-import { block, getBlocked, unblock } from "../block.controller.js";
-import * as blockService from "../block.service.js";
+import { block, getBlocked, unblock } from "../block.controller";
+import * as blockService from "../block.service";
 import {
   createMockRequest,
   createMockResponse,
   testUser,
   testUser2,
-} from "../../../__tests__/test-helpers.js";
+} from "../../../__tests__/test-helpers";
 
-jest.mock("../block.service.js");
+jest.mock("../block.service");
 
 describe("Block Controller", () => {
   beforeEach(() => {

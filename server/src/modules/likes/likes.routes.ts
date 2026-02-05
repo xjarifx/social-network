@@ -1,7 +1,7 @@
 import { Router } from "express";
-import { authenticate } from "../../middleware/authenticate.middleware.js";
-import { createLikeLimiter } from "../../middleware/rateLimit.middleware.js";
-import { likePostHandler, unlikePostHandler } from "./likes.controller.js";
+import { authenticate } from '../../middleware/authenticate.middleware';
+import { createLikeLimiter } from '../../middleware/rateLimit.middleware';
+import { likePostHandler, unlikePostHandler } from './likes.controller';
 
 const router = Router();
 

@@ -1,11 +1,11 @@
 import { Router } from "express";
-import { authenticate } from "../../middleware/authenticate.middleware.js";
+import { authenticate } from '../../middleware/authenticate.middleware';
 import {
   getNotification,
   listNotifications,
   removeNotification,
   updateNotification,
-} from "./notification.controller.js";
+} from './notification.controller';
 
 const router = Router();
 

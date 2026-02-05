@@ -1,5 +1,5 @@
-import { PrismaClient } from "../../generated/prisma/index.js";
-import { followUserSchema, unfollowParamSchema } from "./follow.validation.js";
+import { PrismaClient } from '../../generated/prisma/index';
+import { followUserSchema, unfollowParamSchema } from './follow.validation';
 
 const prisma = new PrismaClient();
 

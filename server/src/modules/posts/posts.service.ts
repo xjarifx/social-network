@@ -1,9 +1,9 @@
-import { PrismaClient } from "../../generated/prisma/index.js";
+import { PrismaClient } from '../../generated/prisma/index';
 import {
   createPostSchema,
   postIdParamSchema,
   updatePostSchema,
-} from "./posts.validation.js";
+} from './posts.validation';
 
 const prisma = new PrismaClient();
 

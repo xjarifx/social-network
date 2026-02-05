@@ -1,12 +1,12 @@
 import { Router } from "express";
-import { authenticate } from "../../middleware/authenticate.middleware.js";
-import { createCommentLimiter } from "../../middleware/rateLimit.middleware.js";
+import { authenticate } from '../../middleware/authenticate.middleware';
+import { createCommentLimiter } from '../../middleware/rateLimit.middleware';
 import {
   createCommentHandler,
   getCommentsHandler,
   updateCommentHandler,
   deleteCommentHandler,
-} from "./comments.controller.js";
+} from './comments.controller';
 
 const router = Router();
 

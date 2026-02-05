@@ -1,5 +1,5 @@
-import { PrismaClient } from "../../generated/prisma/index.js";
-import { likePostParamsSchema } from "./likes.validation.js";
+import { PrismaClient } from '../../generated/prisma/index';
+import { likePostParamsSchema } from './likes.validation';
 
 const prisma = new PrismaClient();
 

@@ -1,5 +1,5 @@
 import type { Request, Response } from "express";
-import { blockUser, getBlockedUsers, unblockUser } from "./block.service.js";
+import { blockUser, getBlockedUsers, unblockUser } from './block.service';
 
 export const block = async (req: Request, res: Response): Promise<void> => {
   try {

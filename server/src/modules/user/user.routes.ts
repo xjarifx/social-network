@@ -1,8 +1,8 @@
 import { Router } from "express";
-import { getProfile, updateProfile, getTimeline } from "./user.controller.js";
-import { authenticate } from "../../middleware/authenticate.middleware.js";
-import postRouter from "../posts/posts.routes.js";
-import followRouter from "../follows/follow.routes.js";
+import { getProfile, updateProfile, getTimeline } from './user.controller';
+import { authenticate } from '../../middleware/authenticate.middleware';
+import postRouter from '../posts/posts.routes';
+import followRouter from '../follows/follow.routes';
 
 const router = Router();
 

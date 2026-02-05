@@ -1,12 +1,12 @@
 import { Router } from "express";
-import { authenticate } from "../../middleware/authenticate.middleware.js";
-import { followLimiter } from "../../middleware/rateLimit.middleware.js";
+import { authenticate } from '../../middleware/authenticate.middleware';
+import { followLimiter } from '../../middleware/rateLimit.middleware';
 import {
   follow,
   getUserFollowers,
   getUserFollowing,
   unfollow,
-} from "./follow.controller.js";
+} from './follow.controller';
 
 const router = Router();
 

@@ -1,13 +1,13 @@
-import { getProfile, updateProfile, getTimeline } from "../user.controller.js";
-import * as userService from "../user.service.js";
+import { getProfile, updateProfile, getTimeline } from "../user.controller";
+import * as userService from "../user.service";
 import {
   createMockRequest,
   createMockResponse,
   testUser,
   testUser2,
-} from "../../../__tests__/test-helpers.js";
+} from "../../../__tests__/test-helpers";
 
-jest.mock("../user.service.js");
+jest.mock("../user.service");
 
 describe("User Controller", () => {
   beforeEach(() => {

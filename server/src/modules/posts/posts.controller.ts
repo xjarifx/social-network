@@ -4,7 +4,7 @@ import {
   getPostById,
   updatePost,
   deletePost,
-} from "./posts.service.js";
+} from './posts.service';
 
 export const createNewPost = async (
   req: Request,

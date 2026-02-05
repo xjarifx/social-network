@@ -1,16 +1,9 @@
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
-import {
-  registerUser,
-  loginUser,
-  logoutUser,
-  refreshAccessToken,
-} from "../auth.service.js";
-import { PrismaClient } from "../../../generated/prisma/index.js";
-import { testUser } from "../../../__tests__/test-helpers.js";
+import { testUser } from "../../../__tests__/test-helpers";
 
-// Mock Prisma
-jest.mock("../../../generated/prisma/index.js");
+// Mock Prisma BEFORE importing auth.service
+jest.mock("../../../generated/prisma/index");
 
 const mockPrisma = {
   user: {
@@ -24,9 +17,15 @@ const mockPrisma = {
   },
 };
 
-jest.mock("../../../generated/prisma/index.js", () => ({
-  PrismaClient: jest.fn(() => mockPrisma),
-}));
+import { PrismaClient } from "../../../generated/prisma/index";
+(PrismaClient as any).mockImplementation(() => mockPrisma);
+
+import {
+  registerUser,
+  loginUser,
+  logoutUser,
+  refreshAccessToken,
+} from "../auth.service";
 
 jest.mock("bcryptjs");
 jest.mock("jsonwebtoken");

@@ -1,9 +1,9 @@
-import { PrismaClient } from "../../generated/prisma/index.js";
+import { PrismaClient } from '../../generated/prisma/index';
 import {
   blockUserSchema,
   getBlockedQuerySchema,
   unblockParamSchema,
-} from "./block.validation.js";
+} from './block.validation';
 
 const prisma = new PrismaClient();
 

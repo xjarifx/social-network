@@ -1,8 +1,8 @@
 import "dotenv/config";
-import { PrismaClient } from "../../generated/prisma/index.js";
+import { PrismaClient } from '../../generated/prisma/index';
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
-import { registerSchema, loginSchema } from "./auth.validation.js";
+import { registerSchema, loginSchema } from './auth.validation';
 
 const prisma = new PrismaClient();
 

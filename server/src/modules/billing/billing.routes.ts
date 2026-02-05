@@ -5,8 +5,8 @@ import {
   billingSuccess,
   getMyBillingStatus,
   stripeWebhook,
-} from "./billing.controller.js";
-import { authenticate } from "../../middleware/authenticate.middleware.js";
+} from './billing.controller';
+import { authenticate } from '../../middleware/authenticate.middleware';
 
 const router = Router();
 

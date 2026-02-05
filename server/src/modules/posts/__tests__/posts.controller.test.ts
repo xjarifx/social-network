@@ -3,16 +3,16 @@ import {
   getPost,
   updatePostContent,
   deletePostContent,
-} from "../posts.controller.js";
-import * as postsService from "../posts.service.js";
+} from "../posts.controller";
+import * as postsService from "../posts.service";
 import {
   createMockRequest,
   createMockResponse,
   testUser,
   testPost,
-} from "../../../__tests__/test-helpers.js";
+} from "../../../__tests__/test-helpers";
 
-jest.mock("../posts.service.js");
+jest.mock("../posts.service");
 
 describe("Posts Controller", () => {
   beforeEach(() => {

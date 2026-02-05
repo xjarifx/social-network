@@ -5,7 +5,7 @@ import {
   handleCheckoutCancel,
   handleCheckoutSuccess,
   handleStripeWebhook,
-} from "./billing.service.js";
+} from './billing.service';
 
 export const createSubscriptionCheckout = async (
   req: Request,

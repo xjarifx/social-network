@@ -1,13 +1,10 @@
 import request from "supertest";
 import express, { Express } from "express";
-import authRouter from "../auth.routes.js";
-import {
-  generateTestToken,
-  testUser,
-} from "../../../__tests__/test-helpers.js";
-import * as authService from "../auth.service.js";
+import authRouter from "../auth.routes";
+import { generateTestToken, testUser } from "../../../__tests__/test-helpers";
+import * as authService from "../auth.service";
 
-jest.mock("../auth.service.js");
+jest.mock("../auth.service");
 
 describe("Auth API Integration Tests", () => {
   let app: Express;

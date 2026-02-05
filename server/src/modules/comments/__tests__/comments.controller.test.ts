@@ -3,17 +3,17 @@ import {
   getCommentsHandler,
   updateCommentHandler,
   deleteCommentHandler,
-} from "../comments.controller.js";
-import * as commentsService from "../comments.service.js";
+} from "../comments.controller";
+import * as commentsService from "../comments.service";
 import {
   createMockRequest,
   createMockResponse,
   testUser,
   testPost,
   testComment,
-} from "../../../__tests__/test-helpers.js";
+} from "../../../__tests__/test-helpers";
 
-jest.mock("../comments.service.js");
+jest.mock("../comments.service");
 
 describe("Comments Controller", () => {
   beforeEach(() => {

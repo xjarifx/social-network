@@ -1,14 +1,14 @@
-import { likePostHandler, unlikePostHandler } from "../likes.controller.js";
-import * as likesService from "../likes.service.js";
+import { likePostHandler, unlikePostHandler } from "../likes.controller";
+import * as likesService from "../likes.service";
 import {
   createMockRequest,
   createMockResponse,
   testUser,
   testPost,
   testLike,
-} from "../../../__tests__/test-helpers.js";
+} from "../../../__tests__/test-helpers";
 
-jest.mock("../likes.service.js");
+jest.mock("../likes.service");
 
 describe("Likes Controller", () => {
   beforeEach(() => {

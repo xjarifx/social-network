@@ -4,7 +4,7 @@ import {
   getNotificationById,
   updateNotificationRead,
   deleteNotification,
-} from "./notification.service.js";
+} from './notification.service';
 
 export const listNotifications = async (
   req: Request,

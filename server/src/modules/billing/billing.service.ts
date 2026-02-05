@@ -1,6 +1,6 @@
 import "dotenv/config";
 import Stripe from "stripe";
-import { PrismaClient, Plan } from "../../generated/prisma/index.js";
+import { PrismaClient, Plan } from '../../generated/prisma/index';
 
 const prisma = new PrismaClient();
 

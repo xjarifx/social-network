@@ -1,14 +1,14 @@
-import { register, login, logout, refresh } from "../auth.controller.js";
-import * as authService from "../auth.service.js";
+import { register, login, logout, refresh } from "../auth.controller";
+import * as authService from "../auth.service";
 import {
   createMockRequest,
   createMockResponse,
   testUser,
   generateTestToken,
   generateTestRefreshToken,
-} from "../../../__tests__/test-helpers.js";
+} from "../../../__tests__/test-helpers";
 
-jest.mock("../auth.service.js");
+jest.mock("../auth.service");
 
 describe("Auth Controller", () => {
   let mockRequest: any;

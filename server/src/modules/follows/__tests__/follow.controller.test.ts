@@ -3,16 +3,16 @@ import {
   getUserFollowers,
   getUserFollowing,
   unfollow,
-} from "../follow.controller.js";
-import * as followService from "../follow.service.js";
+} from "../follow.controller";
+import * as followService from "../follow.service";
 import {
   createMockRequest,
   createMockResponse,
   testUser,
   testUser2,
-} from "../../../__tests__/test-helpers.js";
+} from "../../../__tests__/test-helpers";
 
-jest.mock("../follow.service.js");
+jest.mock("../follow.service");
 
 describe("Follow Controller", () => {
   beforeEach(() => {
@@ -172,7 +172,7 @@ describe("Follow Controller", () => {
 
       const mockResponse$ = {
         status: jest.fn().mockReturnThis(),
-        json: jest.fn(),
+        send: jest.fn(),
       };
 
       (followService.unfollowUser as jest.Mock).mockResolvedValue({
@@ -184,7 +184,7 @@ describe("Follow Controller", () => {
       expect(followService.unfollowUser).toHaveBeenCalledWith(testUser.id, {
         targetUserId: testUser2.id,
       });
-      expect(mockResponse$.status).toHaveBeenCalledWith(200);
+      expect(mockResponse$.status).toHaveBeenCalledWith(204);
     });
 
     it("should return 404 if target user not found", async () => {

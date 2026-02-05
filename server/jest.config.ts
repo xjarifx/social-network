@@ -3,6 +3,7 @@ import type { Config } from "jest";
 const config: Config = {
   preset: "ts-jest",
   testEnvironment: "node",
+  extensionsToTreatAsEsm: [".ts"],
   roots: ["<rootDir>/src"],
   testMatch: ["**/__tests__/**/*.test.ts", "**/*.test.ts"],
   moduleFileExtensions: ["ts", "tsx", "js", "jsx", "json"],
@@ -21,10 +22,13 @@ const config: Config = {
     "^.+\\.tsx?$": [
       "ts-jest",
       {
+        useESM: true,
         tsconfig: {
           esModuleInterop: true,
           allowSyntheticDefaultImports: true,
           resolveJsonModule: true,
+          isolatedModules: true,
+          module: "esnext",
         },
       },
     ],

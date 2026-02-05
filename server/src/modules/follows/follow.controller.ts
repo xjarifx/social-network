@@ -4,7 +4,7 @@ import {
   getFollowers,
   getFollowing,
   unfollowUser,
-} from "./follow.service.js";
+} from './follow.service';
 
 export const follow = async (req: Request, res: Response): Promise<void> => {
   try {

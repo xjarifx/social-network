@@ -1,6 +1,6 @@
 import { Router } from "express";
-import { authenticate } from "../../middleware/authenticate.middleware.js";
-import { block, getBlocked, unblock } from "./block.controller.js";
+import { authenticate } from '../../middleware/authenticate.middleware';
+import { block, getBlocked, unblock } from './block.controller';
 
 const router = Router();
 

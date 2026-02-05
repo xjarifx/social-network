@@ -1,11 +1,11 @@
-import { PrismaClient } from "../../generated/prisma/index.js";
+import { PrismaClient } from '../../generated/prisma/index';
 import {
   commentIdParamSchema,
   createCommentSchema,
   getCommentsQuerySchema,
   postIdParamSchema,
   updateCommentSchema,
-} from "./comments.validation.js";
+} from './comments.validation';
 
 const prisma = new PrismaClient();
 

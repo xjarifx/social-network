@@ -1,5 +1,5 @@
-import { PrismaClient } from "../../generated/prisma/index.js";
-import { updateProfileSchema, userIdParamSchema } from "./user.validation.js";
+import { PrismaClient } from '../../generated/prisma/index';
+import { updateProfileSchema, userIdParamSchema } from './user.validation';
 
 const prisma = new PrismaClient();
 

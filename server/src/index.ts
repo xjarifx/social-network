@@ -1,18 +1,18 @@
 import "dotenv/config";
 import express from "express";
 import cors from "cors";
-import { PrismaClient } from "./generated/prisma/index.js";
-import authRouter from "./modules/auth/auth.routes.js";
-import userRouter from "./modules/user/user.routes.js";
-import postsRouter from "./modules/posts/posts.routes.js";
-import notificationsRouter from "./modules/notifications/notification.routes.js";
-import blocksRouter from "./modules/blocks/block.routes.js";
-import billingRouter from "./modules/billing/billing.routes.js";
-import { swaggerRouter } from "./swagger.js";
+import { PrismaClient } from './generated/prisma/index';
+import authRouter from './modules/auth/auth.routes';
+import userRouter from './modules/user/user.routes';
+import postsRouter from './modules/posts/posts.routes';
+import notificationsRouter from './modules/notifications/notification.routes';
+import blocksRouter from './modules/blocks/block.routes';
+import billingRouter from './modules/billing/billing.routes';
+import { swaggerRouter } from './swagger';
 import {
   authLimiter,
   generalLimiter,
-} from "./middleware/rateLimit.middleware.js";
+} from './middleware/rateLimit.middleware';
 
 const app = express();
 const PORT = Number(process.env.PORT);

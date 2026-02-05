@@ -1,5 +1,5 @@
 import type { Request, Response } from "express";
-import { likePost, unlikePost } from "./likes.service.js";
+import { likePost, unlikePost } from './likes.service';
 
 export const likePostHandler = async (
   req: Request,

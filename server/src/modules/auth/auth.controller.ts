@@ -1,5 +1,5 @@
 import type { Request, Response } from "express";
-import { registerUser, loginUser, logoutUser, refreshAccessToken } from "./auth.service.js";
+import { registerUser, loginUser, logoutUser, refreshAccessToken } from './auth.service';
 
 export const register = async (req: Request, res: Response): Promise<void> => {
   try {

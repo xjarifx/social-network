@@ -4,15 +4,15 @@ import {
   getPost,
   updatePostContent,
   deletePostContent,
-} from "./posts.controller.js";
-import { authenticate } from "../../middleware/authenticate.middleware.js";
+} from './posts.controller';
+import { authenticate } from '../../middleware/authenticate.middleware';
 import {
   createPostLimiter,
   createCommentLimiter,
   createLikeLimiter,
-} from "../../middleware/rateLimit.middleware.js";
-import likeRouter from "../likes/likes.routes.js";
-import commentsRouter from "../comments/comments.routes.js";
+} from '../../middleware/rateLimit.middleware';
+import likeRouter from '../likes/likes.routes';
+import commentsRouter from '../comments/comments.routes';
 
 const router = Router();
 

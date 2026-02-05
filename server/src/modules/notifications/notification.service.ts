@@ -1,9 +1,9 @@
-import { PrismaClient } from "../../generated/prisma/index.js";
+import { PrismaClient } from '../../generated/prisma/index';
 import {
   getNotificationsQuerySchema,
   notificationIdParamSchema,
   updateNotificationBodySchema,
-} from "./notification.validation.js";
+} from './notification.validation';
 
 const prisma = new PrismaClient();
 
