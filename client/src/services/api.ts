@@ -1,5 +1,6 @@
 // API configuration
-const API_BASE_URL = import.meta.env.API_URL || "http://localhost:3000/api/v1";
+const API_BASE_URL =
+  import.meta.env.VITE_API_URL || "http://localhost:3000/api/v1";
 
 // Storage keys
 const TOKEN_KEY = "social_access_token";
@@ -142,8 +143,10 @@ async function apiRequest<T>(
   }
 
   if (!response.ok) {
-    const error = await response.json().catch(() => ({}));
-    throw new Error(error.message || `API Error: ${response.status}`);
+    const errorData = await response.json().catch(() => ({}));
+    throw new Error(
+      errorData.error || errorData.message || `API Error: ${response.status}`,
+    );
   }
 
   return response.json();
@@ -179,7 +182,13 @@ export const authAPI = {
 
   logout: async (): Promise<void> => {
     try {
-      await apiRequest("/auth/logout", { method: "POST" });
+      const refreshToken = getRefreshToken();
+      if (refreshToken) {
+        await apiRequest("/auth/logout", {
+          method: "POST",
+          body: JSON.stringify({ refreshToken }),
+        });
+      }
     } finally {
       clearTokens();
     }

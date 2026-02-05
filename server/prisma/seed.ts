@@ -8,7 +8,283 @@ import {
 
 const prisma = new PrismaClient();
 
+const firstNames = [
+  "Alice",
+  "Bob",
+  "Carol",
+  "Dave",
+  "Erin",
+  "Frank",
+  "Grace",
+  "Hugo",
+  "Ivy",
+  "James",
+  "Kira",
+  "Liam",
+  "Maya",
+  "Noah",
+  "Olivia",
+  "Pete",
+  "Quinn",
+  "Rhea",
+  "Sara",
+  "Tariq",
+  "Uma",
+  "Victor",
+  "Wendy",
+  "Xavier",
+  "Yara",
+  "Zane",
+  "Aiden",
+  "Bella",
+  "Caleb",
+  "Diana",
+  "Ethan",
+  "Fiona",
+  "Gabriel",
+  "Hannah",
+  "Isaac",
+  "Julia",
+  "Kevin",
+  "Luna",
+  "Mason",
+  "Nina",
+  "Oscar",
+  "Penny",
+  "Ray",
+  "Sophie",
+  "Tyler",
+  "Ursula",
+  "Vincent",
+  "Willow",
+  "Xander",
+  "Yasmin",
+  "Zara",
+  "Adam",
+  "Brooke",
+  "Chris",
+  "Daphne",
+  "Eli",
+  "Freya",
+  "Gavin",
+  "Holly",
+  "Ian",
+  "Jade",
+  "Kyle",
+  "Lily",
+  "Max",
+  "Nora",
+  "Owen",
+  "Piper",
+  "Quinn",
+  "Ruby",
+  "Sam",
+  "Tara",
+  "Umar",
+  "Vera",
+  "Wade",
+  "Xena",
+  "Yuki",
+  "Zoe",
+  "Alex",
+  "Blake",
+  "Casey",
+  "Drew",
+  "Emery",
+  "Finn",
+  "Grey",
+  "Harper",
+  "Jordan",
+  "Kai",
+  "Logan",
+  "Morgan",
+  "Nico",
+  "Parker",
+  "Reese",
+  "Sage",
+  "Taylor",
+  "Val",
+  "Winter",
+  "River",
+];
+
+const lastNames = [
+  "Nguyen",
+  "Hernandez",
+  "Singh",
+  "Okafor",
+  "Patel",
+  "Wong",
+  "Kim",
+  "Silva",
+  "Zhang",
+  "Baker",
+  "Ivanova",
+  "Olsen",
+  "Rahman",
+  "Adams",
+  "Garcia",
+  "Johnson",
+  "Lewis",
+  "Chung",
+  "Lopez",
+  "Hassan",
+  "Martinez",
+  "Anderson",
+  "Taylor",
+  "Thomas",
+  "Moore",
+  "Jackson",
+  "Martin",
+  "Lee",
+  "Walker",
+  "Hall",
+  "Allen",
+  "Young",
+  "King",
+  "Wright",
+  "Scott",
+  "Torres",
+  "Nguyen",
+  "Hill",
+  "Flores",
+  "Green",
+  "Mitchell",
+  "Carter",
+  "Roberts",
+  "Turner",
+  "Phillips",
+  "Campbell",
+  "Parker",
+  "Evans",
+  "Edwards",
+  "Collins",
+  "Stewart",
+  "Morris",
+  "Rogers",
+  "Reed",
+  "Cook",
+  "Morgan",
+  "Bell",
+  "Murphy",
+  "Bailey",
+  "Rivera",
+  "Cooper",
+  "Richardson",
+  "Cox",
+  "Howard",
+  "Ward",
+  "Peterson",
+  "Gray",
+  "Ramirez",
+  "James",
+  "Watson",
+  "Brooks",
+  "Kelly",
+  "Sanders",
+  "Price",
+  "Bennett",
+  "Wood",
+  "Barnes",
+  "Ross",
+  "Henderson",
+  "Coleman",
+  "Jenkins",
+  "Perry",
+  "Powell",
+  "Long",
+  "Patterson",
+  "Hughes",
+  "Flores",
+  "Washington",
+  "Butler",
+  "Simmons",
+];
+
+const postContents = [
+  "Just shipped a new feature! 🚀",
+  "Working on something exciting today.",
+  "Coffee fuels my code ☕",
+  "Who else loves debugging at 2am?",
+  "Refactoring old code feels so good.",
+  "Learning a new framework this week.",
+  "Open source contributions are the best!",
+  "Just hit a major milestone on my project.",
+  "The satisfaction of fixing a bug that's been haunting me.",
+  "Team collaboration makes everything better.",
+  "Reading through documentation again...",
+  "Pro tip: Always write tests first!",
+  "Excited about the new API we're building.",
+  "Performance optimization is oddly satisfying.",
+  "Just discovered a great new library.",
+  "Pair programming session was super productive.",
+  "Nothing beats clean, readable code.",
+  "Deployment day! Fingers crossed 🤞",
+  "That feeling when your code works on the first try.",
+  "Reviewing PRs and learning from the team.",
+  "Working remotely has its perks.",
+  "Setting up CI/CD pipelines today.",
+  "Database optimization saved the day.",
+  "Exploring microservices architecture.",
+  "Just finished a great tech talk.",
+  "Code review feedback is always valuable.",
+  "Scaling challenges keep things interesting.",
+  "The best code is code you don't have to write.",
+  "Automated testing is a game changer.",
+  "Learned something new about async/await today.",
+  "Building user-friendly interfaces is an art.",
+  "Security should always be a priority.",
+  "Loving the TypeScript experience.",
+  "REST vs GraphQL - both have their place.",
+  "Docker containers make deployment easier.",
+  "Monitoring and logging are crucial.",
+  "Code comments are documentation.",
+  "Accessibility matters in every project.",
+  "Version control saves lives.",
+  "Agile methodology works when done right.",
+];
+
+const commentTemplates = [
+  "Great post!",
+  "I totally agree with this.",
+  "Thanks for sharing!",
+  "This is really helpful.",
+  "Interesting perspective!",
+  "Love this! 🎉",
+  "Well said!",
+  "Can't wait to try this.",
+  "Same here!",
+  "Awesome work!",
+  "This made my day.",
+  "Super insightful.",
+  "Thanks for the tip!",
+  "Really appreciate this.",
+  "Solid advice.",
+  "This is gold.",
+  "Couldn't agree more.",
+  "Great idea!",
+  "Nice work!",
+  "Keep it up!",
+];
+
+function generateUsername(
+  firstName: string,
+  lastName: string,
+  index: number,
+): string {
+  const variations = [
+    `${firstName.toLowerCase()}${lastName.toLowerCase()}`,
+    `${firstName.toLowerCase()}_${lastName.toLowerCase()}`,
+    `${firstName.toLowerCase()}.${lastName.toLowerCase()}`,
+    `${firstName.toLowerCase()}${index}`,
+    `${firstName.toLowerCase()}_${index}`,
+    `${lastName.toLowerCase()}${index}`,
+  ];
+  return variations[index % variations.length];
+}
+
 async function main() {
+  console.log("🗑️  Cleaning up existing data...");
   await prisma.notification.deleteMany();
   await prisma.like.deleteMany();
   await prisma.comment.deleteMany();
@@ -19,349 +295,313 @@ async function main() {
   await prisma.user.deleteMany();
 
   const passwordHash = await bcrypt.hash("Password123!", 10);
+  const TARGET_USERS = 1200;
 
-  const usersData = [
-    {
-      username: "alice",
-      email: "alice@example.com",
-      firstName: "Alice",
-      lastName: "Nguyen",
-      plan: Plan.PRO,
-      planStatus: "active",
-      planStartedAt: new Date(),
-    },
-    {
-      username: "bob",
-      email: "bob@example.com",
-      firstName: "Bob",
-      lastName: "Hernandez",
-    },
-    {
-      username: "carol",
-      email: "carol@example.com",
-      firstName: "Carol",
-      lastName: "Singh",
-    },
-    {
-      username: "dave",
-      email: "dave@example.com",
-      firstName: "Dave",
-      lastName: "Okafor",
-    },
-    {
-      username: "erin",
-      email: "erin@example.com",
-      firstName: "Erin",
-      lastName: "Patel",
-    },
-    {
-      username: "frank",
-      email: "frank@example.com",
-      firstName: "Frank",
-      lastName: "Wong",
-    },
-    {
-      username: "grace",
-      email: "grace@example.com",
-      firstName: "Grace",
-      lastName: "Kim",
-    },
-    {
-      username: "hugo",
-      email: "hugo@example.com",
-      firstName: "Hugo",
-      lastName: "Silva",
-    },
-    {
-      username: "ivy",
-      email: "ivy@example.com",
-      firstName: "Ivy",
-      lastName: "Zhang",
-    },
-    {
-      username: "james",
-      email: "james@example.com",
-      firstName: "James",
-      lastName: "Baker",
-    },
-    {
-      username: "kira",
-      email: "kira@example.com",
-      firstName: "Kira",
-      lastName: "Ivanova",
-    },
-    {
-      username: "liam",
-      email: "liam@example.com",
-      firstName: "Liam",
-      lastName: "Olsen",
-    },
-    {
-      username: "maya",
-      email: "maya@example.com",
-      firstName: "Maya",
-      lastName: "Rahman",
-    },
-    {
-      username: "noah",
-      email: "noah@example.com",
-      firstName: "Noah",
-      lastName: "Adams",
-    },
-    {
-      username: "olivia",
-      email: "olivia@example.com",
-      firstName: "Olivia",
-      lastName: "Garcia",
-    },
-    {
-      username: "pete",
-      email: "pete@example.com",
-      firstName: "Pete",
-      lastName: "Johnson",
-    },
-    {
-      username: "quinn",
-      email: "quinn@example.com",
-      firstName: "Quinn",
-      lastName: "Lewis",
-    },
-    {
-      username: "rhea",
-      email: "rhea@example.com",
-      firstName: "Rhea",
-      lastName: "Chung",
-    },
-    {
-      username: "sara",
-      email: "sara@example.com",
-      firstName: "Sara",
-      lastName: "Lopez",
-    },
-    {
-      username: "tariq",
-      email: "tariq@example.com",
-      firstName: "Tariq",
-      lastName: "Hassan",
-    },
-  ].map((user) => ({
-    ...user,
-    password: passwordHash,
-  }));
+  console.log(`👥 Creating ${TARGET_USERS} users...`);
+  const usersData = [];
 
-  await prisma.user.createMany({ data: usersData });
+  for (let i = 0; i < TARGET_USERS; i++) {
+    const firstName = firstNames[i % firstNames.length];
+    const lastName =
+      lastNames[Math.floor(i / firstNames.length) % lastNames.length];
+    const username = generateUsername(firstName, lastName, i);
 
-  const users = await prisma.user.findMany({
-    where: { username: { in: usersData.map((user) => user.username) } },
-  });
+    const userData: any = {
+      username,
+      email: `${username}@example.com`,
+      firstName,
+      lastName,
+      password: passwordHash,
+    };
 
-  const userByUsername = new Map(users.map((user) => [user.username, user]));
+    // Make about 5% of users PRO members
+    if (i % 20 === 0) {
+      userData.plan = Plan.PRO;
+      userData.planStatus = "active";
+      userData.planStartedAt = new Date(
+        Date.now() - Math.random() * 90 * 24 * 60 * 60 * 1000,
+      );
+    }
 
-  const postInputs = [
-    {
-      author: "alice",
-      content: "Just shipped the first version of our social feed! 🚀",
-    },
-    { author: "bob", content: "Anyone up for a weekend hackathon?" },
-    {
-      author: "carol",
-      content: "Today I learned about Prisma transactions. Game changer.",
-    },
-    { author: "dave", content: "Coffee + focus mode = shipping mode." },
-    {
-      author: "erin",
-      content: "Building a recommendation engine. Lots of graph theory.",
-    },
-    { author: "frank", content: "New blog post on scaling Postgres indexes." },
-    { author: "grace", content: "Trying out a new design system this week." },
-    {
-      author: "hugo",
-      content: "Does anyone use server actions in production yet?",
-    },
-    { author: "ivy", content: "Just published a CSS micro-animations guide." },
-    { author: "james", content: "Shipping an API gateway this sprint." },
-    { author: "kira", content: "Monitoring dashboards are finally green." },
-    { author: "liam", content: "Spent the day fixing flaky tests." },
-    {
-      author: "maya",
-      content: "Pairing session notes: we cut latency by 35%.",
-    },
-    {
-      author: "noah",
-      content: "Refactoring the auth flow. Cleaner and faster.",
-    },
-    { author: "olivia", content: "Live-coded a feed ranking prototype." },
-    { author: "pete", content: "Thinking about moving to event sourcing." },
-    { author: "quinn", content: "Launch checklist done. Fingers crossed." },
-    { author: "rhea", content: "Setup a new CI pipeline with parallel jobs." },
-    { author: "sara", content: "Mentored two interns today. Proud moment." },
-    { author: "tariq", content: "Logging is now 3x cheaper. 🎉" },
-  ];
-
-  const posts = [] as { id: string; authorId: string }[];
-
-  for (const postInput of postInputs) {
-    const author = userByUsername.get(postInput.author);
-    if (!author) continue;
-    const post = await prisma.post.create({
-      data: {
-        authorId: author.id,
-        content: postInput.content,
-      },
-    });
-    posts.push({ id: post.id, authorId: post.authorId });
+    usersData.push(userData);
   }
 
-  const commentsData = [
-    { author: "bob", postIndex: 0, content: "Congrats! The UI looks slick." },
-    { author: "carol", postIndex: 0, content: "Nice work! Excited to try it." },
-    { author: "alice", postIndex: 1, content: "Count me in! What stack?" },
-    {
-      author: "dave",
-      postIndex: 2,
-      content: "Totally agree. Prisma + TS = 🔥",
-    },
-    { author: "erin", postIndex: 3, content: "Love the energy on this." },
-    { author: "frank", postIndex: 4, content: "Graph theory FTW." },
-    { author: "grace", postIndex: 5, content: "Drop the link!" },
-    {
-      author: "hugo",
-      postIndex: 6,
-      content: "Can’t wait to see the components.",
-    },
-    { author: "ivy", postIndex: 7, content: "I’m interested in this too." },
-    { author: "james", postIndex: 8, content: "Great write-up." },
-    {
-      author: "kira",
-      postIndex: 9,
-      content: "We did something similar last quarter.",
-    },
-    {
-      author: "liam",
-      postIndex: 10,
-      content: "Congrats on the green dashboards.",
-    },
-    {
-      author: "maya",
-      postIndex: 11,
-      content: "Flaky tests are brutal. Hang in there.",
-    },
-    { author: "noah", postIndex: 12, content: "35% is a huge win." },
-    {
-      author: "olivia",
-      postIndex: 13,
-      content: "Auth refactors are always worth it.",
-    },
-    {
-      author: "pete",
-      postIndex: 14,
-      content: "Feed ranking is a fun challenge.",
-    },
-    {
-      author: "quinn",
-      postIndex: 15,
-      content: "Event sourcing is a rabbit hole.",
-    },
-    { author: "rhea", postIndex: 16, content: "Rooting for the launch." },
-    { author: "sara", postIndex: 17, content: "Parallel jobs are the best." },
-    {
-      author: "tariq",
-      postIndex: 18,
-      content: "Congrats to you and the interns.",
-    },
-    { author: "alice", postIndex: 19, content: "Saving costs feels great." },
-  ].filter((comment) => posts[comment.postIndex]);
+  // Insert users in batches for better performance
+  const BATCH_SIZE = 100;
+  for (let i = 0; i < usersData.length; i += BATCH_SIZE) {
+    await prisma.user.createMany({
+      data: usersData.slice(i, i + BATCH_SIZE),
+    });
+  }
 
-  await prisma.comment.createMany({
-    data: commentsData.map((comment) => ({
-      authorId: userByUsername.get(comment.author)?.id ?? "",
-      postId: posts[comment.postIndex].id,
-      content: comment.content,
-    })),
-  });
+  const users = await prisma.user.findMany();
+  console.log(`✅ Created ${users.length} users`);
 
-  const likesData = posts.flatMap((post, index) => {
-    const likerUsernames = users
-      .filter((_, userIndex) => (userIndex + index) % 3 === 0)
-      .map((user) => user.id);
-    return likerUsernames.map((userId) => ({ userId, postId: post.id }));
-  });
+  // Create posts - about 40% of users create posts
+  console.log("📝 Creating posts...");
+  const postsData = [];
+  for (let i = 0; i < users.length; i++) {
+    if (i % 5 < 2) {
+      // 40% of users
+      const numPosts = Math.floor(Math.random() * 5) + 1; // 1-5 posts per active user
+      for (let j = 0; j < numPosts; j++) {
+        postsData.push({
+          authorId: users[i].id,
+          content:
+            postContents[Math.floor(Math.random() * postContents.length)],
+          createdAt: new Date(
+            Date.now() - Math.random() * 60 * 24 * 60 * 60 * 1000,
+          ), // Random date within last 60 days
+        });
+      }
+    }
+  }
 
-  await prisma.like.createMany({ data: likesData });
+  for (let i = 0; i < postsData.length; i += BATCH_SIZE) {
+    await prisma.post.createMany({
+      data: postsData.slice(i, i + BATCH_SIZE),
+    });
+  }
 
-  const followerPairs = users.flatMap((user, index) => {
-    const follows = users
-      .filter(
-        (_, otherIndex) =>
-          otherIndex !== index && (otherIndex + index) % 4 === 1,
-      )
-      .map((other) => ({ followerId: user.id, followingId: other.id }));
-    return follows;
-  });
+  const posts = await prisma.post.findMany();
+  console.log(`✅ Created ${posts.length} posts`);
 
-  await prisma.follower.createMany({ data: followerPairs });
-
-  const blockPairs = [
-    { blocker: "dave", blocked: "bob" },
-    { blocker: "ivy", blocked: "pete" },
-    { blocker: "tariq", blocked: "frank" },
-  ];
-
-  await prisma.block.createMany({
-    data: blockPairs
-      .map((pair) => ({
-        blockerId: userByUsername.get(pair.blocker)?.id ?? "",
-        blockedId: userByUsername.get(pair.blocked)?.id ?? "",
-      }))
-      .filter((pair) => pair.blockerId && pair.blockedId),
-  });
-
-  await prisma.refreshToken.createMany({
-    data: users.slice(0, 6).map((user) => ({
-      userId: user.id,
-      token: crypto.randomBytes(32).toString("hex"),
-      expiresAt: new Date(Date.now() + 1000 * 60 * 60 * 24 * 30),
-    })),
-  });
-
-  await prisma.notification.createMany({
-    data: [
-      {
-        userId: userByUsername.get("alice")?.id ?? "",
-        type: NotificationType.NEW_FOLLOWER,
-        relatedUserId: userByUsername.get("bob")?.id ?? "",
-        message: "Bob started following you.",
-      },
-      {
-        userId: userByUsername.get("alice")?.id ?? "",
-        type: NotificationType.COMMENT,
-        relatedUserId: userByUsername.get("carol")?.id ?? "",
-        relatedPostId: posts[0]?.id,
-        message: "Carol commented on your post.",
-      },
-      {
-        userId: userByUsername.get("bob")?.id ?? "",
-        type: NotificationType.LIKE,
-        relatedUserId: userByUsername.get("alice")?.id ?? "",
-        relatedPostId: posts[1]?.id,
-        message: "Alice liked your post.",
-      },
-    ].filter(
-      (notification) => notification.userId && notification.relatedUserId,
-    ),
-  });
-
+  // Create likes - varying engagement
+  console.log("❤️  Creating likes...");
+  const likesData = [];
   for (const post of posts) {
-    const [likesCount, commentsCount] = await Promise.all([
-      prisma.like.count({ where: { postId: post.id } }),
-      prisma.comment.count({ where: { postId: post.id } }),
-    ]);
+    const numLikes = Math.floor(Math.random() * 30); // 0-30 likes per post
+    const likerIndices = new Set<number>();
 
-    await prisma.post.update({
-      where: { id: post.id },
-      data: { likesCount, commentsCount },
+    while (likerIndices.size < numLikes) {
+      likerIndices.add(Math.floor(Math.random() * users.length));
+    }
+
+    for (const index of likerIndices) {
+      likesData.push({
+        userId: users[index].id,
+        postId: post.id,
+      });
+    }
+  }
+
+  for (let i = 0; i < likesData.length; i += BATCH_SIZE) {
+    await prisma.like.createMany({
+      data: likesData.slice(i, i + BATCH_SIZE),
+      skipDuplicates: true,
     });
   }
+  console.log(`✅ Created ${likesData.length} likes`);
+
+  // Create comments
+  console.log("💬 Creating comments...");
+  const commentsData = [];
+  for (const post of posts) {
+    const numComments = Math.floor(Math.random() * 8); // 0-8 comments per post
+
+    for (let i = 0; i < numComments; i++) {
+      const commenterIndex = Math.floor(Math.random() * users.length);
+      commentsData.push({
+        authorId: users[commenterIndex].id,
+        postId: post.id,
+        content:
+          commentTemplates[Math.floor(Math.random() * commentTemplates.length)],
+        createdAt: new Date(
+          post.createdAt.getTime() + Math.random() * 24 * 60 * 60 * 1000,
+        ),
+      });
+    }
+  }
+
+  for (let i = 0; i < commentsData.length; i += BATCH_SIZE) {
+    await prisma.comment.createMany({
+      data: commentsData.slice(i, i + BATCH_SIZE),
+    });
+  }
+  console.log(`✅ Created ${commentsData.length} comments`);
+
+  // Create follower relationships - each user follows 5-20 others
+  console.log("🤝 Creating follower relationships...");
+  const followerPairs = [];
+  for (const user of users) {
+    const numFollowing = Math.floor(Math.random() * 16) + 5; // 5-20 follows
+    const followingIndices = new Set<number>();
+
+    const userIndex = users.findIndex((u) => u.id === user.id);
+    while (followingIndices.size < numFollowing) {
+      const randomIndex = Math.floor(Math.random() * users.length);
+      if (randomIndex !== userIndex) {
+        followingIndices.add(randomIndex);
+      }
+    }
+
+    for (const index of followingIndices) {
+      followerPairs.push({
+        followerId: user.id,
+        followingId: users[index].id,
+      });
+    }
+  }
+
+  for (let i = 0; i < followerPairs.length; i += BATCH_SIZE) {
+    await prisma.follower.createMany({
+      data: followerPairs.slice(i, i + BATCH_SIZE),
+      skipDuplicates: true,
+    });
+  }
+  console.log(`✅ Created ${followerPairs.length} follower relationships`);
+
+  // Create some blocks - about 2% of users have blocks
+  console.log("🚫 Creating blocks...");
+  const blockPairs = [];
+  for (let i = 0; i < users.length; i++) {
+    if (Math.random() < 0.02) {
+      // 2% chance
+      const numBlocks = Math.floor(Math.random() * 3) + 1; // 1-3 blocks
+      const blockedIndices = new Set<number>();
+
+      while (blockedIndices.size < numBlocks) {
+        const randomIndex = Math.floor(Math.random() * users.length);
+        if (randomIndex !== i) {
+          blockedIndices.add(randomIndex);
+        }
+      }
+
+      for (const index of blockedIndices) {
+        blockPairs.push({
+          blockerId: users[i].id,
+          blockedId: users[index].id,
+        });
+      }
+    }
+  }
+
+  if (blockPairs.length > 0) {
+    await prisma.block.createMany({
+      data: blockPairs,
+      skipDuplicates: true,
+    });
+  }
+  console.log(`✅ Created ${blockPairs.length} blocks`);
+
+  // Create refresh tokens for about 20% of users (active sessions)
+  console.log("🔑 Creating refresh tokens...");
+  const refreshTokensData = [];
+  for (let i = 0; i < users.length; i++) {
+    if (i % 5 === 0) {
+      // 20% of users
+      refreshTokensData.push({
+        userId: users[i].id,
+        token: crypto.randomBytes(32).toString("hex"),
+        expiresAt: new Date(Date.now() + 1000 * 60 * 60 * 24 * 30),
+      });
+    }
+  }
+
+  for (let i = 0; i < refreshTokensData.length; i += BATCH_SIZE) {
+    await prisma.refreshToken.createMany({
+      data: refreshTokensData.slice(i, i + BATCH_SIZE),
+    });
+  }
+  console.log(`✅ Created ${refreshTokensData.length} refresh tokens`);
+
+  // Create notifications - recent activity notifications
+  console.log("🔔 Creating notifications...");
+  const notificationsData = [];
+
+  // Sample recent likes for notifications
+  const recentLikes = await prisma.like.findMany({
+    take: 200,
+    orderBy: { createdAt: "desc" },
+    include: { post: true },
+  });
+
+  for (const like of recentLikes) {
+    if (like.post.authorId !== like.userId) {
+      notificationsData.push({
+        userId: like.post.authorId,
+        type: NotificationType.LIKE,
+        relatedUserId: like.userId,
+        relatedPostId: like.postId,
+        message: "liked your post.",
+        createdAt: like.createdAt,
+      });
+    }
+  }
+
+  // Sample recent comments for notifications
+  const recentComments = await prisma.comment.findMany({
+    take: 200,
+    orderBy: { createdAt: "desc" },
+    include: { post: true },
+  });
+
+  for (const comment of recentComments) {
+    if (comment.post.authorId !== comment.authorId) {
+      notificationsData.push({
+        userId: comment.post.authorId,
+        type: NotificationType.COMMENT,
+        relatedUserId: comment.authorId,
+        relatedPostId: comment.postId,
+        message: "commented on your post.",
+        createdAt: comment.createdAt,
+      });
+    }
+  }
+
+  // Sample recent follows for notifications
+  const recentFollows = await prisma.follower.findMany({
+    take: 200,
+    orderBy: { createdAt: "desc" },
+  });
+
+  for (const follow of recentFollows) {
+    notificationsData.push({
+      userId: follow.followingId,
+      type: NotificationType.NEW_FOLLOWER,
+      relatedUserId: follow.followerId,
+      message: "started following you.",
+      createdAt: follow.createdAt,
+    });
+  }
+
+  for (let i = 0; i < notificationsData.length; i += BATCH_SIZE) {
+    await prisma.notification.createMany({
+      data: notificationsData.slice(i, i + BATCH_SIZE),
+    });
+  }
+  console.log(`✅ Created ${notificationsData.length} notifications`);
+
+  // Update post counts
+  console.log("📊 Updating post counts...");
+  const postIds = posts.map((p) => p.id);
+  for (let i = 0; i < postIds.length; i += BATCH_SIZE) {
+    const batchIds = postIds.slice(i, i + BATCH_SIZE);
+
+    for (const postId of batchIds) {
+      const [likesCount, commentsCount] = await Promise.all([
+        prisma.like.count({ where: { postId } }),
+        prisma.comment.count({ where: { postId } }),
+      ]);
+
+      await prisma.post.update({
+        where: { id: postId },
+        data: { likesCount, commentsCount },
+      });
+    }
+  }
+
+  console.log("✅ All counts updated");
+  console.log("\n🎉 Database seeded successfully!");
+  console.log(`📊 Summary:
+  - Users: ${users.length}
+  - Posts: ${posts.length}
+  - Comments: ${commentsData.length}
+  - Likes: ${likesData.length}
+  - Follows: ${followerPairs.length}
+  - Blocks: ${blockPairs.length}
+  - Notifications: ${notificationsData.length}
+  `);
 }
 
 main()
