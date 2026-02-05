@@ -1,6 +1,5 @@
 import { Router } from "express";
-import { register, login, logout, refresh } from './auth.controller';
-import { authLimiter } from '../../middleware/rateLimit.middleware';
+import { register, login, logout, refresh } from "./auth.controller";
 
 const router = Router();
 
@@ -57,7 +56,7 @@ const router = Router();
  *       400:
  *         description: Validation error
  */
-router.post("/register", authLimiter, register);
+router.post("/register", register);
 /**
  * @openapi
  * /api/v1/auth/login:
@@ -91,7 +90,7 @@ router.post("/register", authLimiter, register);
  *       401:
  *         description: Invalid credentials
  */
-router.post("/login", authLimiter, login);
+router.post("/login", login);
 /**
  * @openapi
  * /api/v1/auth/logout:

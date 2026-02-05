@@ -1,12 +1,11 @@
 import { Router } from "express";
-import { authenticate } from '../../middleware/authenticate.middleware';
-import { createCommentLimiter } from '../../middleware/rateLimit.middleware';
+import { authenticate } from "../../middleware/authenticate.middleware";
 import {
   createCommentHandler,
   getCommentsHandler,
   updateCommentHandler,
   deleteCommentHandler,
-} from './comments.controller';
+} from "./comments.controller";
 
 const router = Router();
 
@@ -51,7 +50,7 @@ const router = Router();
  *       400:
  *         description: Validation error
  */
-router.post("/", authenticate, createCommentLimiter, createCommentHandler);
+router.post("/", authenticate, createCommentHandler);
 /**
  * @openapi
  * /api/v1/posts/{postId}/comments:

@@ -1,18 +1,14 @@
 import "dotenv/config";
 import express from "express";
 import cors from "cors";
-import { PrismaClient } from './generated/prisma/index';
-import authRouter from './modules/auth/auth.routes';
-import userRouter from './modules/user/user.routes';
-import postsRouter from './modules/posts/posts.routes';
-import notificationsRouter from './modules/notifications/notification.routes';
-import blocksRouter from './modules/blocks/block.routes';
-import billingRouter from './modules/billing/billing.routes';
-import { swaggerRouter } from './swagger';
-import {
-  authLimiter,
-  generalLimiter,
-} from './middleware/rateLimit.middleware';
+import { PrismaClient } from "./generated/prisma/index";
+import authRouter from "./modules/auth/auth.routes";
+import userRouter from "./modules/user/user.routes";
+import postsRouter from "./modules/posts/posts.routes";
+import notificationsRouter from "./modules/notifications/notification.routes";
+import blocksRouter from "./modules/blocks/block.routes";
+import billingRouter from "./modules/billing/billing.routes";
+import { swaggerRouter } from "./swagger";
 
 const app = express();
 const PORT = Number(process.env.PORT);
@@ -37,14 +33,11 @@ app.use(
 );
 app.use(express.urlencoded({ extended: true }));
 
-// Apply general rate limiter to all API routes
-app.use("/api/v1", generalLimiter);
-
 // Swagger docs and OpenAPI spec
 app.use("/api", swaggerRouter);
 
 // Auth
-app.use("/api/v1/auth", authLimiter, authRouter);
+app.use("/api/v1/auth", authRouter);
 // Users & followers
 app.use("/api/v1/users", userRouter);
 // Posts, likes & Comments

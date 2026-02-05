@@ -4,15 +4,10 @@ import {
   getPost,
   updatePostContent,
   deletePostContent,
-} from './posts.controller';
-import { authenticate } from '../../middleware/authenticate.middleware';
-import {
-  createPostLimiter,
-  createCommentLimiter,
-  createLikeLimiter,
-} from '../../middleware/rateLimit.middleware';
-import likeRouter from '../likes/likes.routes';
-import commentsRouter from '../comments/comments.routes';
+} from "./posts.controller";
+import { authenticate } from "../../middleware/authenticate.middleware";
+import likeRouter from "../likes/likes.routes";
+import commentsRouter from "../comments/comments.routes";
 
 const router = Router();
 
@@ -50,7 +45,7 @@ const router = Router();
  *       400:
  *         description: Validation error
  */
-router.post("/", authenticate, createPostLimiter, createNewPost);
+router.post("/", authenticate, createNewPost);
 /**
  * @openapi
  * /api/v1/posts/feed:

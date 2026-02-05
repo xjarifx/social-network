@@ -1,7 +1,6 @@
 import { Router } from "express";
-import { authenticate } from '../../middleware/authenticate.middleware';
-import { createLikeLimiter } from '../../middleware/rateLimit.middleware';
-import { likePostHandler, unlikePostHandler } from './likes.controller';
+import { authenticate } from "../../middleware/authenticate.middleware";
+import { likePostHandler, unlikePostHandler } from "./likes.controller";
 
 const router = Router();
 
@@ -29,7 +28,7 @@ const router = Router();
  *       400:
  *         description: Already liked or invalid post
  */
-router.post("/", authenticate, createLikeLimiter, likePostHandler);
+router.post("/", authenticate, likePostHandler);
 /**
  * @openapi
  * /api/v1/posts/{postId}/likes:

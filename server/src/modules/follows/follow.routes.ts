@@ -1,12 +1,11 @@
 import { Router } from "express";
-import { authenticate } from '../../middleware/authenticate.middleware';
-import { followLimiter } from '../../middleware/rateLimit.middleware';
+import { authenticate } from "../../middleware/authenticate.middleware";
 import {
   follow,
   getUserFollowers,
   getUserFollowing,
   unfollow,
-} from './follow.controller';
+} from "./follow.controller";
 
 const router = Router();
 
@@ -48,7 +47,7 @@ const router = Router();
  *       400:
  *         description: Already following or invalid user
  */
-router.post("/", authenticate, followLimiter, follow);
+router.post("/", authenticate, follow);
 /**
  * @openapi
  * /api/v1/users/{userId}/follow:
@@ -71,7 +70,7 @@ router.post("/", authenticate, followLimiter, follow);
  *       404:
  *         description: Follow relationship not found
  */
-router.delete("/:followingId", authenticate, followLimiter, unfollow);
+router.delete("/:followingId", authenticate, unfollow);
 /**
  * @openapi
  * /api/v1/users/{userId}/followers:
