@@ -3,68 +3,78 @@
 ```
 POST   /api/v1/auth/register     # Create new user account
 POST   /api/v1/auth/login        # Authenticate user and get tokens
-POST   /api/v1/auth/logout       # Invalidate user session
-POST   /api/v1/auth/refresh      # Refresh access token using refresh token
+POST   /api/v1/auth/logout       # Invalidate user session (requires authentication)
+POST   /api/v1/auth/refresh      # Refresh access token using refresh token (requires authentication)
 ```
 
 ## User Endpoints
 
 ```
-GET    /api/v1/users/:userId                                # Fetch user profile by ID
-PATCH  /api/v1/users/me                                     # Update current user's profile
+GET    /api/v1/users/:userId     # Fetch user profile by ID
+PATCH  /api/v1/users/me          # Update current user's profile (requires authentication)
 ```
 
 ## Post Endpoints
 
 ```
-POST   /api/v1/posts                                    # Create new post
-GET    /api/v1/posts/feed?limit=20&offset=0             # NEWS FEED
-GET    /api/v1/posts/:postId                            # Fetch single post by ID
-GET    /api/v1/users/:userId/posts?limit=20&offset=0    # USER POSTS (timeline)
-PATCH  /api/v1/posts/:postId                            # Update post content
-DELETE /api/v1/posts/:postId                            # Delete post
+POST   /api/v1/posts                          # Create new post (requires authentication)
+GET    /api/v1/posts                          # Get all posts/timeline (requires authentication)
+GET    /api/v1/posts/feed                     # Get news feed (requires authentication)
+GET    /api/v1/posts/:postId                  # Fetch single post by ID
+PATCH  /api/v1/posts/:postId                  # Update post content (requires authentication)
+DELETE /api/v1/posts/:postId                  # Delete post (requires authentication)
 ```
 
 ## Like Endpoints
 
 ```
-POST   /api/v1/posts/:postId/likes                      # Like a post (authenticated user likes the post)
-DELETE /api/v1/posts/:postId/likes                      # Remove like from post (authenticated user unlikes the post)
-GET    /api/v1/posts/:postId/likes?limit=20&offset=0    # Get list of users who liked the post
+POST   /api/v1/posts/:postId/likes            # Like a post (requires authentication)
+DELETE /api/v1/posts/:postId/likes            # Remove like from post (requires authentication)
+GET    /api/v1/posts/:postId/likes            # Get list of users who liked the post (requires authentication)
 ```
 
 ## Comment Endpoints
 
 ```
-POST   /api/v1/posts/:postId/comments                   # Create comment on post
-GET    /api/v1/posts/:postId/comments?limit=20&offset=0 # Get all comments on post
-GET    /api/v1/posts/:postId/comments/:commentId        # Fetch single comment by ID
-PATCH  /api/v1/posts/:postId/comments/:commentId        # Update comment content
-DELETE /api/v1/posts/:postId/comments/:commentId        # Delete comment
+POST   /api/v1/posts/:postId/comments               # Create comment on post (requires authentication)
+GET    /api/v1/posts/:postId/comments               # Get all comments on post
+GET    /api/v1/posts/:postId/comments/:commentId    # Fetch single comment by ID
+PATCH  /api/v1/posts/:postId/comments/:commentId    # Update comment content (requires authentication)
+DELETE /api/v1/posts/:postId/comments/:commentId    # Delete comment (requires authentication)
 ```
 
 ## Follow Endpoints
 
 ```
-POST   /api/v1/users/:userId/follow                         # Follow a user (authenticated user follows :userId)
-DELETE /api/v1/users/:userId/follow                         # Unfollow a user (authenticated user unfollows :userId)
-GET    /api/v1/users/:userId/followers?limit=20&offset=0    # Get list of user's followers
-GET    /api/v1/users/:userId/following?limit=20&offset=0    # Get list of users that user is following
+POST   /api/v1/users/:userId/follow                 # Follow a user (requires authentication)
+DELETE /api/v1/users/:userId/follow/:followingId    # Unfollow a user (requires authentication)
+GET    /api/v1/users/:userId/followers              # Get list of user's followers (requires authentication)
+GET    /api/v1/users/:userId/following              # Get list of users that user is following (requires authentication)
 ```
 
 ## Notification Endpoints
 
 ```
-GET    /api/v1/notifications?limit=20&offset=0&read=false # Get user's notifications
-GET    /api/v1/notifications/:notificationId              # Fetch single notification by ID
-PATCH  /api/v1/notifications/:notificationId              # Mark notification as read/update status
-DELETE /api/v1/notifications/:notificationId              # Delete notification
+GET    /api/v1/notifications                  # Get user's notifications (requires authentication)
+GET    /api/v1/notifications/:notificationId  # Fetch single notification by ID (requires authentication)
+PATCH  /api/v1/notifications/:notificationId  # Mark notification as read/update status (requires authentication)
+DELETE /api/v1/notifications/:notificationId  # Delete notification (requires authentication)
 ```
 
 ## Block Endpoints
 
 ```
-POST   /api/v1/blocks                                     # Block a user (authenticated user blocks another user)
-DELETE /api/v1/blocks/:userId                             # Unblock a user (authenticated user unblocks :userId)
-GET    /api/v1/blocks?limit=20&offset=0                   # Get list of blocked users
+POST   /api/v1/blocks                         # Block a user (requires authentication)
+GET    /api/v1/blocks                         # Get list of blocked users (requires authentication)
+DELETE /api/v1/blocks/:userId                 # Unblock a user (requires authentication)
+```
+
+## Billing Endpoints
+
+```
+POST   /api/v1/billing/checkout-session       # Create subscription checkout session (requires authentication)
+GET    /api/v1/billing/me                     # Get billing status (requires authentication)
+POST   /api/v1/billing/webhook                # Stripe webhook
+GET    /api/v1/billing/success                # Billing success callback (requires authentication)
+GET    /api/v1/billing/cancel                 # Billing cancel callback (requires authentication)
 ```
