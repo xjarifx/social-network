@@ -13,6 +13,20 @@ const router = Router();
  * /api/v1/users/{userId}:
  *   get:
  *     summary: Get user profile
+ *     tags:
+ *       - Users
+ *     parameters:
+ *       - in: path
+ *         name: userId
+ *         required: true
+ *         schema:
+ *           type: string
+ *           format: uuid
+ *     responses:
+ *       200:
+ *         description: User profile retrieved successfully
+ *       404:
+ *         description: User not found
  */
 router.get("/:userId", getProfile);
 /**
@@ -20,6 +34,33 @@ router.get("/:userId", getProfile);
  * /api/v1/users/me:
  *   patch:
  *     summary: Update own profile
+ *     tags:
+ *       - Users
+ *     security:
+ *       - BearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               firstName:
+ *                 type: string
+ *                 maxLength: 50
+ *               lastName:
+ *                 type: string
+ *                 maxLength: 50
+ *           examples:
+ *             UpdateProfileExample:
+ *               value:
+ *                 firstName: "Jonathan"
+ *                 lastName: "Smith"
+ *     responses:
+ *       200:
+ *         description: Profile updated successfully
+ *       400:
+ *         description: Invalid input
  */
 router.patch("/me", authenticate, updateProfile);
 /**
@@ -27,6 +68,15 @@ router.patch("/me", authenticate, updateProfile);
  * /api/v1/users/{userId}/posts:
  *   patch:
  *     summary: Update user posts
+ *     tags:
+ *       - Users
+ *     parameters:
+ *       - in: path
+ *         name: userId
+ *         required: true
+ *         schema:
+ *           type: string
+ *           format: uuid
  */
 router.patch("/:userId/posts", postRouter);
 
