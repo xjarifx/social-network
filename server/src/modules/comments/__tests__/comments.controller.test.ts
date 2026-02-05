@@ -104,7 +104,7 @@ describe("Comments Controller", () => {
     it("should get comments for a post", async () => {
       const mockRequest: any = createMockRequest({
         params: { postId: testPost.id },
-        query: { limit: 20, offset: 0 },
+        query: { limit: "20", offset: "0" },
       });
 
       const mockResponse$ = {

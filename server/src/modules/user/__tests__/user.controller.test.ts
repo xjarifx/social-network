@@ -162,7 +162,7 @@ describe("User Controller", () => {
     it("should get user timeline successfully", async () => {
       const mockRequest: any = createMockRequest({
         params: { userId: testUser.id },
-        query: { limit: 20, offset: 0 },
+        query: { limit: "20", offset: "0" },
       });
 
       const mockResponse$ = {
@@ -183,7 +183,7 @@ describe("User Controller", () => {
     it("should handle pagination parameters", async () => {
       const mockRequest: any = createMockRequest({
         params: { userId: testUser.id },
-        query: { limit: 50, offset: 100 },
+        query: { limit: "50", offset: "100" },
       });
 
       const mockResponse$ = {

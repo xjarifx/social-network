@@ -1,14 +1,16 @@
 import jwt from "jsonwebtoken";
 import type { Request, Response, NextFunction } from "express";
+import type { SignOptions } from "jsonwebtoken";
 
 /**
  * Generates a valid JWT token for testing
  */
 export const generateTestToken = (userId: string): string => {
   const secret = process.env.JWT_SECRET || "test-jwt-secret-key-for-testing";
-  const expiresIn = process.env.JWT_EXPIRES_IN || "1h";
+  const expiresIn: string | number = process.env.JWT_EXPIRES_IN || "1h";
+  const options: SignOptions = { expiresIn };
 
-  return jwt.sign({ userId }, secret, { expiresIn });
+  return jwt.sign({ userId }, secret, options);
 };
 
 /**
@@ -17,9 +19,10 @@ export const generateTestToken = (userId: string): string => {
 export const generateTestRefreshToken = (userId: string): string => {
   const secret =
     process.env.REFRESH_TOKEN_SECRET || "test-refresh-token-secret-for-testing";
-  const expiresIn = process.env.REFRESH_TOKEN_EXPIRES_IN || "7d";
+  const expiresIn: string | number = process.env.REFRESH_TOKEN_EXPIRES_IN || "7d";
+  const options: SignOptions = { expiresIn };
 
-  return jwt.sign({ userId }, secret, { expiresIn });
+  return jwt.sign({ userId }, secret, options);
 };
 
 /**
@@ -27,7 +30,7 @@ export const generateTestRefreshToken = (userId: string): string => {
  */
 export const createMockRequest = (
   overrides?: Partial<Request>,
-): Partial<Request> => {
+): Partial<Request> & { user?: any } => {
   return {
     body: {},
     params: {},
@@ -35,7 +38,7 @@ export const createMockRequest = (
     headers: {},
     user: undefined,
     ...overrides,
-  };
+  } as Partial<Request> & { user?: any };
 };
 
 /**
