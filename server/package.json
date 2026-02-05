@@ -19,6 +19,8 @@
     "jsonwebtoken": "^9.0.3",
     "pg": "^8.17.1",
     "stripe": "^20.3.0",
+    "swagger-jsdoc": "^6.2.8",
+    "swagger-ui-express": "^5.0.1",
     "zod": "^4.3.5"
   },
   "devDependencies": {
@@ -28,6 +30,7 @@
     "@types/jsonwebtoken": "^9.0.7",
     "@types/node": "^25.0.9",
     "@types/pg": "^8.16.0",
+    "@types/swagger-jsdoc": "^6.0.4",
     "prisma": "^6.19.2",
     "tsx": "^4.21.0",
     "typescript": "^5.9.3"

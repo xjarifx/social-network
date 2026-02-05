@@ -6,13 +6,33 @@ const router = Router();
 
 // AUTH
 
-// register a new user
+/**
+ * @openapi
+ * /api/v1/auth/register:
+ *   post:
+ *     summary: Register a new user
+ */
 router.post("/register", authLimiter, register);
-// login an existing user
+/**
+ * @openapi
+ * /api/v1/auth/login:
+ *   post:
+ *     summary: Login an existing user
+ */
 router.post("/login", authLimiter, login);
-// logout user
+/**
+ * @openapi
+ * /api/v1/auth/logout:
+ *   post:
+ *     summary: Logout user
+ */
 router.post("/logout", logout);
-// refresh access token
+/**
+ * @openapi
+ * /api/v1/auth/refresh:
+ *   post:
+ *     summary: Refresh access token
+ */
 router.post("/refresh", refresh);
 
 export default router;

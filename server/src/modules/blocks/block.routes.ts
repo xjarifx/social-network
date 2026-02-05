@@ -6,11 +6,22 @@ const router = Router();
 
 // BLOCKS
 
-// Block a user
+/**
+ * @openapi
+ * /api/v1/blocks:
+ *   post:
+ *     summary: Block a user
+ *   get:
+ *     summary: Get all blocked users
+ */
 router.post("/", authenticate, block);
-// Get all blocked users
 router.get("/", authenticate, getBlocked);
-// Unblock a user
+/**
+ * @openapi
+ * /api/v1/blocks/{userId}:
+ *   delete:
+ *     summary: Unblock a user
+ */
 router.delete("/:userId", authenticate, unblock);
 
 export default router;

@@ -12,15 +12,28 @@ const router = Router();
 
 // COMMENTS
 
-// create a comment
+/**
+ * @openapi
+ * /api/v1/comments:
+ *   post:
+ *     summary: Create a comment
+ *   get:
+ *     summary: Get all comments on the post
+ */
 router.post("/", authenticate, createCommentLimiter, createCommentHandler);
-// get all comments on the post
 router.get("/", getCommentsHandler);
-// get a single comment
+/**
+ * @openapi
+ * /api/v1/comments/{commentId}:
+ *   get:
+ *     summary: Get a single comment
+ *   patch:
+ *     summary: Update a comment
+ *   delete:
+ *     summary: Delete a comment
+ */
 router.get("/:commentId", getCommentsHandler);
-// update a comment
 router.patch("/:commentId", authenticate, updateCommentHandler);
-// delete a comment
 router.delete("/:commentId", authenticate, deleteCommentHandler);
 
 export default router;

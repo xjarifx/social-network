@@ -8,22 +8,49 @@ const router = Router();
 
 // USER
 
-// get user profile
+/**
+ * @openapi
+ * /api/v1/users/{userId}:
+ *   get:
+ *     summary: Get user profile
+ */
 router.get("/:userId", getProfile);
-// update OWN profile
+/**
+ * @openapi
+ * /api/v1/users/me:
+ *   patch:
+ *     summary: Update own profile
+ */
 router.patch("/me", authenticate, updateProfile);
-// User POSTS (timeline)
+/**
+ * @openapi
+ * /api/v1/users/{userId}/posts:
+ *   patch:
+ *     summary: Update user posts
+ */
 router.patch("/:userId/posts", postRouter);
 
 // FOLLOW
 
-// follow a user
+/**
+ * @openapi
+ * /api/v1/users/{userId}/followers:
+ *   post:
+ *     summary: Follow a user
+ *   delete:
+ *     summary: Unfollow a user
+ *   get:
+ *     summary: Get followers of a user
+ */
 router.post("/:userId/followers", followRouter);
-// unfollow a user
 router.delete("/:userId/followers", followRouter);
-// get followers of a user
 router.get("/:userId/followers", followRouter);
-// get following of a user
+/**
+ * @openapi
+ * /api/v1/users/{userId}/following:
+ *   get:
+ *     summary: Get following of a user
+ */
 router.get("/:userId/following", followRouter);
 
 export default router;

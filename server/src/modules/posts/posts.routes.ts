@@ -18,17 +18,47 @@ const router = Router();
 
 // POSTS
 
-// create post
+/**
+ * @openapi
+ * /api/v1/posts:
+ *   post:
+ *     summary: Create a new post
+ */
 router.post("/", authenticate, createPostLimiter, createNewPost);
-// NEWS FEED (at this moment only followed users' posts)
+/**
+ * @openapi
+ * /api/v1/posts/feed:
+ *   get:
+ *     summary: Get news feed
+ */
 router.get("/feed", authenticate);
-// TIMELINE (own posts or another user's posts as per userId)
+/**
+ * @openapi
+ * /api/v1/posts:
+ *   get:
+ *     summary: Get timeline posts
+ */
 router.get("/", authenticate);
-// get single post
+/**
+ * @openapi
+ * /api/v1/posts/{postId}:
+ *   get:
+ *     summary: Get single post
+ */
 router.get("/:postId", getPost);
-// update post
+/**
+ * @openapi
+ * /api/v1/posts/{postId}:
+ *   patch:
+ *     summary: Update post
+ */
 router.patch("/:postId", authenticate, updatePostContent);
-// delete post
+/**
+ * @openapi
+ * /api/v1/posts/{postId}:
+ *   delete:
+ *     summary: Delete post
+ */
 router.delete("/:postId", authenticate, deletePostContent);
 
 // ----------------------------------------------------------------

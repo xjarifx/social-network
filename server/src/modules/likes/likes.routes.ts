@@ -7,11 +7,26 @@ const router = Router();
 
 // LIKES
 
-// like a post
+/**
+ * @openapi
+ * /api/v1/likes:
+ *   post:
+ *     summary: Like a post
+ */
 router.post("/", authenticate, createLikeLimiter, likePostHandler);
-// unlike a post
+/**
+ * @openapi
+ * /api/v1/likes/{likeId}:
+ *   delete:
+ *     summary: Unlike a post
+ */
 router.delete("/:likeId", authenticate, unlikePostHandler);
-// get list of users who liked the post
+/**
+ * @openapi
+ * /api/v1/likes:
+ *   get:
+ *     summary: Get users who liked the post
+ */
 router.get("/", authenticate, unlikePostHandler);
 
 export default router;

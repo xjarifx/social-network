@@ -1,23 +1,35 @@
 import { Router } from "express";
 import { authenticate } from "../../middleware/authenticate.middleware.js";
 import {
-	getNotification,
-	listNotifications,
-	removeNotification,
-	updateNotification,
+  getNotification,
+  listNotifications,
+  removeNotification,
+  updateNotification,
 } from "./notification.controller.js";
 
 const router = Router();
 
 // NOTIFICATIONS
 
-// get all notifications for a user
+/**
+ * @openapi
+ * /api/v1/notifications:
+ *   get:
+ *     summary: Get all notifications for a user
+ */
 router.get("/", authenticate, listNotifications);
-// get a single notification by id
+/**
+ * @openapi
+ * /api/v1/notifications/{notificationId}:
+ *   get:
+ *     summary: Get a single notification
+ *   patch:
+ *     summary: Mark notification as read
+ *   delete:
+ *     summary: Delete a notification
+ */
 router.get("/:notificationId", authenticate, getNotification);
-// mark a notification as read
 router.patch("/:notificationId", authenticate, updateNotification);
-// delete a notification
 router.delete("/:notificationId", authenticate, removeNotification);
 
 export default router;

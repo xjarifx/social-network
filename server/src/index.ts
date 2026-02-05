@@ -8,6 +8,7 @@ import postsRouter from "./modules/posts/posts.routes.js";
 import notificationsRouter from "./modules/notifications/notification.routes.js";
 import blocksRouter from "./modules/blocks/block.routes.js";
 import billingRouter from "./modules/billing/billing.routes.js";
+import { swaggerRouter } from "./swagger.js";
 import {
   authLimiter,
   generalLimiter,
@@ -39,16 +40,19 @@ app.use(express.urlencoded({ extended: true }));
 // Apply general rate limiter to all API routes
 app.use("/api/v1", generalLimiter);
 
+// Swagger docs and OpenAPI spec
+app.use("/api", swaggerRouter);
+
 // Auth
-app.use("api/v1/auth", authLimiter, authRouter);
+app.use("/api/v1/auth", authLimiter, authRouter);
 // Users & followers
-app.use("api/v1/users", userRouter);
+app.use("/api/v1/users", userRouter);
 // Posts, likes & Comments
-app.use("api/v1/posts", postsRouter);
+app.use("/api/v1/posts", postsRouter);
 // Notifications
-app.use("api/v1/notifications", notificationsRouter);
+app.use("/api/v1/notifications", notificationsRouter);
 // Blocks
-app.use("api/v1/blocks", blocksRouter);
+app.use("/api/v1/blocks", blocksRouter);
 // Billing
 app.use("/api/v1/billing", billingRouter);
 
