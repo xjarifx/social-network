@@ -1,5 +1,5 @@
-import { PrismaClient } from '../../generated/prisma/index';
-import { likePostParamsSchema } from './likes.validation';
+import { PrismaClient } from "../../generated/prisma/index";
+import { likePostParamsSchema } from "./likes.validation";
 
 const prisma = new PrismaClient();
 
@@ -149,5 +149,60 @@ export const unlikePost = async (
 
   return {
     message: "Post unliked successfully",
+  };
+};
+
+export const getPostLikes = async (
+  params: Record<string, unknown>,
+  query: Record<string, unknown>,
+) => {
+  const paramValidation = likePostParamsSchema.safeParse({ params });
+  if (!paramValidation.success) {
+    throw { status: 400, error: paramValidation.error.flatten() };
+  }
+
+  const limit = query.limit ? parseInt(query.limit as string, 10) : 20;
+  const offset = query.offset ? parseInt(query.offset as string, 10) : 0;
+
+  const { postId } = paramValidation.data.params;
+
+  const post = await prisma.post.findUnique({
+    where: { id: postId },
+  });
+
+  if (!post) {
+    throw { status: 404, error: "Post not found" };
+  }
+
+  const likes = await prisma.like.findMany({
+    where: { postId },
+    include: {
+      user: {
+        select: {
+          id: true,
+          username: true,
+          firstName: true,
+          lastName: true,
+        },
+      },
+    },
+    orderBy: { createdAt: "desc" },
+    take: limit,
+    skip: offset,
+  });
+
+  const total = await prisma.like.count({ where: { postId } });
+
+  return {
+    likes: likes.map((like) => ({
+      id: like.id,
+      userId: like.userId,
+      postId: like.postId,
+      user: like.user,
+      createdAt: like.createdAt,
+    })),
+    total,
+    limit,
+    offset,
   };
 };

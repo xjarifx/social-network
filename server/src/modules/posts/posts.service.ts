@@ -1,9 +1,9 @@
-import { PrismaClient } from '../../generated/prisma/index';
+import { PrismaClient } from "../../generated/prisma/index";
 import {
   createPostSchema,
   postIdParamSchema,
   updatePostSchema,
-} from './posts.validation';
+} from "./posts.validation";
 
 const prisma = new PrismaClient();
 
@@ -12,6 +12,64 @@ export const ensureString = (val: unknown): string =>
 
 const getPlanPostLimit = (plan: string | null | undefined): number =>
   plan === "PRO" ? 100 : 20;
+
+export const getFeed = async (
+  userId: string,
+  query: Record<string, unknown>,
+) => {
+  const limit = query.limit ? parseInt(query.limit as string) : 20;
+  const offset = query.offset ? parseInt(query.offset as string) : 0;
+
+  // Get posts from users that the current user follows, plus their own posts
+  const posts = await prisma.post.findMany({
+    where: {
+      OR: [
+        { authorId: userId },
+        {
+          author: {
+            followers: {
+              some: {
+                followerId: userId,
+              },
+            },
+          },
+        },
+      ],
+    },
+    include: {
+      author: {
+        select: {
+          id: true,
+          username: true,
+          email: true,
+          firstName: true,
+          lastName: true,
+        },
+      },
+      likes: {
+        select: {
+          userId: true,
+        },
+      },
+    },
+    orderBy: {
+      createdAt: "desc",
+    },
+    take: limit,
+    skip: offset,
+  });
+
+  return posts.map((post) => ({
+    id: post.id,
+    content: post.content,
+    author: post.author,
+    likesCount: post.likesCount,
+    commentsCount: post.commentsCount,
+    likes: post.likes.map((like) => like.userId),
+    createdAt: post.createdAt,
+    updatedAt: post.updatedAt,
+  }));
+};
 
 const enforcePostLimitForUser = async (authorId: string, content: string) => {
   const user = await prisma.user.findUnique({

@@ -1,22 +1,24 @@
 import { motion } from "framer-motion";
+import { NavLink } from "react-router-dom";
 import {
   Home,
-  Search,
-  Heart,
-  Mail,
-  Bookmark,
-  Users,
+  Bell,
+  CreditCard,
+  Shield,
+  User,
   MoreHorizontal,
+  LogOut,
 } from "lucide-react";
+import { useAuth } from "../context/AuthContext";
 
 export function Navigation() {
+  const { logout, user } = useAuth();
   const navItems = [
-    { icon: Home, label: "Home", active: true },
-    { icon: Search, label: "Explore" },
-    { icon: Heart, label: "Activity" },
-    { icon: Mail, label: "Messages" },
-    { icon: Bookmark, label: "Saved" },
-    { icon: Users, label: "Community" },
+    { icon: Home, label: "Home", to: "/" },
+    { icon: Bell, label: "Notifications", to: "/notifications" },
+    { icon: User, label: "Profile", to: "/profile" },
+    { icon: CreditCard, label: "Billing", to: "/billing" },
+    { icon: Shield, label: "Blocks", to: "/blocks" },
   ];
 
   return (
@@ -47,30 +49,44 @@ export function Navigation() {
           {/* Center nav items - hidden on mobile */}
           <div className="hidden md:flex items-center gap-1">
             {navItems.map((item) => (
-              <motion.button
+              <motion.div
                 key={item.label}
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
-                className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors duration-200 ${
-                  item.active
-                    ? "text-accent-600 bg-accent-50"
-                    : "text-neutral-600 hover:bg-neutral-50"
-                }`}
               >
-                <item.icon size={20} />
-                <span className="font-medium text-sm">{item.label}</span>
-              </motion.button>
+                <NavLink
+                  to={item.to}
+                  className={({ isActive }) =>
+                    `flex items-center gap-2 px-4 py-2 rounded-lg transition-colors duration-200 ${
+                      isActive
+                        ? "text-accent-600 bg-accent-50"
+                        : "text-neutral-600 hover:bg-neutral-50"
+                    }`
+                  }
+                >
+                  <item.icon size={20} />
+                  <span className="font-medium text-sm">{item.label}</span>
+                </NavLink>
+              </motion.div>
             ))}
           </div>
 
           {/* Right side actions */}
           <div className="flex items-center gap-2">
+            {user && (
+              <div className="hidden sm:flex items-center gap-2 rounded-full bg-neutral-50 px-3 py-1 text-xs text-neutral-600">
+                <User size={14} />
+                <span>{user.username}</span>
+              </div>
+            )}
             <motion.button
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               className="icon-btn"
+              onClick={() => logout()}
+              aria-label="Logout"
             >
-              <Search size={20} />
+              <LogOut size={20} />
             </motion.button>
             <motion.button
               whileHover={{ scale: 1.05 }}

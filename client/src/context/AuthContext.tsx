@@ -39,12 +39,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       try {
         const token = getAccessToken();
         if (token) {
+          // Try to get current user profile
+          // This will automatically refresh the token if needed
           const currentUser = await usersAPI.getCurrentProfile();
           setUser(currentUser);
         }
       } catch (err) {
+        // Only clear tokens if it's not a network error
         console.error("Failed to restore session:", err);
-        clearTokens();
+        const errorMessage = err instanceof Error ? err.message : "";
+        if (!errorMessage.includes("Failed to fetch")) {
+          clearTokens();
+          setUser(null);
+        }
       } finally {
         setIsLoading(false);
       }

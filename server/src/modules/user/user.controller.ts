@@ -3,7 +3,27 @@ import {
   getUserProfile,
   updateUserProfile,
   getUserTimeline,
+  getCurrentUserProfile,
 } from "./user.service";
+
+export const getCurrentProfile = async (
+  req: Request,
+  res: Response,
+): Promise<void> => {
+  try {
+    const currentUserId = req.userId as string;
+    const user = await getCurrentUserProfile(currentUserId);
+    res.status(200).json(user);
+  } catch (error: unknown) {
+    const err = error as { status?: number; error?: unknown };
+    if (err.status === 404) {
+      res.status(404).json({ error: err.error });
+      return;
+    }
+    console.error("Get current profile error:", error);
+    res.status(500).json({ error: "Unable to fetch profile" });
+  }
+};
 
 export const getProfile = async (
   req: Request,
@@ -66,7 +86,7 @@ export const updateProfile = async (
     const currentUserId = req.userId as string;
     const updatedUser = await updateUserProfile(
       currentUserId,
-      req.params,
+      { userId: currentUserId },
       req.body,
     );
     res.status(200).json(updatedUser);

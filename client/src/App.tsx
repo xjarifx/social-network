@@ -3,6 +3,11 @@ import { AuthProvider, useAuth } from "./context/AuthContext";
 import { LoginPage } from "./pages/LoginPage";
 import { RegisterPage } from "./pages/RegisterPage";
 import { HomePage } from "./pages/HomePage";
+import { ProfilePage } from "./pages/ProfilePage";
+import { UserProfilePage } from "./pages/UserProfilePage";
+import { NotificationsPage } from "./pages/NotificationsPage";
+import { BillingPage } from "./pages/BillingPage";
+import { BlocksPage } from "./pages/BlocksPage";
 import { Navigation } from "./components";
 import { ProtectedRoute } from "./components/ProtectedRoute";
 import { useEffect } from "react";
@@ -40,6 +45,61 @@ function AppRoutes() {
           <ProtectedRoute>
             <AppLayout>
               <HomePage />
+            </AppLayout>
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/profile"
+        element={
+          <ProtectedRoute>
+            <AppLayout>
+              <ProfilePage />
+            </AppLayout>
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/users/:userId"
+        element={
+          <ProtectedRoute>
+            <AppLayout>
+              <UserProfilePage />
+            </AppLayout>
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/notifications"
+        element={
+          <ProtectedRoute>
+            <AppLayout>
+              <NotificationsPage />
+            </AppLayout>
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/billing"
+        element={
+          <ProtectedRoute>
+            <AppLayout>
+              <BillingPage />
+            </AppLayout>
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/blocks"
+        element={
+          <ProtectedRoute>
+            <AppLayout>
+              <BlocksPage />
             </AppLayout>
           </ProtectedRoute>
         }

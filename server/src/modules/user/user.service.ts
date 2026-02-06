@@ -1,10 +1,32 @@
-import { PrismaClient } from '../../generated/prisma/index';
-import { updateProfileSchema, userIdParamSchema } from './user.validation';
+import { PrismaClient } from "../../generated/prisma/index";
+import { updateProfileSchema, userIdParamSchema } from "./user.validation";
 
 const prisma = new PrismaClient();
 
 export const ensureString = (val: unknown): string =>
   typeof val === "string" ? val : Array.isArray(val) ? val[0] : "";
+
+export const getCurrentUserProfile = async (userId: string) => {
+  // Fetch user by ID
+  const user = await prisma.user.findUnique({
+    where: { id: userId },
+    select: {
+      id: true,
+      username: true,
+      email: true,
+      firstName: true,
+      lastName: true,
+      createdAt: true,
+      plan: true,
+    },
+  });
+
+  if (!user) {
+    throw { status: 404, error: "User not found" };
+  }
+
+  return user;
+};
 
 export const getUserProfile = async (params: Record<string, unknown>) => {
   const validation = userIdParamSchema.safeParse({ params });

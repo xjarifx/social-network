@@ -26,27 +26,32 @@ export interface User {
   plan: "FREE" | "PRO";
 }
 
+export interface UserSummary {
+  id: string;
+  username: string;
+  firstName: string;
+  lastName: string;
+}
+
 export interface Post {
   id: string;
-  authorId: string;
+  authorId?: string;
   content: string;
   likesCount: number;
   commentsCount: number;
   createdAt: string;
   updatedAt: string;
   author?: User;
-  likes?: Like[];
+  likes?: string[];
   comments?: Comment[];
 }
 
 export interface Comment {
   id: string;
-  postId: string;
-  authorId: string;
+  postId?: string;
   content: string;
   createdAt: string;
-  updatedAt: string;
-  author?: User;
+  author?: UserSummary;
 }
 
 export interface Like {
@@ -54,16 +59,62 @@ export interface Like {
   userId: string;
   postId: string;
   createdAt: string;
-  user?: User;
+  user?: UserSummary;
+  message?: string;
 }
 
 export interface Follower {
   id: string;
-  followerId: string;
-  followingId: string;
+  followedAt: string;
+  follower?: UserSummary;
+  user?: UserSummary;
+}
+
+export interface NotificationsResponse {
+  notifications: Notification[];
+  total: number;
+  limit: number;
+  offset: number;
+}
+
+export interface Notification {
+  id: string;
+  type: string;
+  message: string;
+  read: boolean;
   createdAt: string;
-  follower?: User;
-  following?: User;
+  relatedUser?: UserSummary | null;
+  relatedPost?: { id: string; content: string } | null;
+}
+
+export interface BlocksResponse {
+  blocked: BlockedUser[];
+  total: number;
+  limit: number;
+  offset: number;
+}
+
+export interface BlockedUser {
+  id: string;
+  blockedAt: string;
+  user: UserSummary;
+}
+
+export interface BillingStatus {
+  id: string;
+  email: string;
+  plan: "FREE" | "PRO";
+  planStatus: string | null;
+  planStartedAt: string | null;
+  stripeCurrentPeriodEndAt: string | null;
+  stripeSubscriptionId: string | null;
+}
+
+export interface CommentsResponse {
+  comments: Comment[];
+  total: number;
+  limit: number;
+  offset: number;
 }
 
 // ============================================================================
@@ -131,14 +182,29 @@ async function apiRequest<T>(
           headers["Authorization"] = `Bearer ${data.accessToken}`;
           return apiRequest<T>(endpoint, { ...options, headers });
         } else {
+          // Only redirect if not already on login page
           clearTokens();
-          window.location.href = "/login";
+          if (window.location.pathname !== "/login") {
+            window.location.href = "/login";
+          }
+          throw new Error("Session expired");
         }
       } catch (error) {
         console.error("Token refresh failed:", error);
         clearTokens();
+        // Only redirect if not already on login page
+        if (window.location.pathname !== "/login") {
+          window.location.href = "/login";
+        }
+        throw error;
+      }
+    } else {
+      // No refresh token available
+      clearTokens();
+      if (window.location.pathname !== "/login") {
         window.location.href = "/login";
       }
+      throw new Error("No refresh token available");
     }
   }
 
@@ -221,16 +287,6 @@ export const usersAPI = {
       body: JSON.stringify(data),
     });
   },
-
-  getTimeline: async (
-    userId: string,
-    limit = 20,
-    offset = 0,
-  ): Promise<Post[]> => {
-    return apiRequest(
-      `/users/${userId}/timeline?limit=${limit}&offset=${offset}`,
-    );
-  },
 };
 
 // ============================================================================
@@ -263,6 +319,10 @@ export const postsAPI = {
   getFeed: async (limit = 20, offset = 0): Promise<Post[]> => {
     return apiRequest(`/posts?limit=${limit}&offset=${offset}`);
   },
+
+  getNewsFeed: async (limit = 20, offset = 0): Promise<Post[]> => {
+    return apiRequest(`/posts/feed?limit=${limit}&offset=${offset}`);
+  },
 };
 
 // ============================================================================
@@ -276,11 +336,18 @@ export const likesAPI = {
     });
   },
 
-  unlikePost: async (likeId: string): Promise<void> => {
-    return apiRequest(`/posts/likes/${likeId}`, { method: "DELETE" });
+  unlikePost: async (postId: string): Promise<void> => {
+    return apiRequest(`/posts/${postId}/likes`, { method: "DELETE" });
   },
 
-  getPostLikes: async (postId: string): Promise<Like[]> => {
+  getPostLikes: async (
+    postId: string,
+  ): Promise<{
+    likes: Like[];
+    total: number;
+    limit: number;
+    offset: number;
+  }> => {
     return apiRequest(`/posts/${postId}/likes`);
   },
 };
@@ -297,7 +364,7 @@ export const commentsAPI = {
     });
   },
 
-  getPostComments: async (postId: string): Promise<Comment[]> => {
+  getPostComments: async (postId: string): Promise<CommentsResponse> => {
     return apiRequest(`/posts/${postId}/comments`);
   },
 
@@ -324,25 +391,93 @@ export const commentsAPI = {
 // ============================================================================
 
 export const followsAPI = {
-  followUser: async (followingId: string): Promise<Follower> => {
-    return apiRequest(`/users/${followingId}/follow`, {
+  followUser: async (
+    userId: string,
+    followingId: string,
+  ): Promise<Follower> => {
+    return apiRequest(`/users/${userId}/followers`, {
       method: "POST",
       body: JSON.stringify({ followingId }),
     });
   },
 
-  unfollowUser: async (followingId: string): Promise<void> => {
-    return apiRequest(`/users/${followingId}/follow`, {
+  unfollowUser: async (userId: string, followingId: string): Promise<void> => {
+    return apiRequest(`/users/${userId}/followers/${followingId}`, {
       method: "DELETE",
     });
   },
 
   getUserFollowers: async (userId: string): Promise<Follower[]> => {
-    return apiRequest(`/users/${userId}/followers`);
+    return apiRequest(`/users/${userId}/followers/followers`);
   },
 
   getUserFollowing: async (userId: string): Promise<Follower[]> => {
-    return apiRequest(`/users/${userId}/following`);
+    return apiRequest(`/users/${userId}/following/following`);
+  },
+};
+
+// ============================================================================
+// NOTIFICATIONS API
+// ============================================================================
+
+export const notificationsAPI = {
+  list: async (limit = 20, offset = 0): Promise<NotificationsResponse> => {
+    return apiRequest(`/notifications?limit=${limit}&offset=${offset}`);
+  },
+
+  getById: async (notificationId: string): Promise<Notification> => {
+    return apiRequest(`/notifications/${notificationId}`);
+  },
+
+  markRead: async (
+    notificationId: string,
+    read = true,
+  ): Promise<Notification> => {
+    return apiRequest(`/notifications/${notificationId}`, {
+      method: "PATCH",
+      body: JSON.stringify({ read }),
+    });
+  },
+
+  remove: async (notificationId: string): Promise<void> => {
+    return apiRequest(`/notifications/${notificationId}`, {
+      method: "DELETE",
+    });
+  },
+};
+
+// ============================================================================
+// BLOCKS API
+// ============================================================================
+
+export const blocksAPI = {
+  list: async (limit = 20, offset = 0): Promise<BlocksResponse> => {
+    return apiRequest(`/blocks?limit=${limit}&offset=${offset}`);
+  },
+
+  blockUser: async (blockedId: string): Promise<BlockedUser> => {
+    return apiRequest(`/blocks`, {
+      method: "POST",
+      body: JSON.stringify({ blockedId }),
+    });
+  },
+
+  unblockUser: async (userId: string): Promise<void> => {
+    return apiRequest(`/blocks/${userId}`, { method: "DELETE" });
+  },
+};
+
+// ============================================================================
+// BILLING API
+// ============================================================================
+
+export const billingAPI = {
+  getStatus: async (): Promise<BillingStatus> => {
+    return apiRequest("/billing/me");
+  },
+
+  createCheckoutSession: async (): Promise<{ url: string }> => {
+    return apiRequest("/billing/checkout-session", { method: "POST" });
   },
 };
 

@@ -1,8 +1,8 @@
 import "dotenv/config";
-import { PrismaClient } from '../../generated/prisma/index';
+import { PrismaClient } from "../../generated/prisma/index";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
-import { registerSchema, loginSchema } from './auth.validation';
+import { registerSchema, loginSchema } from "./auth.validation";
 
 const prisma = new PrismaClient();
 
@@ -103,14 +103,17 @@ export const registerUser = async (input: any) => {
   });
 
   return {
-    id: user.id,
-    username: user.username,
-    email: user.email,
-    firstName: user.firstName,
-    lastName: user.lastName,
-    createdAt: user.createdAt,
-    token,
+    accessToken: token,
     refreshToken,
+    user: {
+      id: user.id,
+      username: user.username,
+      email: user.email,
+      firstName: user.firstName,
+      lastName: user.lastName,
+      createdAt: user.createdAt,
+      plan: user.plan,
+    },
   };
 };
 
@@ -148,14 +151,17 @@ export const loginUser = async (input: any) => {
   });
 
   return {
-    id: user.id,
-    username: user.username,
-    email: user.email,
-    firstName: user.firstName,
-    lastName: user.lastName,
-    createdAt: user.createdAt,
-    token,
+    accessToken: token,
     refreshToken,
+    user: {
+      id: user.id,
+      username: user.username,
+      email: user.email,
+      firstName: user.firstName,
+      lastName: user.lastName,
+      createdAt: user.createdAt,
+      plan: user.plan,
+    },
   };
 };
 
@@ -236,7 +242,16 @@ export const refreshAccessToken = async (refreshToken: string) => {
   });
 
   return {
-    token: newAccessToken,
+    accessToken: newAccessToken,
     refreshToken: newRefreshToken,
+    user: {
+      id: tokenRecord.user.id,
+      username: tokenRecord.user.username,
+      email: tokenRecord.user.email,
+      firstName: tokenRecord.user.firstName,
+      lastName: tokenRecord.user.lastName,
+      createdAt: tokenRecord.user.createdAt,
+      plan: tokenRecord.user.plan,
+    },
   };
 };

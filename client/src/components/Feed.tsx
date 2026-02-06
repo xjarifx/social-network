@@ -6,9 +6,17 @@ export interface FeedProps {
   posts: PostProps[];
   isLoading?: boolean;
   onLike?: (postId: string) => void;
+  onReply?: (postId: string) => void;
+  renderPostFooter?: (post: PostProps) => React.ReactNode;
 }
 
-export function Feed({ posts, isLoading = false, onLike }: FeedProps) {
+export function Feed({
+  posts,
+  isLoading = false,
+  onLike,
+  onReply,
+  renderPostFooter,
+}: FeedProps) {
   const containerVariants = {
     hidden: { opacity: 0 },
     visible: {
@@ -53,7 +61,10 @@ export function Feed({ posts, isLoading = false, onLike }: FeedProps) {
       className="space-y-4"
     >
       {posts.map((post) => (
-        <PostCard key={post.id} {...post} onLike={onLike} />
+        <div key={post.id} className="space-y-3">
+          <PostCard {...post} onLike={onLike} onReply={onReply} />
+          {renderPostFooter?.(post)}
+        </div>
       ))}
 
       {posts.length === 0 && (

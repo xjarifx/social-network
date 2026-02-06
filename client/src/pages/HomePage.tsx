@@ -1,15 +1,30 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { postsAPI } from "../services/api";
+import { postsAPI, likesAPI, commentsAPI } from "../services/api";
 import { Feed, ComposeModal } from "../components";
 import type { PostProps } from "../components";
 import { Plus } from "lucide-react";
+import { useAuth } from "../context/AuthContext";
+import type { Comment as ApiComment } from "../services/api";
 
 export function HomePage() {
+  const { user } = useAuth();
   const [posts, setPosts] = useState<PostProps[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isComposeOpen, setIsComposeOpen] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [openCommentsPostId, setOpenCommentsPostId] = useState<string | null>(
+    null,
+  );
+  const [commentsByPost, setCommentsByPost] = useState<
+    Record<string, ApiComment[]>
+  >({});
+  const [commentDrafts, setCommentDrafts] = useState<Record<string, string>>(
+    {},
+  );
+  const [commentsLoading, setCommentsLoading] = useState<
+    Record<string, boolean>
+  >({});
 
   // Load posts from API
   useEffect(() => {
@@ -28,7 +43,7 @@ export function HomePage() {
                 ? `${post.author.firstName} ${post.author.lastName}`
                 : post.author?.username || "Unknown",
             handle: post.author?.username || "user",
-            avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${post.authorId}`,
+            avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${post.author?.id || post.author?.username || post.id}`,
           },
           content: post.content,
           timestamp: new Date(post.createdAt).toLocaleDateString("en-US", {
@@ -40,7 +55,7 @@ export function HomePage() {
           likes: post.likesCount,
           replies: post.commentsCount,
           reposts: 0,
-          liked: post.likes?.length ? post.likes.length > 0 : false,
+          liked: user?.id ? post.likes?.includes(user.id) : false,
         }));
 
         setPosts(transformedPosts);
@@ -58,23 +73,78 @@ export function HomePage() {
   }, []);
 
   const handleLike = async (postId: string) => {
+    if (!user?.id) {
+      return;
+    }
+
     try {
       const post = posts.find((p) => p.id === postId);
-      if (post?.liked) {
-        // Unlike
-        // Find the like to delete from API
-        // await likesAPI.unlikePost(likeId);
-      } else {
-        // Like
-        await postsAPI.getPost(postId);
-        // await likesAPI.likePost(postId);
+      if (!post) {
+        return;
       }
-      // Update local state
-      setPosts(
-        posts.map((p) => (p.id === postId ? { ...p, liked: !p.liked } : p)),
-      );
+
+      if (post.liked) {
+        await likesAPI.unlikePost(postId);
+        setPosts(
+          posts.map((p) =>
+            p.id === postId
+              ? { ...p, liked: false, likes: Math.max(0, p.likes - 1) }
+              : p,
+          ),
+        );
+      } else {
+        await likesAPI.likePost(postId);
+        setPosts(
+          posts.map((p) =>
+            p.id === postId ? { ...p, liked: true, likes: p.likes + 1 } : p,
+          ),
+        );
+      }
     } catch (err) {
       console.error("Failed to toggle like:", err);
+    }
+  };
+
+  const toggleComments = async (postId: string) => {
+    const nextOpen = openCommentsPostId === postId ? null : postId;
+    setOpenCommentsPostId(nextOpen);
+
+    if (nextOpen && !commentsByPost[postId]) {
+      try {
+        setCommentsLoading((prev) => ({ ...prev, [postId]: true }));
+        const response = await commentsAPI.getPostComments(postId);
+        setCommentsByPost((prev) => ({
+          ...prev,
+          [postId]: response.comments,
+        }));
+      } catch (err) {
+        console.error("Failed to load comments:", err);
+      } finally {
+        setCommentsLoading((prev) => ({ ...prev, [postId]: false }));
+      }
+    }
+  };
+
+  const handleAddComment = async (postId: string) => {
+    const content = (commentDrafts[postId] || "").trim();
+    if (!content) {
+      return;
+    }
+
+    try {
+      const newComment = await commentsAPI.createComment(postId, content);
+      setCommentsByPost((prev) => ({
+        ...prev,
+        [postId]: [newComment, ...(prev[postId] || [])],
+      }));
+      setCommentDrafts((prev) => ({ ...prev, [postId]: "" }));
+      setPosts(
+        posts.map((p) =>
+          p.id === postId ? { ...p, replies: p.replies + 1 } : p,
+        ),
+      );
+    } catch (err) {
+      console.error("Failed to create comment:", err);
     }
   };
 
@@ -91,7 +161,7 @@ export function HomePage() {
               ? `${newPost.author.firstName} ${newPost.author.lastName}`
               : newPost.author?.username || "You",
           handle: newPost.author?.username || "you",
-          avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${newPost.authorId}`,
+          avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${newPost.author?.id || newPost.author?.username || newPost.id}`,
         },
         content: newPost.content,
         timestamp: "now",
@@ -163,7 +233,70 @@ export function HomePage() {
               animate={{ y: 0, opacity: 1 }}
               transition={{ duration: 0.4, delay: 0.2 }}
             >
-              <Feed posts={posts} isLoading={isLoading} onLike={handleLike} />
+              <Feed
+                posts={posts}
+                isLoading={isLoading}
+                onLike={handleLike}
+                onReply={toggleComments}
+                renderPostFooter={(post) =>
+                  openCommentsPostId === post.id ? (
+                    <div className="card p-4 sm:p-5">
+                      <div className="space-y-4">
+                        <div className="text-sm text-muted">Comments</div>
+
+                        {commentsLoading[post.id] ? (
+                          <div className="text-sm text-muted">
+                            Loading comments...
+                          </div>
+                        ) : (commentsByPost[post.id] || []).length > 0 ? (
+                          <div className="space-y-3">
+                            {(commentsByPost[post.id] || []).map((comment) => (
+                              <div
+                                key={comment.id}
+                                className="rounded-lg bg-neutral-50 px-3 py-2"
+                              >
+                                <div className="text-xs text-muted">
+                                  {comment.author
+                                    ? `${comment.author.firstName} ${comment.author.lastName}`.trim() ||
+                                      comment.author.username
+                                    : "User"}
+                                </div>
+                                <div className="text-sm text-neutral-900">
+                                  {comment.content}
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        ) : (
+                          <div className="text-sm text-muted">
+                            No comments yet.
+                          </div>
+                        )}
+
+                        <div className="flex items-center gap-2">
+                          <input
+                            value={commentDrafts[post.id] || ""}
+                            onChange={(e) =>
+                              setCommentDrafts((prev) => ({
+                                ...prev,
+                                [post.id]: e.target.value,
+                              }))
+                            }
+                            placeholder="Write a comment..."
+                            className="input flex-1"
+                          />
+                          <button
+                            className="btn-primary px-4 py-2 text-sm"
+                            onClick={() => handleAddComment(post.id)}
+                          >
+                            Send
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  ) : null
+                }
+              />
             </motion.div>
           </div>
 

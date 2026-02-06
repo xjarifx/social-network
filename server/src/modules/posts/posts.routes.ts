@@ -4,6 +4,7 @@ import {
   getPost,
   updatePostContent,
   deletePostContent,
+  getPostsFeed,
 } from "./posts.controller";
 import { authenticate } from "../../middleware/authenticate.middleware";
 import likeRouter from "../likes/likes.routes";
@@ -70,7 +71,7 @@ router.post("/", authenticate, createNewPost);
  *       200:
  *         description: Feed posts retrieved successfully
  */
-router.get("/feed", authenticate);
+router.get("/feed", authenticate, getPostsFeed);
 /**
  * @openapi
  * /api/v1/posts:
@@ -95,7 +96,7 @@ router.get("/feed", authenticate);
  *       200:
  *         description: Timeline posts retrieved successfully
  */
-router.get("/", authenticate);
+router.get("/", authenticate, getPostsFeed);
 /**
  * @openapi
  * /api/v1/posts/{postId}:

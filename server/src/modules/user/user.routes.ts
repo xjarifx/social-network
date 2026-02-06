@@ -1,12 +1,36 @@
 import { Router } from "express";
-import { getProfile, updateProfile, getTimeline } from './user.controller';
-import { authenticate } from '../../middleware/authenticate.middleware';
-import postRouter from '../posts/posts.routes';
-import followRouter from '../follows/follow.routes';
+import {
+  getProfile,
+  updateProfile,
+  getTimeline,
+  getCurrentProfile,
+} from "./user.controller";
+import { authenticate } from "../../middleware/authenticate.middleware";
+import postRouter from "../posts/posts.routes";
+import followRouter from "../follows/follow.routes";
 
 const router = Router();
 
 // USER
+
+/**
+ * @openapi
+ * /api/v1/users/me:
+ *   get:
+ *     summary: Get current user profile
+ *     tags:
+ *       - Users
+ *     security:
+ *       - BearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Current user profile retrieved successfully
+ *       401:
+ *         description: Unauthorized
+ *       404:
+ *         description: User not found
+ */
+router.get("/me", authenticate, getCurrentProfile);
 
 /**
  * @openapi

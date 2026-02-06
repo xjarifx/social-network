@@ -4,7 +4,22 @@ import {
   getPostById,
   updatePost,
   deletePost,
-} from './posts.service';
+  getFeed,
+} from "./posts.service";
+
+export const getPostsFeed = async (
+  req: Request,
+  res: Response,
+): Promise<void> => {
+  try {
+    const userId = req.userId as string;
+    const posts = await getFeed(userId, req.query);
+    res.status(200).json(posts);
+  } catch (error: unknown) {
+    console.error("Get feed error:", error);
+    res.status(500).json({ error: "Unable to fetch feed" });
+  }
+};
 
 export const createNewPost = async (
   req: Request,

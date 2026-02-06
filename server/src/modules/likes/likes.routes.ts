@@ -1,6 +1,10 @@
 import { Router } from "express";
 import { authenticate } from "../../middleware/authenticate.middleware";
-import { likePostHandler, unlikePostHandler } from "./likes.controller";
+import {
+  likePostHandler,
+  unlikePostHandler,
+  getPostLikesHandler,
+} from "./likes.controller";
 
 const router = Router();
 
@@ -51,7 +55,7 @@ router.post("/", authenticate, likePostHandler);
  *       404:
  *         description: Like not found
  */
-router.delete("/:likeId", authenticate, unlikePostHandler);
+router.delete("/", authenticate, unlikePostHandler);
 /**
  * @openapi
  * /api/v1/posts/{postId}/likes:
@@ -82,6 +86,6 @@ router.delete("/:likeId", authenticate, unlikePostHandler);
  *       200:
  *         description: Likes list retrieved successfully
  */
-router.get("/", authenticate, unlikePostHandler);
+router.get("/", authenticate, getPostLikesHandler);
 
 export default router;

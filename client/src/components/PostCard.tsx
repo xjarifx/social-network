@@ -1,6 +1,6 @@
 import { motion } from "framer-motion";
 import { MessageCircle, Share, Repeat2, MoreHorizontal } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 export interface PostProps {
   id: string;
@@ -17,6 +17,7 @@ export interface PostProps {
   reposts: number;
   liked?: boolean;
   onLike?: (id: string) => void;
+  onReply?: (id: string) => void;
 }
 
 export function PostCard({
@@ -30,9 +31,15 @@ export function PostCard({
   reposts,
   liked = false,
   onLike,
+  onReply,
 }: PostProps) {
   const [isLiked, setIsLiked] = useState(liked);
   const [likeCount, setLikeCount] = useState(likes);
+
+  useEffect(() => {
+    setIsLiked(liked);
+    setLikeCount(likes);
+  }, [liked, likes]);
 
   const handleLike = () => {
     setIsLiked(!isLiked);
@@ -145,6 +152,7 @@ export function PostCard({
             initial="initial"
             whileHover="hover"
             whileTap="tap"
+            onClick={() => onReply?.(id)}
             className="flex-1 flex items-center justify-center gap-2 py-3 text-muted hover:text-accent-600 hover:bg-accent-50 transition-colors duration-200"
           >
             <MessageCircle size={18} />
