@@ -3,6 +3,8 @@ import { motion } from "framer-motion";
 import { usersAPI, followsAPI } from "../services/api";
 import type { User, Follower } from "../services/api";
 import { useAuth } from "../context/AuthContext";
+import { Feed } from "../components";
+import type { PostProps } from "../components";
 
 export function ProfilePage() {
   const { user } = useAuth();
@@ -14,6 +16,25 @@ export function ProfilePage() {
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [posts, setPosts] = useState<PostProps[]>([]);
+  const [postsLoading, setPostsLoading] = useState(true);
+  const [postsError, setPostsError] = useState<string | null>(null);
+
+  const formatPostTime = (isoDate: string) => {
+    const date = new Date(isoDate);
+    const diffMs = Date.now() - date.getTime();
+    const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
+
+    if (diffHours < 24) {
+      const hours = Math.max(diffHours, 1);
+      return `${hours}h`;
+    }
+
+    return date.toLocaleDateString("en-US", {
+      month: "short",
+      day: "numeric",
+    });
+  };
 
   useEffect(() => {
     const loadProfile = async () => {
@@ -34,6 +55,47 @@ export function ProfilePage() {
 
     loadProfile();
   }, []);
+
+  useEffect(() => {
+    const loadPosts = async () => {
+      const currentUserId = user?.id || profile?.id;
+      if (!currentUserId) {
+        return;
+      }
+
+      try {
+        setPostsLoading(true);
+        setPostsError(null);
+        const response = await usersAPI.getUserPosts(currentUserId, 20, 0);
+        const mappedPosts: PostProps[] = response.posts.map((post) => ({
+          id: post.id,
+          authorId: post.author?.id,
+          author: {
+            name:
+              post.author?.firstName && post.author?.lastName
+                ? `${post.author.firstName} ${post.author.lastName}`
+                : post.author?.username || "Unknown",
+            handle: post.author?.username || "user",
+            avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${post.author?.id || post.author?.username || post.id}`,
+          },
+          content: post.content,
+          timestamp: formatPostTime(post.createdAt),
+          likes: post.likesCount,
+          replies: post.commentsCount,
+          liked: user?.id ? post.likes?.includes(user.id) : false,
+        }));
+        setPosts(mappedPosts);
+      } catch (err) {
+        const message =
+          err instanceof Error ? err.message : "Failed to load posts";
+        setPostsError(message);
+      } finally {
+        setPostsLoading(false);
+      }
+    };
+
+    loadPosts();
+  }, [profile?.id, user?.id]);
 
   useEffect(() => {
     const loadFollows = async () => {
@@ -164,6 +226,18 @@ export function ProfilePage() {
               </ul>
             )}
           </div>
+        </div>
+
+        <div className="card p-6">
+          <h2 className="text-brand text-lg font-semibold mb-4">Posts</h2>
+
+          {postsError && (
+            <div className="mb-4 rounded-lg bg-red-50 border border-red-200 p-3 text-sm text-red-700">
+              {postsError}
+            </div>
+          )}
+
+          <Feed posts={posts} isLoading={postsLoading} />
         </div>
       </div>
     </motion.div>
