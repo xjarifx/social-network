@@ -117,6 +117,13 @@ export interface CommentsResponse {
   offset: number;
 }
 
+export interface UserPostsResponse {
+  posts: Post[];
+  total: number;
+  limit: number;
+  offset: number;
+}
+
 // ============================================================================
 // TOKEN MANAGEMENT
 // ============================================================================
@@ -275,6 +282,14 @@ export const authAPI = {
 export const usersAPI = {
   getProfile: async (userId: string): Promise<User> => {
     return apiRequest(`/users/${userId}`);
+  },
+
+  getUserPosts: async (
+    userId: string,
+    limit = 10,
+    offset = 0,
+  ): Promise<UserPostsResponse> => {
+    return apiRequest(`/users/${userId}/posts?limit=${limit}&offset=${offset}`);
   },
 
   getCurrentProfile: async (): Promise<User> => {

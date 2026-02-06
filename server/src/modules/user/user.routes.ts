@@ -55,6 +55,34 @@ router.get("/me", authenticate, getCurrentProfile);
 router.get("/:userId", getProfile);
 /**
  * @openapi
+ * /api/v1/users/{userId}/posts:
+ *   get:
+ *     summary: Get user posts
+ *     tags:
+ *       - Users
+ *     security:
+ *       - BearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: userId
+ *         required: true
+ *         schema:
+ *           type: string
+ *           format: uuid
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           default: 10
+ *       - in: query
+ *         name: offset
+ *         schema:
+ *           type: integer
+ *           default: 0
+ */
+router.get("/:userId/posts", authenticate, getTimeline);
+/**
+ * @openapi
  * /api/v1/users/me:
  *   patch:
  *     summary: Update own profile
