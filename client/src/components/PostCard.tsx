@@ -1,9 +1,19 @@
 import { motion } from "framer-motion";
-import { Heart, MessageCircle, MoreHorizontal } from "lucide-react";
-import { useEffect, useState } from "react";
+import {
+  Heart,
+  MessageCircle,
+  MoreHorizontal,
+  Shield,
+  UserPlus,
+} from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import { Link } from "react-router-dom";
+import { blocksAPI, followsAPI } from "../services/api";
+import { useAuth } from "../context/AuthContext";
 
 export interface PostProps {
   id: string;
+  authorId?: string;
   author: {
     name: string;
     handle: string;
@@ -21,6 +31,7 @@ export interface PostProps {
 
 export function PostCard({
   id,
+  authorId,
   author,
   content,
   image,
@@ -31,18 +42,79 @@ export function PostCard({
   onLike,
   onReply,
 }: PostProps) {
+  const { user } = useAuth();
   const [isLiked, setIsLiked] = useState(liked);
   const [likeCount, setLikeCount] = useState(likes);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isActionLoading, setIsActionLoading] = useState(false);
+  const menuRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     setIsLiked(liked);
     setLikeCount(likes);
   }, [liked, likes]);
 
+  useEffect(() => {
+    if (!isMenuOpen) {
+      return;
+    }
+
+    const handleOutsideClick = (event: MouseEvent | TouchEvent) => {
+      if (!menuRef.current) {
+        return;
+      }
+      if (!menuRef.current.contains(event.target as Node)) {
+        setIsMenuOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleOutsideClick);
+    document.addEventListener("touchstart", handleOutsideClick);
+
+    return () => {
+      document.removeEventListener("mousedown", handleOutsideClick);
+      document.removeEventListener("touchstart", handleOutsideClick);
+    };
+  }, [isMenuOpen]);
+
   const handleLike = () => {
     setIsLiked(!isLiked);
     setLikeCount(isLiked ? likeCount - 1 : likeCount + 1);
     onLike?.(id);
+  };
+
+  const canActOnUser = !!user?.id && !!authorId && user.id !== authorId;
+
+  const handleFollow = async () => {
+    if (!canActOnUser || !user?.id || !authorId) {
+      return;
+    }
+
+    try {
+      setIsActionLoading(true);
+      await followsAPI.followUser(user.id, authorId);
+      setIsMenuOpen(false);
+    } catch (err) {
+      console.error("Failed to follow user:", err);
+    } finally {
+      setIsActionLoading(false);
+    }
+  };
+
+  const handleBlock = async () => {
+    if (!canActOnUser || !authorId) {
+      return;
+    }
+
+    try {
+      setIsActionLoading(true);
+      await blocksAPI.blockUser(authorId);
+      setIsMenuOpen(false);
+    } catch (err) {
+      console.error("Failed to block user:", err);
+    } finally {
+      setIsActionLoading(false);
+    }
   };
 
   const containerVariants = {
@@ -80,25 +152,96 @@ export function PostCard({
         {/* Header */}
         <div className="flex items-start justify-between mb-4">
           <div className="flex items-center gap-3 min-w-0">
-            <img
-              src={author.avatar}
-              alt={author.name}
-              className="w-12 h-12 rounded-full object-cover flex-shrink-0"
-            />
-            <div className="min-w-0 flex-1">
-              <h3 className="text-brand text-sm sm:text-base leading-tight truncate">
-                {author.name}
-              </h3>
-              <p className="text-muted text-xs sm:text-sm">@{author.handle}</p>
-            </div>
+            {authorId ? (
+              <Link
+                to={`/users/${authorId}`}
+                className="flex items-center gap-3 min-w-0"
+              >
+                <img
+                  src={author.avatar}
+                  alt={author.name}
+                  className="w-12 h-12 rounded-full object-cover flex-shrink-0"
+                />
+                <div className="min-w-0 flex-1">
+                  <div className="flex items-center gap-2 min-w-0">
+                    <h3 className="text-brand text-sm sm:text-base font-semibold leading-tight truncate hover:underline">
+                      {author.name}
+                    </h3>
+                    <span className="text-muted text-xs sm:text-sm truncate">
+                      @{author.handle}
+                    </span>
+                    <span className="text-muted text-xs sm:text-sm">·</span>
+                    <span className="text-muted text-xs sm:text-sm truncate">
+                      {timestamp}
+                    </span>
+                  </div>
+                </div>
+              </Link>
+            ) : (
+              <>
+                <img
+                  src={author.avatar}
+                  alt={author.name}
+                  className="w-12 h-12 rounded-full object-cover flex-shrink-0"
+                />
+                <div className="min-w-0 flex-1">
+                  <div className="flex items-center gap-2 min-w-0">
+                    <h3 className="text-brand text-sm sm:text-base font-semibold leading-tight truncate">
+                      {author.name}
+                    </h3>
+                    <span className="text-muted text-xs sm:text-sm truncate">
+                      @{author.handle}
+                    </span>
+                    <span className="text-muted text-xs sm:text-sm">·</span>
+                    <span className="text-muted text-xs sm:text-sm truncate">
+                      {timestamp}
+                    </span>
+                  </div>
+                </div>
+              </>
+            )}
           </div>
-          <motion.button
-            whileHover={{ scale: 1.03 }}
-            whileTap={{ scale: 0.98 }}
-            className="icon-btn"
-          >
-            <MoreHorizontal size={18} />
-          </motion.button>
+          <div className="relative" ref={menuRef}>
+            <motion.button
+              whileHover={{ scale: 1.03 }}
+              whileTap={{ scale: 0.98 }}
+              className="icon-btn"
+              onClick={() => setIsMenuOpen((prev) => !prev)}
+              aria-haspopup="menu"
+              aria-expanded={isMenuOpen}
+            >
+              <MoreHorizontal size={18} />
+            </motion.button>
+
+            {isMenuOpen && (
+              <div className="absolute right-0 mt-2 w-40 rounded-lg border border-neutral-200 bg-white shadow-lg z-20 overflow-hidden">
+                {canActOnUser ? (
+                  <div className="flex flex-col">
+                    <button
+                      onClick={handleFollow}
+                      disabled={isActionLoading}
+                      className="flex items-center gap-2 px-3 py-2 text-sm text-neutral-700 hover:bg-neutral-50 disabled:opacity-50"
+                    >
+                      <UserPlus size={16} />
+                      <span>Follow</span>
+                    </button>
+                    <button
+                      onClick={handleBlock}
+                      disabled={isActionLoading}
+                      className="flex items-center gap-2 px-3 py-2 text-sm text-red-600 hover:bg-red-50 disabled:opacity-50"
+                    >
+                      <Shield size={16} />
+                      <span>Block</span>
+                    </button>
+                  </div>
+                ) : (
+                  <div className="px-3 py-2 text-xs text-muted">
+                    No actions available
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
         </div>
 
         {/* Content */}
@@ -122,25 +265,10 @@ export function PostCard({
           </motion.div>
         )}
 
-        {/* Metadata */}
-        <div className="text-muted text-xs sm:text-sm mb-4 pb-4 border-b border-neutral-100">
-          {timestamp}
-        </div>
+        <div className="mb-4 pb-4 border-b border-neutral-100" />
 
         {/* Action row */}
         <div className="flex items-center gap-8 border-t border-neutral-100 -mx-5 -mb-5 px-5 py-3 sm:-mx-6 sm:px-6">
-          <motion.button
-            variants={actionButtonVariants}
-            initial="initial"
-            whileHover="hover"
-            whileTap="tap"
-            onClick={() => onReply?.(id)}
-            className="inline-flex items-center gap-2 text-muted hover:text-neutral-900 transition-colors duration-200"
-          >
-            <MessageCircle size={18} />
-            <span className="text-xs sm:text-sm">{replies}</span>
-          </motion.button>
-
           <motion.button
             variants={actionButtonVariants}
             initial="initial"
@@ -154,6 +282,18 @@ export function PostCard({
           >
             <Heart size={18} />
             <span className="text-xs sm:text-sm">{likeCount}</span>
+          </motion.button>
+
+          <motion.button
+            variants={actionButtonVariants}
+            initial="initial"
+            whileHover="hover"
+            whileTap="tap"
+            onClick={() => onReply?.(id)}
+            className="inline-flex items-center gap-2 text-muted hover:text-neutral-900 transition-colors duration-200"
+          >
+            <MessageCircle size={18} />
+            <span className="text-xs sm:text-sm">{replies}</span>
           </motion.button>
         </div>
       </div>

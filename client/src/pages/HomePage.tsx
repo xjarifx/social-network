@@ -26,6 +26,22 @@ export function HomePage() {
     Record<string, boolean>
   >({});
 
+  const formatPostTime = (isoDate: string) => {
+    const date = new Date(isoDate);
+    const diffMs = Date.now() - date.getTime();
+    const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
+
+    if (diffHours < 24) {
+      const hours = Math.max(diffHours, 1);
+      return `${hours}h`;
+    }
+
+    return date.toLocaleDateString("en-US", {
+      month: "short",
+      day: "numeric",
+    });
+  };
+
   // Load posts from API
   useEffect(() => {
     const loadPosts = async () => {
@@ -37,6 +53,7 @@ export function HomePage() {
         // Transform API posts to component props
         const transformedPosts: PostProps[] = apiPosts.map((post) => ({
           id: post.id,
+          authorId: post.author?.id,
           author: {
             name:
               post.author?.firstName && post.author?.lastName
@@ -46,12 +63,7 @@ export function HomePage() {
             avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${post.author?.id || post.author?.username || post.id}`,
           },
           content: post.content,
-          timestamp: new Date(post.createdAt).toLocaleDateString("en-US", {
-            month: "short",
-            day: "numeric",
-            hour: "2-digit",
-            minute: "2-digit",
-          }),
+          timestamp: formatPostTime(post.createdAt),
           likes: post.likesCount,
           replies: post.commentsCount,
           liked: user?.id ? post.likes?.includes(user.id) : false,
@@ -154,6 +166,7 @@ export function HomePage() {
       // Add to feed
       const transformedPost: PostProps = {
         id: newPost.id,
+        authorId: newPost.author?.id,
         author: {
           name:
             newPost.author?.firstName && newPost.author?.lastName
@@ -163,7 +176,7 @@ export function HomePage() {
           avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${newPost.author?.id || newPost.author?.username || newPost.id}`,
         },
         content: newPost.content,
-        timestamp: "now",
+        timestamp: "1h",
         likes: 0,
         replies: 0,
         liked: false,
