@@ -157,11 +157,6 @@ export function PostCard({
                 to={`/users/${authorId}`}
                 className="flex items-center gap-3 min-w-0"
               >
-                <img
-                  src={author.avatar}
-                  alt={author.name}
-                  className="w-12 h-12 rounded-full object-cover flex-shrink-0"
-                />
                 <div className="min-w-0 flex-1">
                   <div className="flex items-center gap-2 min-w-0">
                     <h3 className="text-brand text-sm sm:text-base font-semibold leading-tight truncate hover:underline">
@@ -179,11 +174,6 @@ export function PostCard({
               </Link>
             ) : (
               <>
-                <img
-                  src={author.avatar}
-                  alt={author.name}
-                  className="w-12 h-12 rounded-full object-cover flex-shrink-0"
-                />
                 <div className="min-w-0 flex-1">
                   <div className="flex items-center gap-2 min-w-0">
                     <h3 className="text-brand text-sm sm:text-base font-semibold leading-tight truncate">
@@ -264,8 +254,6 @@ export function PostCard({
             />
           </motion.div>
         )}
-
-        <div className="mb-4 pb-4 border-b border-neutral-100" />
 
         {/* Action row */}
         <div className="flex items-center gap-8 border-t border-neutral-100 -mx-5 -mb-5 px-5 py-3 sm:-mx-6 sm:px-6">

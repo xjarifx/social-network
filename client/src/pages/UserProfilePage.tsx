@@ -209,7 +209,7 @@ export function UserProfilePage() {
             </div>
           )}
 
-          <div className="mt-6 border-t border-neutral-100 pt-6">
+          <div className="mt-6 pt-2">
             {postsError && (
               <div className="mb-4 rounded-lg bg-red-50 border border-red-200 p-3 text-sm text-red-700">
                 {postsError}
