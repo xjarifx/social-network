@@ -54,7 +54,6 @@ export function HomePage() {
           }),
           likes: post.likesCount,
           replies: post.commentsCount,
-          reposts: 0,
           liked: user?.id ? post.likes?.includes(user.id) : false,
         }));
 
@@ -167,7 +166,6 @@ export function HomePage() {
         timestamp: "now",
         likes: 0,
         replies: 0,
-        reposts: 0,
         liked: false,
       };
 
@@ -183,7 +181,7 @@ export function HomePage() {
     hidden: { opacity: 0 },
     visible: {
       opacity: 1,
-      transition: { duration: 0.5, ease: "easeOut" },
+      transition: { duration: 0.25, ease: "easeOut" },
     },
   };
 
@@ -194,20 +192,19 @@ export function HomePage() {
       animate="visible"
       className="min-h-screen bg-neutral-bg"
     >
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 py-6 sm:py-8">
-        <div className="grid grid-cols-1 gap-6 md:grid-cols-3 lg:grid-cols-4">
-          {/* Feed - takes up 2 columns on desktop */}
-          <div className="md:col-span-2">
+      <div className="max-w-5xl mx-auto px-4 sm:px-6 py-6 sm:py-8">
+        <div className="flex justify-center">
+          <div className="w-full max-w-2xl">
             {/* Compose button */}
             <motion.div
-              initial={{ y: -20, opacity: 0 }}
+              initial={{ y: -8, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
-              transition={{ duration: 0.4, delay: 0.1 }}
+              transition={{ duration: 0.2, delay: 0.05 }}
               className="mb-6"
             >
               <motion.button
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
                 onClick={() => setIsComposeOpen(true)}
                 className="w-full btn-primary px-6 py-3 rounded-lg font-semibold flex items-center justify-center gap-2"
               >
@@ -219,8 +216,9 @@ export function HomePage() {
             {/* Error message */}
             {error && (
               <motion.div
-                initial={{ opacity: 0, y: -10 }}
+                initial={{ opacity: 0, y: -6 }}
                 animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.2, ease: "easeOut" }}
                 className="card p-4 bg-red-50 border border-red-200 mb-6"
               >
                 <p className="text-red-700 text-sm">{error}</p>
@@ -229,9 +227,9 @@ export function HomePage() {
 
             {/* Feed */}
             <motion.div
-              initial={{ y: 20, opacity: 0 }}
+              initial={{ y: 8, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
-              transition={{ duration: 0.4, delay: 0.2 }}
+              transition={{ duration: 0.25, delay: 0.05 }}
             >
               <Feed
                 posts={posts}
@@ -299,28 +297,6 @@ export function HomePage() {
               />
             </motion.div>
           </div>
-
-          {/* Empty sidebar on mobile, full on desktop */}
-          <motion.div
-            initial={{ y: 20, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            transition={{ duration: 0.4, delay: 0.3 }}
-            className="md:col-span-1 hidden md:block"
-          >
-            <div className="card p-6 sticky top-24">
-              <h3 className="text-brand font-bold mb-4">Getting Started</h3>
-              <div className="space-y-4 text-sm">
-                <p className="text-subtle">
-                  Create posts, like, and comment on posts from others in your
-                  feed.
-                </p>
-                <p className="text-muted text-xs">
-                  Your timeline updates in real-time as you interact with the
-                  community.
-                </p>
-              </div>
-            </div>
-          </motion.div>
         </div>
       </div>
 

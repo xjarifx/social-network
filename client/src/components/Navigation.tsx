@@ -23,17 +23,17 @@ export function Navigation() {
 
   return (
     <motion.nav
-      initial={{ y: -20, opacity: 0 }}
+      initial={{ y: -8, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
-      transition={{ duration: 0.4, ease: "easeOut" }}
+      transition={{ duration: 0.2, ease: "easeOut" }}
       className="sticky top-0 z-40 border-b border-neutral-100 bg-white/80 backdrop-blur-xl"
     >
       <div className="max-w-6xl mx-auto px-4 sm:px-6">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
           <motion.div
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
             className="flex-shrink-0"
           >
             <div className="flex items-center gap-2 cursor-pointer group">
@@ -51,8 +51,8 @@ export function Navigation() {
             {navItems.map((item) => (
               <motion.div
                 key={item.label}
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
               >
                 <NavLink
                   to={item.to}
@@ -80,8 +80,8 @@ export function Navigation() {
               </div>
             )}
             <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
               className="icon-btn"
               onClick={() => logout()}
               aria-label="Logout"
@@ -89,8 +89,8 @@ export function Navigation() {
               <LogOut size={20} />
             </motion.button>
             <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
               className="icon-btn md:hidden"
             >
               <MoreHorizontal size={20} />

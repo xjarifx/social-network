@@ -19,7 +19,6 @@ export function ExampleBasicFeed() {
       timestamp: "3h ago",
       likes: 210,
       replies: 12,
-      reposts: 45,
     },
   ];
 
@@ -51,7 +50,6 @@ export function ExampleComposeFlow() {
       timestamp: "now",
       likes: 0,
       replies: 0,
-      reposts: 0,
     };
     setPostList([newPost, ...postList]);
     setShowCompose(false);

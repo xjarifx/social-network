@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { MessageCircle, Share, Repeat2, MoreHorizontal } from "lucide-react";
+import { Heart, MessageCircle, MoreHorizontal } from "lucide-react";
 import { useEffect, useState } from "react";
 
 export interface PostProps {
@@ -14,7 +14,6 @@ export interface PostProps {
   timestamp: string;
   likes: number;
   replies: number;
-  reposts: number;
   liked?: boolean;
   onLike?: (id: string) => void;
   onReply?: (id: string) => void;
@@ -28,7 +27,6 @@ export function PostCard({
   timestamp,
   likes,
   replies,
-  reposts,
   liked = false,
   onLike,
   onReply,
@@ -48,11 +46,11 @@ export function PostCard({
   };
 
   const containerVariants = {
-    hidden: { opacity: 0, y: 10 },
+    hidden: { opacity: 0, y: 6 },
     visible: {
       opacity: 1,
       y: 0,
-      transition: { duration: 0.3, ease: "easeOut" },
+      transition: { duration: 0.2, ease: "easeOut" },
     },
   };
 
@@ -60,14 +58,14 @@ export function PostCard({
     hidden: { opacity: 0 },
     visible: {
       opacity: 1,
-      transition: { duration: 0.4, ease: "easeOut", delay: 0.1 },
+      transition: { duration: 0.25, ease: "easeOut", delay: 0.05 },
     },
   };
 
   const actionButtonVariants = {
     initial: { scale: 1 },
-    hover: { scale: 1.1 },
-    tap: { scale: 0.95 },
+    hover: { scale: 1.03 },
+    tap: { scale: 0.98 },
   };
 
   return (
@@ -75,7 +73,7 @@ export function PostCard({
       variants={containerVariants}
       initial="hidden"
       animate="visible"
-      whileHover={{ translateY: -2 }}
+      whileHover={{ translateY: -1 }}
       className="card card-hover overflow-hidden transition-all duration-200"
     >
       <div className="p-5 sm:p-6">
@@ -95,8 +93,8 @@ export function PostCard({
             </div>
           </div>
           <motion.button
-            whileHover={{ scale: 1.1 }}
-            whileTap={{ scale: 0.95 }}
+            whileHover={{ scale: 1.03 }}
+            whileTap={{ scale: 0.98 }}
             className="icon-btn"
           >
             <MoreHorizontal size={18} />
@@ -129,45 +127,18 @@ export function PostCard({
           {timestamp}
         </div>
 
-        {/* Stats - hide on very small screens */}
-        <div className="hidden sm:grid grid-cols-3 gap-4 mb-4 text-sm">
-          <div className="text-muted">
-            <span className="font-semibold text-neutral-900">{replies}</span>{" "}
-            replies
-          </div>
-          <div className="text-muted">
-            <span className="font-semibold text-neutral-900">{reposts}</span>{" "}
-            reposts
-          </div>
-          <div className="text-muted">
-            <span className="font-semibold text-neutral-900">{likeCount}</span>{" "}
-            likes
-          </div>
-        </div>
-
-        {/* Action buttons */}
-        <div className="flex items-center justify-between divide-x divide-neutral-100 -mx-5 -mb-5 sm:-mx-6 sm:-mb-6">
+        {/* Action row */}
+        <div className="flex items-center gap-8 border-t border-neutral-100 -mx-5 -mb-5 px-5 py-3 sm:-mx-6 sm:px-6">
           <motion.button
             variants={actionButtonVariants}
             initial="initial"
             whileHover="hover"
             whileTap="tap"
             onClick={() => onReply?.(id)}
-            className="flex-1 flex items-center justify-center gap-2 py-3 text-muted hover:text-accent-600 hover:bg-accent-50 transition-colors duration-200"
+            className="inline-flex items-center gap-2 text-muted hover:text-neutral-900 transition-colors duration-200"
           >
             <MessageCircle size={18} />
-            <span className="text-xs sm:text-sm hidden sm:inline">Reply</span>
-          </motion.button>
-
-          <motion.button
-            variants={actionButtonVariants}
-            initial="initial"
-            whileHover="hover"
-            whileTap="tap"
-            className="flex-1 flex items-center justify-center gap-2 py-3 text-muted hover:text-accent-600 hover:bg-accent-50 transition-colors duration-200"
-          >
-            <Repeat2 size={18} />
-            <span className="text-xs sm:text-sm hidden sm:inline">Repost</span>
+            <span className="text-xs sm:text-sm">{replies}</span>
           </motion.button>
 
           <motion.button
@@ -176,37 +147,13 @@ export function PostCard({
             whileHover="hover"
             whileTap="tap"
             onClick={handleLike}
-            className="flex-1 flex items-center justify-center gap-2 py-3 transition-colors duration-200"
+            className="inline-flex items-center gap-2 text-muted hover:text-neutral-900 transition-colors duration-200"
             style={{
-              color: isLiked ? "#22c55e" : "currentColor",
+              color: isLiked ? "#f43f5e" : undefined,
             }}
           >
-            <motion.svg
-              whileHover={{ scale: 1.2 }}
-              whileTap={{ scale: 0.8 }}
-              width="18"
-              height="18"
-              viewBox="0 0 24 24"
-              fill={isLiked ? "currentColor" : "none"}
-              stroke="currentColor"
-              strokeWidth="2"
-            >
-              <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
-            </motion.svg>
-            <span className="text-xs sm:text-sm hidden sm:inline">
-              {likeCount}
-            </span>
-          </motion.button>
-
-          <motion.button
-            variants={actionButtonVariants}
-            initial="initial"
-            whileHover="hover"
-            whileTap="tap"
-            className="flex-1 flex items-center justify-center gap-2 py-3 text-muted hover:text-accent-600 hover:bg-accent-50 transition-colors duration-200"
-          >
-            <Share size={18} />
-            <span className="text-xs sm:text-sm hidden sm:inline">Share</span>
+            <Heart size={18} />
+            <span className="text-xs sm:text-sm">{likeCount}</span>
           </motion.button>
         </div>
       </div>

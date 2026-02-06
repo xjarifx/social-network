@@ -22,17 +22,17 @@ export function Feed({
     visible: {
       opacity: 1,
       transition: {
-        staggerChildren: 0.1,
-        delayChildren: 0.2,
+        staggerChildren: 0.04,
+        delayChildren: 0.05,
       },
     },
   };
 
   const loadingPulseVariants = {
     pulse: {
-      opacity: [0.6, 1, 0.6],
+      opacity: [0.85, 1, 0.85],
       transition: {
-        duration: 1.5,
+        duration: 2.2,
         repeat: Infinity,
       },
     },
@@ -69,8 +69,9 @@ export function Feed({
 
       {posts.length === 0 && (
         <motion.div
-          initial={{ opacity: 0, y: 10 }}
+          initial={{ opacity: 0, y: 6 }}
           animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.2, ease: "easeOut" }}
           className="card p-12 text-center"
         >
           <div className="text-center">

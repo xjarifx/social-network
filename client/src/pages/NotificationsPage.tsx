@@ -52,6 +52,7 @@ export function NotificationsPage() {
     <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
+      transition={{ duration: 0.2, ease: "easeOut" }}
       className="min-h-screen bg-neutral-bg"
     >
       <div className="max-w-5xl mx-auto px-4 sm:px-6 py-8">

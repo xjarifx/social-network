@@ -31,31 +31,31 @@ export function ComposeModal({
     hidden: { opacity: 0 },
     visible: {
       opacity: 1,
-      transition: { duration: 0.2 },
+      transition: { duration: 0.15 },
     },
     exit: {
       opacity: 0,
-      transition: { duration: 0.2 },
+      transition: { duration: 0.15 },
     },
   };
 
   const modalVariants = {
     hidden: {
       opacity: 0,
-      scale: 0.95,
-      y: 20,
+      scale: 0.98,
+      y: 12,
     },
     visible: {
       opacity: 1,
       scale: 1,
       y: 0,
-      transition: { duration: 0.3, ease: "easeOut" },
+      transition: { duration: 0.2, ease: "easeOut" },
     },
     exit: {
       opacity: 0,
-      scale: 0.95,
-      y: 20,
-      transition: { duration: 0.2 },
+      scale: 0.98,
+      y: 12,
+      transition: { duration: 0.15 },
     },
   };
 
@@ -84,8 +84,8 @@ export function ComposeModal({
                 What's happening!
               </h2>
               <motion.button
-                whileHover={{ scale: 1.1 }}
-                whileTap={{ scale: 0.95 }}
+                whileHover={{ scale: 1.03 }}
+                whileTap={{ scale: 0.98 }}
                 onClick={onClose}
                 className="icon-btn"
               >
@@ -123,15 +123,15 @@ export function ComposeModal({
               <div className="flex items-center justify-between pt-4 border-t border-neutral-100">
                 <div className="flex items-center gap-2">
                   <motion.button
-                    whileHover={{ scale: 1.1 }}
-                    whileTap={{ scale: 0.95 }}
+                    whileHover={{ scale: 1.03 }}
+                    whileTap={{ scale: 0.98 }}
                     className="icon-btn text-accent-500 hover:text-accent-600 hover:bg-accent-50"
                   >
                     <Image size={20} />
                   </motion.button>
                   <motion.button
-                    whileHover={{ scale: 1.1 }}
-                    whileTap={{ scale: 0.95 }}
+                    whileHover={{ scale: 1.03 }}
+                    whileTap={{ scale: 0.98 }}
                     className="icon-btn text-accent-500 hover:text-accent-600 hover:bg-accent-50"
                   >
                     <Smile size={20} />
@@ -139,8 +139,8 @@ export function ComposeModal({
                 </div>
 
                 <motion.button
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
                   onClick={handleSubmit}
                   disabled={!content.trim()}
                   className="btn-primary px-6 py-2 text-sm sm:text-base disabled:opacity-50 disabled:cursor-not-allowed"
