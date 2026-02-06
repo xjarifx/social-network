@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import { usersAPI, followsAPI } from "../services/api";
-import type { User, Follower } from "../services/api";
+import { usersAPI, followsAPI, blocksAPI } from "../services/api";
+import type { User, Follower, BlockedUser } from "../services/api";
 import { useAuth } from "../context/AuthContext";
 import { Feed } from "../components";
 import type { PostProps } from "../components";
@@ -13,6 +13,7 @@ export function ProfilePage() {
   const [lastName, setLastName] = useState("");
   const [followers, setFollowers] = useState<Follower[]>([]);
   const [following, setFollowing] = useState<Follower[]>([]);
+  const [blocked, setBlocked] = useState<BlockedUser[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -103,12 +104,15 @@ export function ProfilePage() {
         return;
       }
       try {
-        const [followersResponse, followingResponse] = await Promise.all([
-          followsAPI.getUserFollowers(user.id),
-          followsAPI.getUserFollowing(user.id),
-        ]);
+        const [followersResponse, followingResponse, blockedResponse] =
+          await Promise.all([
+            followsAPI.getUserFollowers(user.id),
+            followsAPI.getUserFollowing(user.id),
+            blocksAPI.list(),
+          ]);
         setFollowers(followersResponse);
         setFollowing(followingResponse);
+        setBlocked(blockedResponse.blocked);
       } catch (err) {
         console.error("Failed to load followers/following:", err);
       }
@@ -194,7 +198,7 @@ export function ProfilePage() {
           )}
         </div>
 
-        <div className="grid gap-6 md:grid-cols-2">
+        <div className="grid gap-6 md:grid-cols-3">
           <div className="card p-6">
             <h2 className="text-brand font-semibold mb-4">Followers</h2>
             {followers.length === 0 ? (
@@ -218,6 +222,22 @@ export function ProfilePage() {
             ) : (
               <ul className="space-y-3">
                 {following.map((item) => (
+                  <li key={item.id} className="text-sm">
+                    {item.user?.firstName} {item.user?.lastName} (
+                    {item.user?.username})
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+
+          <div className="card p-6">
+            <h2 className="text-brand font-semibold mb-4">Blocked</h2>
+            {blocked.length === 0 ? (
+              <p className="text-sm text-muted">No blocked users.</p>
+            ) : (
+              <ul className="space-y-3">
+                {blocked.map((item) => (
                   <li key={item.id} className="text-sm">
                     {item.user?.firstName} {item.user?.lastName} (
                     {item.user?.username})
