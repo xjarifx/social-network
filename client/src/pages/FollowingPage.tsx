@@ -1,10 +1,12 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { followsAPI, usersAPI } from "../services/api";
 import type { Follower } from "../services/api";
 import { useAuth } from "../context/AuthContext";
 
 export function FollowingPage() {
+  const navigate = useNavigate();
   const { user } = useAuth();
   const [following, setFollowing] = useState<Follower[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -67,7 +69,10 @@ export function FollowingPage() {
                       @{item.user?.username}
                     </div>
                   </div>
-                  <button className="btn-primary px-4 py-2">
+                  <button
+                    onClick={() => navigate(`/users/${item.user?.id}`)}
+                    className="btn-primary px-4 py-2"
+                  >
                     View Profile
                   </button>
                 </div>
