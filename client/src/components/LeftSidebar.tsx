@@ -25,7 +25,7 @@ export function LeftSidebar() {
   const searchRef = useRef<HTMLDivElement | null>(null);
 
   const navItems = [
-    { icon: Home, label: "Home", to: "/" },
+    { icon: Home, label: "News Feed", to: "/" },
     { icon: Bell, label: "Notifications", to: "/notifications" },
     { icon: User, label: "Profile", to: "/profile" },
     { icon: CreditCard, label: "Billing", to: "/billing" },
