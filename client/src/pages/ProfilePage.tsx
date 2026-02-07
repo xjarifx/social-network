@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { usersAPI, followsAPI, blocksAPI } from "../services/api";
 import type { User, Follower, BlockedUser } from "../services/api";
@@ -8,6 +9,7 @@ import type { PostProps } from "../components";
 
 export function ProfilePage() {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const [profile, setProfile] = useState<User | null>(null);
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
@@ -199,53 +201,48 @@ export function ProfilePage() {
         </div>
 
         <div className="grid gap-6 md:grid-cols-3">
-          <div className="card p-6">
+          <button
+            onClick={() => navigate("/followers")}
+            className="card p-6 hover:shadow-lg hover:border-brand-500 transition-all cursor-pointer text-left"
+          >
             <h2 className="text-brand font-semibold mb-4">Followers</h2>
-            {followers.length === 0 ? (
-              <p className="text-sm text-muted">No followers yet.</p>
-            ) : (
-              <ul className="space-y-3">
-                {followers.map((item) => (
-                  <li key={item.id} className="text-sm">
-                    {item.follower?.firstName} {item.follower?.lastName} (
-                    {item.follower?.username})
-                  </li>
-                ))}
-              </ul>
-            )}
-          </div>
+            <p className="text-2xl font-bold text-brand mb-2">
+              {followers.length}
+            </p>
+            <p className="text-sm text-muted">
+              {followers.length === 0
+                ? "No followers yet."
+                : "Click to see all"}
+            </p>
+          </button>
 
-          <div className="card p-6">
+          <button
+            onClick={() => navigate("/following")}
+            className="card p-6 hover:shadow-lg hover:border-brand-500 transition-all cursor-pointer text-left"
+          >
             <h2 className="text-brand font-semibold mb-4">Following</h2>
-            {following.length === 0 ? (
-              <p className="text-sm text-muted">Not following anyone yet.</p>
-            ) : (
-              <ul className="space-y-3">
-                {following.map((item) => (
-                  <li key={item.id} className="text-sm">
-                    {item.user?.firstName} {item.user?.lastName} (
-                    {item.user?.username})
-                  </li>
-                ))}
-              </ul>
-            )}
-          </div>
+            <p className="text-2xl font-bold text-brand mb-2">
+              {following.length}
+            </p>
+            <p className="text-sm text-muted">
+              {following.length === 0
+                ? "Not following anyone yet."
+                : "Click to see all"}
+            </p>
+          </button>
 
-          <div className="card p-6">
+          <button
+            onClick={() => navigate("/blocks")}
+            className="card p-6 hover:shadow-lg hover:border-brand-500 transition-all cursor-pointer text-left"
+          >
             <h2 className="text-brand font-semibold mb-4">Blocked</h2>
-            {blocked.length === 0 ? (
-              <p className="text-sm text-muted">No blocked users.</p>
-            ) : (
-              <ul className="space-y-3">
-                {blocked.map((item) => (
-                  <li key={item.id} className="text-sm">
-                    {item.user?.firstName} {item.user?.lastName} (
-                    {item.user?.username})
-                  </li>
-                ))}
-              </ul>
-            )}
-          </div>
+            <p className="text-2xl font-bold text-brand mb-2">
+              {blocked.length}
+            </p>
+            <p className="text-sm text-muted">
+              {blocked.length === 0 ? "No blocked users." : "Click to see all"}
+            </p>
+          </button>
         </div>
 
         <div className="card p-6">

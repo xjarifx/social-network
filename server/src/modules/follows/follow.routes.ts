@@ -71,55 +71,5 @@ router.post("/", authenticate, follow);
  *         description: Follow relationship not found
  */
 router.delete("/:followingId", authenticate, unfollow);
-/**
- * @openapi
- * /api/v1/users/{userId}/followers:
- *   get:
- *     summary: Get followers of a user
- *     tags:
- *       - Follows
- *     security:
- *       - BearerAuth: []
- *     parameters:
- *       - in: query
- *         name: limit
- *         schema:
- *           type: integer
- *           default: 20
- *       - in: query
- *         name: offset
- *         schema:
- *           type: integer
- *           default: 0
- *     responses:
- *       200:
- *         description: Followers list retrieved successfully
- */
-router.get("/followers", authenticate, getUserFollowers);
-/**
- * @openapi
- * /api/v1/users/{userId}/following:
- *   get:
- *     summary: Get users that current user is following
- *     tags:
- *       - Follows
- *     security:
- *       - BearerAuth: []
- *     parameters:
- *       - in: query
- *         name: limit
- *         schema:
- *           type: integer
- *           default: 20
- *       - in: query
- *         name: offset
- *         schema:
- *           type: integer
- *           default: 0
- *     responses:
- *       200:
- *         description: Following list retrieved successfully
- */
-router.get("/following", authenticate, getUserFollowing);
 
 export default router;

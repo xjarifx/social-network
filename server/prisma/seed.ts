@@ -451,28 +451,25 @@ async function main() {
   }
   console.log(`✅ Created ${followerPairs.length} follower relationships`);
 
-  // Create some blocks - about 2% of users have blocks
+  // Create blocks - each user blocks at least 5 others
   console.log("🚫 Creating blocks...");
   const blockPairs = [];
   for (let i = 0; i < users.length; i++) {
-    if (Math.random() < 0.02) {
-      // 2% chance
-      const numBlocks = Math.floor(Math.random() * 3) + 1; // 1-3 blocks
-      const blockedIndices = new Set<number>();
+    const numBlocks = Math.floor(Math.random() * 11) + 5; // 5-15 blocks per user
+    const blockedIndices = new Set<number>();
 
-      while (blockedIndices.size < numBlocks) {
-        const randomIndex = Math.floor(Math.random() * users.length);
-        if (randomIndex !== i) {
-          blockedIndices.add(randomIndex);
-        }
+    while (blockedIndices.size < numBlocks) {
+      const randomIndex = Math.floor(Math.random() * users.length);
+      if (randomIndex !== i) {
+        blockedIndices.add(randomIndex);
       }
+    }
 
-      for (const index of blockedIndices) {
-        blockPairs.push({
-          blockerId: users[i].id,
-          blockedId: users[index].id,
-        });
-      }
+    for (const index of blockedIndices) {
+      blockPairs.push({
+        blockerId: users[i].id,
+        blockedId: users[index].id,
+      });
     }
   }
 

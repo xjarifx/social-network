@@ -423,11 +423,11 @@ export const followsAPI = {
   },
 
   getUserFollowers: async (userId: string): Promise<Follower[]> => {
-    return apiRequest(`/users/${userId}/followers/followers`);
+    return apiRequest(`/users/${userId}/followers`);
   },
 
   getUserFollowing: async (userId: string): Promise<Follower[]> => {
-    return apiRequest(`/users/${userId}/following/following`);
+    return apiRequest(`/users/${userId}/following`);
   },
 };
 

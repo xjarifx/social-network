@@ -4,7 +4,7 @@ import {
   getFollowers,
   getFollowing,
   unfollowUser,
-} from './follow.service';
+} from "./follow.service";
 
 export const follow = async (req: Request, res: Response): Promise<void> => {
   try {
@@ -34,7 +34,8 @@ export const getUserFollowers = async (
   res: Response,
 ): Promise<void> => {
   try {
-    const followers = await getFollowers(req.userId);
+    const userId = req.params.userId as string;
+    const followers = await getFollowers(userId);
     res.status(200).json(followers);
   } catch (error) {
     console.error("Get followers error:", error);
@@ -47,7 +48,8 @@ export const getUserFollowing = async (
   res: Response,
 ): Promise<void> => {
   try {
-    const following = await getFollowing(req.userId);
+    const userId = req.params.userId as string;
+    const following = await getFollowing(userId);
     res.status(200).json(following);
   } catch (error) {
     console.error("Get following error:", error);

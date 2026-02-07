@@ -8,6 +8,8 @@ import { UserProfilePage } from "./pages/UserProfilePage";
 import { NotificationsPage } from "./pages/NotificationsPage";
 import { BillingPage } from "./pages/BillingPage";
 import { BlocksPage } from "./pages/BlocksPage";
+import { FollowersPage } from "./pages/FollowersPage";
+import { FollowingPage } from "./pages/FollowingPage";
 import { Navigation } from "./components";
 import { ProtectedRoute } from "./components/ProtectedRoute";
 import { useEffect } from "react";
@@ -100,6 +102,28 @@ function AppRoutes() {
           <ProtectedRoute>
             <AppLayout>
               <BlocksPage />
+            </AppLayout>
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/followers"
+        element={
+          <ProtectedRoute>
+            <AppLayout>
+              <FollowersPage />
+            </AppLayout>
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/following"
+        element={
+          <ProtectedRoute>
+            <AppLayout>
+              <FollowingPage />
             </AppLayout>
           </ProtectedRoute>
         }

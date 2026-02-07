@@ -8,6 +8,10 @@ import {
 import { authenticate } from "../../middleware/authenticate.middleware";
 import postRouter from "../posts/posts.routes";
 import followRouter from "../follows/follow.routes";
+import {
+  getUserFollowers,
+  getUserFollowing,
+} from "../follows/follow.controller";
 
 const router = Router();
 
@@ -136,23 +140,26 @@ router.patch("/:userId/posts", postRouter);
 
 /**
  * @openapi
- * /api/v1/users/{userId}/followers:
+ * /api/v1/users/{userId}/follow:
  *   post:
  *     summary: Follow a user
  *   delete:
  *     summary: Unfollow a user
+ */
+router.use("/:userId/follow", followRouter);
+/**
+ * @openapi
+ * /api/v1/users/{userId}/followers:
  *   get:
  *     summary: Get followers of a user
  */
-router.post("/:userId/followers", followRouter);
-router.delete("/:userId/followers", followRouter);
-router.get("/:userId/followers", followRouter);
+router.get("/:userId/followers", authenticate, getUserFollowers);
 /**
  * @openapi
  * /api/v1/users/{userId}/following:
  *   get:
  *     summary: Get following of a user
  */
-router.get("/:userId/following", followRouter);
+router.get("/:userId/following", authenticate, getUserFollowing);
 
 export default router;
