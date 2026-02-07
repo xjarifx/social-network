@@ -117,17 +117,24 @@ export function HomePage() {
       return;
     }
 
+    // Store original state for potential rollback
+    const originalFollowingIds = followingIds;
+
     try {
       if (isFollowing) {
-        await followsAPI.unfollowUser(user.id, authorId);
+        // Optimistically update UI
         setFollowingIds((prev) => prev.filter((id) => id !== authorId));
+        await followsAPI.unfollowUser(user.id, authorId);
       } else {
-        await followsAPI.followUser(user.id, authorId);
+        // Optimistically update UI
         setFollowingIds((prev) =>
           prev.includes(authorId) ? prev : [...prev, authorId],
         );
+        await followsAPI.followUser(user.id, authorId);
       }
     } catch (err) {
+      // Revert on error
+      setFollowingIds(originalFollowingIds);
       console.error("Failed to follow/unfollow:", err);
     }
   };

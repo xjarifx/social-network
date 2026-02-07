@@ -11,16 +11,16 @@ import { BlocksPage } from "./pages/BlocksPage";
 import { FollowersPage } from "./pages/FollowersPage";
 import { FollowingPage } from "./pages/FollowingPage";
 import { SearchPage } from "./pages/SearchPage";
-import { Navigation } from "./components";
+import { LeftSidebar } from "./components";
 import { ProtectedRoute } from "./components/ProtectedRoute";
 import { useEffect } from "react";
 
 function AppLayout({ children }: { children: React.ReactNode }) {
   return (
-    <>
-      <Navigation />
-      {children}
-    </>
+    <div className="flex min-h-screen bg-neutral-bg">
+      <LeftSidebar />
+      <main className="flex-1 ml-72">{children}</main>
+    </div>
   );
 }
 

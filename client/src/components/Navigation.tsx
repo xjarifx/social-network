@@ -195,67 +195,103 @@ export function Navigation() {
           </div>
 
           {/* Search bar */}
-          <form onSubmit={handleSearch} className="flex-1 mx-8">
+          <form onSubmit={handleSearch} className="mx-6">
             <div className="relative" ref={searchRef}>
-              <input
-                type="text"
-                placeholder="Search users by name..."
-                value={searchQuery}
-                onChange={handleSearchChange}
-                onFocus={() =>
-                  searchQuery.trim().length >= 2 && setShowSuggestions(true)
-                }
-                className="w-full px-4 py-2 rounded-lg border border-neutral-200 bg-neutral-50 text-sm placeholder-neutral-500 focus:bg-white focus:border-accent-500 focus:ring-1 focus:ring-accent-500 transition-colors"
-              />
-              <button
-                type="submit"
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-500 hover:text-accent-600 transition-colors"
-                aria-label="Search"
-              >
-                <Search size={18} />
-              </button>
+              <div className="relative group">
+                <div className="absolute inset-y-0 left-0 pl-2.5 flex items-center pointer-events-none">
+                  <Search
+                    size={16}
+                    className="text-neutral-400 group-focus-within:text-accent-500 transition-colors"
+                  />
+                </div>
+                <input
+                  type="text"
+                  placeholder="Search users..."
+                  value={searchQuery}
+                  onChange={handleSearchChange}
+                  onFocus={() =>
+                    searchQuery.trim().length >= 2 && setShowSuggestions(true)
+                  }
+                  className="w-48 pl-8 pr-3 py-1.5 rounded-full border border-neutral-200 bg-neutral-50 text-xs placeholder-neutral-500 focus:w-72 focus:bg-white focus:border-accent-500 focus:shadow-lg focus:shadow-accent-500/20 focus:outline-none transition-all duration-200"
+                />
+              </div>
 
               {/* Suggestions dropdown */}
               {showSuggestions && (
                 <motion.div
-                  initial={{ opacity: 0, y: -8 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -8 }}
-                  transition={{ duration: 0.15 }}
-                  className="absolute top-full left-0 right-0 mt-2 bg-white border border-neutral-200 rounded-lg shadow-lg z-50 max-h-64 overflow-y-auto"
+                  initial={{ opacity: 0, y: -12, scale: 0.95 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  exit={{ opacity: 0, y: -12, scale: 0.95 }}
+                  transition={{ duration: 0.2, ease: "easeOut" }}
+                  className="absolute top-full left-0 right-0 mt-3 bg-white border-2 border-neutral-200 rounded-xl shadow-xl z-50 max-h-96 overflow-y-auto backdrop-blur-sm"
                 >
                   {isLoadingSuggestions ? (
-                    <div className="px-4 py-3 text-center text-sm text-neutral-500">
-                      Searching...
+                    <div className="px-4 py-6 text-center">
+                      <motion.div
+                        animate={{ rotate: 360 }}
+                        transition={{
+                          duration: 1,
+                          repeat: Infinity,
+                          ease: "linear",
+                        }}
+                        className="w-5 h-5 border-2 border-accent-500 border-t-transparent rounded-full mx-auto"
+                      />
+                      <p className="text-sm text-neutral-500 mt-2">
+                        Searching users...
+                      </p>
                     </div>
                   ) : suggestions.length === 0 ? (
-                    <div className="px-4 py-3 text-center text-sm text-neutral-500">
-                      No users found
+                    <div className="px-4 py-8 text-center">
+                      <div className="w-12 h-12 rounded-full bg-neutral-100 flex items-center justify-center mx-auto mb-2">
+                        <Search size={20} className="text-neutral-400" />
+                      </div>
+                      <p className="text-sm font-medium text-neutral-700">
+                        No users found
+                      </p>
+                      <p className="text-xs text-neutral-500 mt-1">
+                        Try a different name
+                      </p>
                     </div>
                   ) : (
-                    <div className="py-1">
-                      {suggestions.map((user) => (
+                    <div className="py-2">
+                      <div className="px-3 py-2 text-xs font-semibold text-neutral-500 uppercase tracking-wider">
+                        People
+                      </div>
+                      {suggestions.map((user, index) => (
                         <motion.button
                           key={user.id}
                           type="button"
-                          whileHover={{ backgroundColor: "#f5f5f5" }}
+                          initial={{ opacity: 0, x: -8 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          transition={{ duration: 0.15, delay: index * 0.03 }}
+                          whileHover={{ backgroundColor: "#f9fafb" }}
                           onClick={() =>
                             handleSuggestionClick(user.id, user.username)
                           }
-                          className="w-full flex items-center gap-3 px-4 py-2 text-left hover:bg-neutral-50 transition-colors"
+                          className="w-full flex items-center gap-3 px-4 py-3 text-left transition-colors hover:bg-neutral-50"
                         >
-                          <div className="w-8 h-8 rounded-full bg-gradient-to-br from-accent-500 to-accent-600 flex items-center justify-center text-white text-xs font-bold flex-shrink-0">
+                          <motion.div
+                            className="w-10 h-10 rounded-full bg-gradient-to-br from-accent-500 to-accent-600 flex items-center justify-center text-white text-sm font-bold flex-shrink-0 shadow-md"
+                            whileHover={{ scale: 1.1 }}
+                          >
                             {user.firstName[0]}
                             {user.lastName[0]}
-                          </div>
+                          </motion.div>
                           <div className="flex-1 min-w-0">
-                            <div className="text-sm font-medium text-neutral-900 truncate">
+                            <div className="text-sm font-semibold text-neutral-900 truncate">
                               {user.firstName} {user.lastName}
                             </div>
                             <div className="text-xs text-neutral-500 truncate">
                               @{user.username}
                             </div>
                           </div>
+                          <motion.div
+                            initial={{ opacity: 0 }}
+                            whileHover={{ opacity: 1, x: -4 }}
+                            className="text-neutral-300"
+                          >
+                            <Search size={16} />
+                          </motion.div>
                         </motion.button>
                       ))}
                     </div>

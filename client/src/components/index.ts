@@ -1,4 +1,5 @@
 export { Navigation } from "./Navigation";
+export { LeftSidebar } from "./LeftSidebar";
 export { PostCard } from "./PostCard";
 export type { PostProps } from "./PostCard";
 export { Feed } from "./Feed";

@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, useRef } from "react";
 import { useParams } from "react-router-dom";
 import { motion } from "framer-motion";
 import { usersAPI, followsAPI, blocksAPI } from "../services/api";
@@ -19,6 +19,7 @@ export function UserProfilePage() {
   const [postsLoading, setPostsLoading] = useState(true);
   const [postsError, setPostsError] = useState<string | null>(null);
   const [isBlocking, setIsBlocking] = useState(false);
+  const hasInitializedFollowState = useRef(false);
 
   const canFollow = useMemo(
     () => !!user?.id && !!userId && user.id !== userId,
@@ -118,27 +119,68 @@ export function UserProfilePage() {
     loadFollowing();
   }, [user?.id]);
 
+  // Set initial following state only on first load of following data
   useEffect(() => {
-    if (!userId) {
+    if (
+      !userId ||
+      following.length === 0 ||
+      hasInitializedFollowState.current
+    ) {
       return;
     }
-    setIsFollowing(following.some((item) => item.user?.id === userId));
+    const shouldBeFollowing = following.some(
+      (item) => item.user?.id === userId,
+    );
+    setIsFollowing(shouldBeFollowing);
+    hasInitializedFollowState.current = true;
   }, [following, userId]);
+
+  // Reset initialization flag when userId changes
+  useEffect(() => {
+    hasInitializedFollowState.current = false;
+  }, [userId]);
 
   const handleFollowToggle = async () => {
     if (!user?.id || !userId) {
       return;
     }
 
+    // Store original state for rollback
+    const wasFollowing = isFollowing;
+    const originalFollowing = following;
+
     try {
       if (isFollowing) {
-        await followsAPI.unfollowUser(user.id, userId);
+        // Optimistically update both states together
+        setIsFollowing(false);
         setFollowing((prev) => prev.filter((item) => item.user?.id !== userId));
+        await followsAPI.unfollowUser(user.id, userId);
       } else {
+        // Optimistically update UI first
+        setIsFollowing(true);
+        // Create temporary follower object for optimistic update
+        const tempFollower = {
+          id: "temp-" + Date.now(),
+          followedAt: new Date().toISOString(),
+          user: {
+            id: userId,
+            username: profile?.username || "",
+            firstName: profile?.firstName || "",
+            lastName: profile?.lastName || "",
+          },
+        };
+        setFollowing((prev) => [...prev, tempFollower]);
+
+        // Make API call and replace temp with real data
         const response = await followsAPI.followUser(user.id, userId);
-        setFollowing((prev) => [...prev, response]);
+        setFollowing((prev) =>
+          prev.map((item) => (item.id === tempFollower.id ? response : item)),
+        );
       }
     } catch (err) {
+      // Revert both states on error
+      setIsFollowing(wasFollowing);
+      setFollowing(originalFollowing);
       console.error("Failed to follow/unfollow:", err);
     }
   };
