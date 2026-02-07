@@ -222,7 +222,26 @@ async function apiRequest<T>(
     );
   }
 
-  return response.json();
+  if (response.status === 204 || response.status === 205) {
+    return undefined as T;
+  }
+
+  const contentLength = response.headers.get("content-length");
+  if (contentLength === "0") {
+    return undefined as T;
+  }
+
+  const contentType = response.headers.get("content-type") || "";
+  if (contentType.includes("application/json")) {
+    return response.json();
+  }
+
+  const text = await response.text();
+  if (!text) {
+    return undefined as T;
+  }
+
+  return text as T;
 }
 
 // ============================================================================
@@ -410,14 +429,14 @@ export const followsAPI = {
     userId: string,
     followingId: string,
   ): Promise<Follower> => {
-    return apiRequest(`/users/${userId}/followers`, {
+    return apiRequest(`/users/${userId}/follow`, {
       method: "POST",
       body: JSON.stringify({ followingId }),
     });
   },
 
   unfollowUser: async (userId: string, followingId: string): Promise<void> => {
-    return apiRequest(`/users/${userId}/followers/${followingId}`, {
+    return apiRequest(`/users/${userId}/follow/${followingId}`, {
       method: "DELETE",
     });
   },

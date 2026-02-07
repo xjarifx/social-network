@@ -7,6 +7,10 @@ export interface FeedProps {
   isLoading?: boolean;
   onLike?: (postId: string) => void;
   onReply?: (postId: string) => void;
+  onFollowToggle?: (
+    authorId: string,
+    isFollowing: boolean,
+  ) => void | Promise<void>;
   renderPostFooter?: (post: PostProps) => React.ReactNode;
 }
 
@@ -15,6 +19,7 @@ export function Feed({
   isLoading = false,
   onLike,
   onReply,
+  onFollowToggle,
   renderPostFooter,
 }: FeedProps) {
   const containerVariants = {
@@ -62,7 +67,12 @@ export function Feed({
     >
       {posts.map((post) => (
         <div key={post.id} className="space-y-3">
-          <PostCard {...post} onLike={onLike} onReply={onReply} />
+          <PostCard
+            {...post}
+            onLike={onLike}
+            onReply={onReply}
+            onFollowToggle={onFollowToggle}
+          />
           {renderPostFooter?.(post)}
         </div>
       ))}

@@ -1,6 +1,6 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { motion } from "framer-motion";
-import { postsAPI, likesAPI, commentsAPI } from "../services/api";
+import { postsAPI, likesAPI, commentsAPI, followsAPI } from "../services/api";
 import { Feed, ComposeModal } from "../components";
 import type { PostProps } from "../components";
 import { Plus } from "lucide-react";
@@ -13,6 +13,7 @@ export function HomePage() {
   const [isLoading, setIsLoading] = useState(true);
   const [isComposeOpen, setIsComposeOpen] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [followingIds, setFollowingIds] = useState<string[]>([]);
   const [openCommentsPostId, setOpenCommentsPostId] = useState<string | null>(
     null,
   );
@@ -82,6 +83,54 @@ export function HomePage() {
 
     loadPosts();
   }, []);
+
+  useEffect(() => {
+    const loadFollowing = async () => {
+      if (!user?.id) {
+        return;
+      }
+
+      try {
+        const response = await followsAPI.getUserFollowing(user.id);
+        const ids = response
+          .map((item) => item.user?.id)
+          .filter((id): id is string => Boolean(id));
+        setFollowingIds(ids);
+      } catch (err) {
+        console.error("Failed to load following:", err);
+      }
+    };
+
+    loadFollowing();
+  }, [user?.id]);
+
+  const postsWithFollowState = useMemo(() => {
+    const followingSet = new Set(followingIds);
+    return posts.map((post) => ({
+      ...post,
+      isFollowing: post.authorId ? followingSet.has(post.authorId) : false,
+    }));
+  }, [posts, followingIds]);
+
+  const handleFollowToggle = async (authorId: string, isFollowing: boolean) => {
+    if (!user?.id) {
+      return;
+    }
+
+    try {
+      if (isFollowing) {
+        await followsAPI.unfollowUser(user.id, authorId);
+        setFollowingIds((prev) => prev.filter((id) => id !== authorId));
+      } else {
+        await followsAPI.followUser(user.id, authorId);
+        setFollowingIds((prev) =>
+          prev.includes(authorId) ? prev : [...prev, authorId],
+        );
+      }
+    } catch (err) {
+      console.error("Failed to follow/unfollow:", err);
+    }
+  };
 
   const handleLike = async (postId: string) => {
     if (!user?.id) {
@@ -245,10 +294,11 @@ export function HomePage() {
               transition={{ duration: 0.25, delay: 0.05 }}
             >
               <Feed
-                posts={posts}
+                posts={postsWithFollowState}
                 isLoading={isLoading}
                 onLike={handleLike}
                 onReply={toggleComments}
+                onFollowToggle={handleFollowToggle}
                 renderPostFooter={(post) =>
                   openCommentsPostId === post.id ? (
                     <div className="card p-4 sm:p-5">

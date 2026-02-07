@@ -25,8 +25,13 @@ export interface PostProps {
   likes: number;
   replies: number;
   liked?: boolean;
+  isFollowing?: boolean;
   onLike?: (id: string) => void;
   onReply?: (id: string) => void;
+  onFollowToggle?: (
+    authorId: string,
+    isFollowing: boolean,
+  ) => void | Promise<void>;
 }
 
 export function PostCard({
@@ -39,8 +44,10 @@ export function PostCard({
   likes,
   replies,
   liked = false,
+  isFollowing = false,
   onLike,
   onReply,
+  onFollowToggle,
 }: PostProps) {
   const { user } = useAuth();
   const [isLiked, setIsLiked] = useState(liked);
@@ -86,13 +93,24 @@ export function PostCard({
   const canActOnUser = !!user?.id && !!authorId && user.id !== authorId;
 
   const handleFollow = async () => {
-    if (!canActOnUser || !user?.id || !authorId) {
+    if (!canActOnUser || !authorId) {
       return;
     }
 
     try {
       setIsActionLoading(true);
-      await followsAPI.followUser(user.id, authorId);
+      if (onFollowToggle) {
+        await onFollowToggle(authorId, isFollowing);
+      } else {
+        if (!user?.id) {
+          return;
+        }
+        if (isFollowing) {
+          await followsAPI.unfollowUser(user.id, authorId);
+        } else {
+          await followsAPI.followUser(user.id, authorId);
+        }
+      }
       setIsMenuOpen(false);
     } catch (err) {
       console.error("Failed to follow user:", err);
@@ -213,7 +231,7 @@ export function PostCard({
                       className="flex items-center gap-2 px-3 py-2 text-sm text-neutral-700 hover:bg-neutral-50 disabled:opacity-50"
                     >
                       <UserPlus size={16} />
-                      <span>Follow</span>
+                      <span>{isFollowing ? "Unfollow" : "Follow"}</span>
                     </button>
                     <button
                       onClick={handleBlock}
