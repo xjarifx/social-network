@@ -3,10 +3,11 @@ services:
     image: postgres:latest
     container_name: social_network_postgres
     restart: always
+    env_file: ./.env
     environment:
-      POSTGRES_DB: social_network_local
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: 1526
+      POSTGRES_DB: ${POSTGRES_DB:-social_network_local}
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-change_me}
     ports:
       - "5432:5432"
     volumes:
