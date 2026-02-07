@@ -1,6 +1,5 @@
-import "dotenv/config";
 import Stripe from "stripe";
-import { PrismaClient, Plan } from '../../generated/prisma/index';
+import { PrismaClient, Plan } from "../../generated/prisma/index";
 
 const prisma = new PrismaClient();
 
@@ -209,10 +208,9 @@ export const handleCheckoutSuccess = async (
         ? session.subscription
         : session.subscription.id;
 
-    const subscription = await stripe.subscriptions.retrieve(
-      subscriptionId,
-      { expand: ["customer"] },
-    );
+    const subscription = await stripe.subscriptions.retrieve(subscriptionId, {
+      expand: ["customer"],
+    });
 
     await syncSubscriptionToUser(subscription);
   }

@@ -1,4 +1,3 @@
-import "dotenv/config";
 import { PrismaClient } from "../../generated/prisma/index";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
