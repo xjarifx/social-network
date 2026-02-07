@@ -295,7 +295,7 @@ async function main() {
   await prisma.user.deleteMany();
 
   const passwordHash = await bcrypt.hash("Password123!", 10);
-  const TARGET_USERS = 1200;
+  const TARGET_USERS = 2000;
 
   console.log(`👥 Creating ${TARGET_USERS} users...`);
   const usersData = [];
@@ -337,21 +337,21 @@ async function main() {
   const users = await prisma.user.findMany();
   console.log(`✅ Created ${users.length} users`);
 
-  // Create posts - about 40% of users create posts
+  // Create posts - about 70% of users create posts with more posts each
   console.log("📝 Creating posts...");
   const postsData = [];
   for (let i = 0; i < users.length; i++) {
-    if (i % 5 < 2) {
-      // 40% of users
-      const numPosts = Math.floor(Math.random() * 5) + 1; // 1-5 posts per active user
+    if (i % 10 < 7) {
+      // 70% of users
+      const numPosts = Math.floor(Math.random() * 12) + 3; // 3-15 posts per active user
       for (let j = 0; j < numPosts; j++) {
         postsData.push({
           authorId: users[i].id,
           content:
             postContents[Math.floor(Math.random() * postContents.length)],
           createdAt: new Date(
-            Date.now() - Math.random() * 60 * 24 * 60 * 60 * 1000,
-          ), // Random date within last 60 days
+            Date.now() - Math.random() * 120 * 24 * 60 * 60 * 1000,
+          ), // Random date within last 120 days
         });
       }
     }
@@ -366,22 +366,24 @@ async function main() {
   const posts = await prisma.post.findMany();
   console.log(`✅ Created ${posts.length} posts`);
 
-  // Create likes - varying engagement
+  // Create likes - higher engagement with more likes per post
   console.log("❤️  Creating likes...");
   const likesData = [];
   for (const post of posts) {
-    const numLikes = Math.floor(Math.random() * 30); // 0-30 likes per post
+    const numLikes = Math.floor(Math.random() * 150) + 20; // 20-170 likes per post
     const likerIndices = new Set<number>();
 
-    while (likerIndices.size < numLikes) {
+    while (likerIndices.size < Math.min(numLikes, users.length - 1)) {
       likerIndices.add(Math.floor(Math.random() * users.length));
     }
 
     for (const index of likerIndices) {
-      likesData.push({
-        userId: users[index].id,
-        postId: post.id,
-      });
+      if (users[index].id !== post.authorId) {
+        likesData.push({
+          userId: users[index].id,
+          postId: post.id,
+        });
+      }
     }
   }
 
@@ -393,23 +395,27 @@ async function main() {
   }
   console.log(`✅ Created ${likesData.length} likes`);
 
-  // Create comments
+  // Create comments - significantly more comments per post
   console.log("💬 Creating comments...");
   const commentsData = [];
   for (const post of posts) {
-    const numComments = Math.floor(Math.random() * 8); // 0-8 comments per post
+    const numComments = Math.floor(Math.random() * 50) + 5; // 5-55 comments per post
 
     for (let i = 0; i < numComments; i++) {
       const commenterIndex = Math.floor(Math.random() * users.length);
-      commentsData.push({
-        authorId: users[commenterIndex].id,
-        postId: post.id,
-        content:
-          commentTemplates[Math.floor(Math.random() * commentTemplates.length)],
-        createdAt: new Date(
-          post.createdAt.getTime() + Math.random() * 24 * 60 * 60 * 1000,
-        ),
-      });
+      if (users[commenterIndex].id !== post.authorId) {
+        commentsData.push({
+          authorId: users[commenterIndex].id,
+          postId: post.id,
+          content:
+            commentTemplates[
+              Math.floor(Math.random() * commentTemplates.length)
+            ],
+          createdAt: new Date(
+            post.createdAt.getTime() + Math.random() * 96 * 60 * 60 * 1000,
+          ),
+        });
+      }
     }
   }
 
@@ -420,24 +426,23 @@ async function main() {
   }
   console.log(`✅ Created ${commentsData.length} comments`);
 
-  // Create follower relationships - each user follows 5-20 others
+  // Create follower relationships - each user follows more people
   console.log("🤝 Creating follower relationships...");
   const followerPairs = [];
-  for (const user of users) {
-    const numFollowing = Math.floor(Math.random() * 16) + 5; // 5-20 follows
+  for (let i = 0; i < users.length; i++) {
+    const numFollowing = Math.floor(Math.random() * 150) + 30; // 30-180 follows per user
     const followingIndices = new Set<number>();
 
-    const userIndex = users.findIndex((u) => u.id === user.id);
-    while (followingIndices.size < numFollowing) {
+    while (followingIndices.size < Math.min(numFollowing, users.length - 1)) {
       const randomIndex = Math.floor(Math.random() * users.length);
-      if (randomIndex !== userIndex) {
+      if (randomIndex !== i) {
         followingIndices.add(randomIndex);
       }
     }
 
     for (const index of followingIndices) {
       followerPairs.push({
-        followerId: user.id,
+        followerId: users[i].id,
         followingId: users[index].id,
       });
     }
@@ -451,14 +456,14 @@ async function main() {
   }
   console.log(`✅ Created ${followerPairs.length} follower relationships`);
 
-  // Create blocks - each user blocks at least 5 others
+  // Create blocks - more blocks per user
   console.log("🚫 Creating blocks...");
   const blockPairs = [];
   for (let i = 0; i < users.length; i++) {
-    const numBlocks = Math.floor(Math.random() * 11) + 5; // 5-15 blocks per user
+    const numBlocks = Math.floor(Math.random() * 40) + 10; // 10-50 blocks per user
     const blockedIndices = new Set<number>();
 
-    while (blockedIndices.size < numBlocks) {
+    while (blockedIndices.size < Math.min(numBlocks, users.length - 1)) {
       const randomIndex = Math.floor(Math.random() * users.length);
       if (randomIndex !== i) {
         blockedIndices.add(randomIndex);
@@ -481,12 +486,12 @@ async function main() {
   }
   console.log(`✅ Created ${blockPairs.length} blocks`);
 
-  // Create refresh tokens for about 20% of users (active sessions)
+  // Create refresh tokens for about 30% of users (active sessions)
   console.log("🔑 Creating refresh tokens...");
   const refreshTokensData = [];
   for (let i = 0; i < users.length; i++) {
-    if (i % 5 === 0) {
-      // 20% of users
+    if (i % 3 === 0) {
+      // 33% of users
       refreshTokensData.push({
         userId: users[i].id,
         token: crypto.randomBytes(32).toString("hex"),
@@ -508,7 +513,7 @@ async function main() {
 
   // Sample recent likes for notifications
   const recentLikes = await prisma.like.findMany({
-    take: 200,
+    take: 500,
     orderBy: { createdAt: "desc" },
     include: { post: true },
   });
@@ -528,7 +533,7 @@ async function main() {
 
   // Sample recent comments for notifications
   const recentComments = await prisma.comment.findMany({
-    take: 200,
+    take: 500,
     orderBy: { createdAt: "desc" },
     include: { post: true },
   });
@@ -548,7 +553,7 @@ async function main() {
 
   // Sample recent follows for notifications
   const recentFollows = await prisma.follower.findMany({
-    take: 200,
+    take: 500,
     orderBy: { createdAt: "desc" },
   });
 
