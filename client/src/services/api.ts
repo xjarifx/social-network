@@ -124,6 +124,13 @@ export interface UserPostsResponse {
   offset: number;
 }
 
+export interface SearchUsersResponse {
+  results: User[];
+  total: number;
+  limit: number;
+  offset: number;
+}
+
 // ============================================================================
 // TOKEN MANAGEMENT
 // ============================================================================
@@ -320,6 +327,16 @@ export const usersAPI = {
       method: "PATCH",
       body: JSON.stringify(data),
     });
+  },
+
+  search: async (
+    query: string,
+    limit = 10,
+    offset = 0,
+  ): Promise<SearchUsersResponse> => {
+    return apiRequest(
+      `/users/search?q=${encodeURIComponent(query)}&limit=${limit}&offset=${offset}`,
+    );
   },
 };
 

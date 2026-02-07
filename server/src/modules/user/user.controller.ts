@@ -4,6 +4,7 @@ import {
   updateUserProfile,
   getUserTimeline,
   getCurrentUserProfile,
+  searchUsers,
 } from "./user.service";
 
 export const getCurrentProfile = async (
@@ -106,5 +107,20 @@ export const updateProfile = async (
     }
     console.error("Update profile error:", error);
     res.status(500).json({ error: "Unable to update user profile" });
+  }
+};
+
+export const search = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const result = await searchUsers(req.query);
+    res.status(200).json(result);
+  } catch (error: unknown) {
+    const err = error as { status?: number; error?: unknown };
+    if (err.status === 400) {
+      res.status(400).json({ error: err.error });
+      return;
+    }
+    console.error("Search users error:", error);
+    res.status(500).json({ error: "Unable to search users" });
   }
 };

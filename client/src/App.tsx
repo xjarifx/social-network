@@ -10,6 +10,7 @@ import { BillingPage } from "./pages/BillingPage";
 import { BlocksPage } from "./pages/BlocksPage";
 import { FollowersPage } from "./pages/FollowersPage";
 import { FollowingPage } from "./pages/FollowingPage";
+import { SearchPage } from "./pages/SearchPage";
 import { Navigation } from "./components";
 import { ProtectedRoute } from "./components/ProtectedRoute";
 import { useEffect } from "react";
@@ -124,6 +125,17 @@ function AppRoutes() {
           <ProtectedRoute>
             <AppLayout>
               <FollowingPage />
+            </AppLayout>
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/search"
+        element={
+          <ProtectedRoute>
+            <AppLayout>
+              <SearchPage />
             </AppLayout>
           </ProtectedRoute>
         }

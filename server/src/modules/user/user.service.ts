@@ -1,5 +1,9 @@
 import { PrismaClient } from "../../generated/prisma/index";
-import { updateProfileSchema, userIdParamSchema } from "./user.validation";
+import {
+  updateProfileSchema,
+  userIdParamSchema,
+  searchUsersSchema,
+} from "./user.validation";
 
 const prisma = new PrismaClient();
 
@@ -177,4 +181,89 @@ export const updateUserProfile = async (
   });
 
   return updatedUser;
+};
+
+export const searchUsers = async (query: Record<string, unknown>) => {
+  const validation = searchUsersSchema.safeParse({ query });
+  if (!validation.success) {
+    throw { status: 400, error: validation.error.flatten() };
+  }
+
+  const { q, limit: limitStr, offset: offsetStr } = validation.data.query;
+  const limit = parseInt(limitStr as string);
+  const offset = parseInt(offsetStr as string);
+
+  // Search for users by full name (firstName and lastName combined)
+  // Use case-insensitive partial matching
+  const users = await prisma.user.findMany({
+    where: {
+      OR: [
+        {
+          firstName: {
+            contains: q,
+            mode: "insensitive",
+          },
+        },
+        {
+          lastName: {
+            contains: q,
+            mode: "insensitive",
+          },
+        },
+        {
+          username: {
+            contains: q,
+            mode: "insensitive",
+          },
+        },
+      ],
+      deletedAt: null,
+    },
+    select: {
+      id: true,
+      username: true,
+      email: true,
+      firstName: true,
+      lastName: true,
+      createdAt: true,
+    },
+    take: limit,
+    skip: offset,
+    orderBy: {
+      createdAt: "desc",
+    },
+  });
+
+  const total = await prisma.user.count({
+    where: {
+      OR: [
+        {
+          firstName: {
+            contains: q,
+            mode: "insensitive",
+          },
+        },
+        {
+          lastName: {
+            contains: q,
+            mode: "insensitive",
+          },
+        },
+        {
+          username: {
+            contains: q,
+            mode: "insensitive",
+          },
+        },
+      ],
+      deletedAt: null,
+    },
+  });
+
+  return {
+    results: users,
+    total,
+    limit,
+    offset,
+  };
 };

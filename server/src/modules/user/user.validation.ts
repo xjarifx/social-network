@@ -25,3 +25,16 @@ export const updateProfileSchema = z.object({
       message: "At least one field must be provided for update",
     }),
 });
+
+export const searchUsersSchema = z.object({
+  query: z.object({
+    q: z
+      .string()
+      .min(1, { message: "Search query is required" })
+      .max(100, {
+        message: "Search query must be at most 100 characters long",
+      }),
+    limit: z.string().optional().default("10"),
+    offset: z.string().optional().default("0"),
+  }),
+});

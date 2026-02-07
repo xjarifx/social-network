@@ -4,6 +4,7 @@ import {
   updateProfile,
   getTimeline,
   getCurrentProfile,
+  search,
 } from "./user.controller";
 import { authenticate } from "../../middleware/authenticate.middleware";
 import postRouter from "../posts/posts.routes";
@@ -35,6 +36,37 @@ const router = Router();
  *         description: User not found
  */
 router.get("/me", authenticate, getCurrentProfile);
+
+/**
+ * @openapi
+ * /api/v1/users/search:
+ *   get:
+ *     summary: Search users by full name or username
+ *     tags:
+ *       - Users
+ *     parameters:
+ *       - in: query
+ *         name: q
+ *         required: true
+ *         schema:
+ *           type: string
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           default: 10
+ *       - in: query
+ *         name: offset
+ *         schema:
+ *           type: integer
+ *           default: 0
+ *     responses:
+ *       200:
+ *         description: Search results retrieved successfully
+ *       400:
+ *         description: Invalid search query
+ */
+router.get("/search", search);
 
 /**
  * @openapi
