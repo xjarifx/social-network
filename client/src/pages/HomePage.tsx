@@ -117,6 +117,18 @@ export function HomePage() {
     loadFollowing();
   }, [user?.id]);
 
+  useEffect(() => {
+    if (openCommentsPostId) {
+      document.documentElement.style.overflow = "hidden";
+    } else {
+      document.documentElement.style.overflow = "";
+    }
+
+    return () => {
+      document.documentElement.style.overflow = "";
+    };
+  }, [openCommentsPostId]);
+
   const postsWithFollowState = useMemo(() => {
     const followingSet = new Set(followingIds);
     return posts.map((post) => ({
