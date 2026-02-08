@@ -26,7 +26,7 @@ export default function HomePage() {
         ),
       );
     });
-  }, [comments.setOnReplyCountChange]);
+  }, []);
 
   // Lock body scroll when comments modal is open
   useEffect(() => {
@@ -47,9 +47,7 @@ export default function HomePage() {
         const apiPosts = await postsAPI.getFeed(20, 0);
         setPosts(apiPosts.map((p) => transformPost(p, user?.id)));
       } catch (err) {
-        setError(
-          err instanceof Error ? err.message : "Failed to load posts",
-        );
+        setError(err instanceof Error ? err.message : "Failed to load posts");
       } finally {
         setIsLoading(false);
       }
@@ -121,9 +119,7 @@ export default function HomePage() {
           await likesAPI.likePost(postId);
           setPosts((prev) =>
             prev.map((p) =>
-              p.id === postId
-                ? { ...p, liked: true, likes: p.likes + 1 }
-                : p,
+              p.id === postId ? { ...p, liked: true, likes: p.likes + 1 } : p,
             ),
           );
         }
@@ -135,9 +131,8 @@ export default function HomePage() {
   );
 
   const selectedPost = comments.openCommentsPostId
-    ? postsWithFollowState.find(
-        (p) => p.id === comments.openCommentsPostId,
-      ) ?? null
+    ? (postsWithFollowState.find((p) => p.id === comments.openCommentsPostId) ??
+      null)
     : null;
 
   return (
@@ -173,7 +168,9 @@ export default function HomePage() {
             (comments.commentsByPost[selectedPost.id]?.length ?? 0) <
               comments.commentMetaByPost[selectedPost.id].total
           }
-          editingCommentId={comments.editingCommentByPost[selectedPost.id] ?? null}
+          editingCommentId={
+            comments.editingCommentByPost[selectedPost.id] ?? null
+          }
           commentEditDrafts={comments.commentEditDrafts}
           onClose={comments.handleCloseComments}
           onLike={handleLike}

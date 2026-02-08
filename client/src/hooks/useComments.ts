@@ -263,6 +263,13 @@ export function useComments(): UseCommentsReturn {
     [],
   );
 
+  const setOnReplyCountChange = useCallback(
+    (cb: (postId: string, delta: number) => void) => {
+      setReplyCountCb(() => cb);
+    },
+    [],
+  );
+
   return {
     openCommentsPostId,
     commentsByPost,
@@ -283,6 +290,6 @@ export function useComments(): UseCommentsReturn {
     setCommentDraft,
     setCommentEditDraft,
     onReplyCountChange: replyCountCb,
-    setOnReplyCountChange: (cb) => setReplyCountCb(() => cb),
+    setOnReplyCountChange,
   };
 }
