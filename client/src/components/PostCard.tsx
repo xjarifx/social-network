@@ -25,6 +25,7 @@ export interface PostProps {
   replies: number;
   liked?: boolean;
   isFollowing?: boolean;
+  showPostMenu?: boolean;
   onLike?: (id: string) => void | Promise<void>;
   onReply?: (id: string) => void;
   onFollowToggle?: (
@@ -44,6 +45,7 @@ function PostCardComponent({
   replies,
   liked = false,
   isFollowing = false,
+  showPostMenu = true,
   onLike,
   onReply,
   onFollowToggle,
@@ -191,45 +193,47 @@ function PostCardComponent({
               </>
             )}
           </div>
-          <div className="relative" ref={menuRef}>
-            <button
-              className="icon-btn transition-colors duration-200"
-              onClick={() => setIsMenuOpen((prev) => !prev)}
-              aria-haspopup="menu"
-              aria-expanded={isMenuOpen}
-            >
-              <MoreHorizontal size={18} />
-            </button>
+          {showPostMenu && (
+            <div className="relative" ref={menuRef}>
+              <button
+                className="icon-btn transition-colors duration-200"
+                onClick={() => setIsMenuOpen((prev) => !prev)}
+                aria-haspopup="menu"
+                aria-expanded={isMenuOpen}
+              >
+                <MoreHorizontal size={18} />
+              </button>
 
-            {isMenuOpen && (
-              <div className="absolute right-0 mt-2 w-40 rounded-lg border border-[#f5d580] bg-white shadow-lg z-20 overflow-hidden">
-                {canActOnUser ? (
-                  <div className="flex flex-col">
-                    <button
-                      onClick={handleFollow}
-                      disabled={isActionLoading}
-                      className="flex items-center gap-2 px-3 py-2 text-sm text-[#5a412f] hover:bg-[#fce8a0] disabled:opacity-50"
-                    >
-                      <UserPlus size={16} />
-                      <span>{isFollowing ? "Unfollow" : "Follow"}</span>
-                    </button>
-                    <button
-                      onClick={handleBlock}
-                      disabled={isActionLoading}
-                      className="flex items-center gap-2 px-3 py-2 text-sm text-red-600 hover:bg-red-50 disabled:opacity-50"
-                    >
-                      <Shield size={16} />
-                      <span>Block</span>
-                    </button>
-                  </div>
-                ) : (
-                  <div className="px-3 py-2 text-xs text-muted">
-                    No actions available
-                  </div>
-                )}
-              </div>
-            )}
-          </div>
+              {isMenuOpen && (
+                <div className="absolute right-0 mt-2 w-40 rounded-lg border border-[#f5d580] bg-white shadow-lg z-20 overflow-hidden">
+                  {canActOnUser ? (
+                    <div className="flex flex-col">
+                      <button
+                        onClick={handleFollow}
+                        disabled={isActionLoading}
+                        className="flex items-center gap-2 px-3 py-2 text-sm text-[#5a412f] hover:bg-[#fce8a0] disabled:opacity-50"
+                      >
+                        <UserPlus size={16} />
+                        <span>{isFollowing ? "Unfollow" : "Follow"}</span>
+                      </button>
+                      <button
+                        onClick={handleBlock}
+                        disabled={isActionLoading}
+                        className="flex items-center gap-2 px-3 py-2 text-sm text-red-600 hover:bg-red-50 disabled:opacity-50"
+                      >
+                        <Shield size={16} />
+                        <span>Block</span>
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="px-3 py-2 text-xs text-muted">
+                      No actions available
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+          )}
         </div>
 
         {/* Content */}

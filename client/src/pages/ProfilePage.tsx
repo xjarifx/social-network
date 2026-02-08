@@ -36,7 +36,7 @@ export default function ProfilePage() {
         ),
       );
     });
-  }, [comments.setOnReplyCountChange]);
+  }, []);
 
   useEffect(() => {
     document.documentElement.style.overflow = comments.openCommentsPostId
@@ -74,7 +74,9 @@ export default function ProfilePage() {
         const response = await usersAPI.getUserPosts(currentUserId, 20, 0);
         setPosts(response.posts.map((p) => transformPost(p, user?.id)));
       } catch (err) {
-        setPostsError(err instanceof Error ? err.message : "Failed to load posts");
+        setPostsError(
+          err instanceof Error ? err.message : "Failed to load posts",
+        );
       } finally {
         setPostsLoading(false);
       }
@@ -94,7 +96,9 @@ export default function ProfilePage() {
         setFollowing(g);
         setBlocked(b.blocked);
       })
-      .catch((err) => console.error("Failed to load followers/following:", err));
+      .catch((err) =>
+        console.error("Failed to load followers/following:", err),
+      );
   }, [user?.id]);
 
   const handleSave = async () => {
@@ -141,7 +145,7 @@ export default function ProfilePage() {
   );
 
   const selectedPost = comments.openCommentsPostId
-    ? posts.find((p) => p.id === comments.openCommentsPostId) ?? null
+    ? (posts.find((p) => p.id === comments.openCommentsPostId) ?? null)
     : null;
 
   return (
@@ -207,9 +211,13 @@ export default function ProfilePage() {
             className="card p-6 hover:shadow-lg hover:border-brand-500 transition-all cursor-pointer text-left"
           >
             <h2 className="text-brand font-semibold mb-4">Followers</h2>
-            <p className="text-2xl font-bold text-brand mb-2">{followers.length}</p>
+            <p className="text-2xl font-bold text-brand mb-2">
+              {followers.length}
+            </p>
             <p className="text-sm text-muted">
-              {followers.length === 0 ? "No followers yet." : "Click to see all"}
+              {followers.length === 0
+                ? "No followers yet."
+                : "Click to see all"}
             </p>
           </button>
 
@@ -218,9 +226,13 @@ export default function ProfilePage() {
             className="card p-6 hover:shadow-lg hover:border-brand-500 transition-all cursor-pointer text-left"
           >
             <h2 className="text-brand font-semibold mb-4">Following</h2>
-            <p className="text-2xl font-bold text-brand mb-2">{following.length}</p>
+            <p className="text-2xl font-bold text-brand mb-2">
+              {following.length}
+            </p>
             <p className="text-sm text-muted">
-              {following.length === 0 ? "Not following anyone yet." : "Click to see all"}
+              {following.length === 0
+                ? "Not following anyone yet."
+                : "Click to see all"}
             </p>
           </button>
 
@@ -229,7 +241,9 @@ export default function ProfilePage() {
             className="card p-6 hover:shadow-lg hover:border-brand-500 transition-all cursor-pointer text-left"
           >
             <h2 className="text-brand font-semibold mb-4">Blocked</h2>
-            <p className="text-2xl font-bold text-brand mb-2">{blocked.length}</p>
+            <p className="text-2xl font-bold text-brand mb-2">
+              {blocked.length}
+            </p>
             <p className="text-sm text-muted">
               {blocked.length === 0 ? "No blocked users." : "Click to see all"}
             </p>
@@ -246,6 +260,7 @@ export default function ProfilePage() {
           <Feed
             posts={posts}
             isLoading={postsLoading}
+            showPostMenu={false}
             onLike={handleLike}
             onReply={comments.toggleComments}
           />
@@ -264,7 +279,9 @@ export default function ProfilePage() {
             (comments.commentsByPost[selectedPost.id]?.length ?? 0) <
               comments.commentMetaByPost[selectedPost.id].total
           }
-          editingCommentId={comments.editingCommentByPost[selectedPost.id] ?? null}
+          editingCommentId={
+            comments.editingCommentByPost[selectedPost.id] ?? null
+          }
           commentEditDrafts={comments.commentEditDrafts}
           onClose={comments.handleCloseComments}
           onLike={handleLike}

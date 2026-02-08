@@ -20,21 +20,19 @@ export const getFeed = async (
   const limit = query.limit ? parseInt(query.limit as string) : 20;
   const offset = query.offset ? parseInt(query.offset as string) : 0;
 
-  // Get posts from users that the current user follows, plus their own posts
+  // Get posts from users that the current user follows, excluding their own posts
   const posts = await prisma.post.findMany({
     where: {
-      OR: [
-        { authorId: userId },
-        {
-          author: {
-            followers: {
-              some: {
-                followerId: userId,
-              },
-            },
+      authorId: {
+        not: userId,
+      },
+      author: {
+        followers: {
+          some: {
+            followerId: userId,
           },
         },
-      ],
+      },
     },
     include: {
       author: {

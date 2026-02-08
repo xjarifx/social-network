@@ -39,7 +39,7 @@ export default function UserProfilePage() {
         ),
       );
     });
-  }, [comments.setOnReplyCountChange]);
+  }, []);
 
   useEffect(() => {
     document.documentElement.style.overflow = comments.openCommentsPostId
@@ -72,7 +72,9 @@ export default function UserProfilePage() {
         setPosts(response.posts.map((p) => transformPost(p, user?.id))),
       )
       .catch((err) =>
-        setPostsError(err instanceof Error ? err.message : "Failed to load posts"),
+        setPostsError(
+          err instanceof Error ? err.message : "Failed to load posts",
+        ),
       )
       .finally(() => setPostsLoading(false));
   }, [user?.id, userId]);
@@ -172,9 +174,25 @@ export default function UserProfilePage() {
     [posts, user?.id],
   );
 
+  const postsWithFollowState = useMemo(() => {
+    return posts.map((post) => ({
+      ...post,
+      isFollowing,
+    }));
+  }, [posts, isFollowing]);
+
   const selectedPost = comments.openCommentsPostId
-    ? posts.find((p) => p.id === comments.openCommentsPostId) ?? null
+    ? (postsWithFollowState.find((p) => p.id === comments.openCommentsPostId) ??
+      null)
     : null;
+
+  const handleFollowTogglePost = useCallback(
+    async (authorId: string, _currentIsFollowing: boolean) => {
+      if (authorId !== userId) return;
+      await handleFollowToggle();
+    },
+    [userId],
+  );
 
   return (
     <div className="min-h-screen bg-neutral-bg">
@@ -229,10 +247,12 @@ export default function UserProfilePage() {
               </div>
             )}
             <Feed
-              posts={posts}
+              posts={postsWithFollowState}
               isLoading={postsLoading}
+              showPostMenu={false}
               onLike={handleLike}
               onReply={comments.toggleComments}
+              onFollowToggle={handleFollowTogglePost}
             />
           </div>
         </div>
@@ -250,10 +270,13 @@ export default function UserProfilePage() {
             (comments.commentsByPost[selectedPost.id]?.length ?? 0) <
               comments.commentMetaByPost[selectedPost.id].total
           }
-          editingCommentId={comments.editingCommentByPost[selectedPost.id] ?? null}
+          editingCommentId={
+            comments.editingCommentByPost[selectedPost.id] ?? null
+          }
           commentEditDrafts={comments.commentEditDrafts}
           onClose={comments.handleCloseComments}
           onLike={handleLike}
+          onFollowToggle={handleFollowTogglePost}
           onAddComment={comments.handleAddComment}
           onCommentDraftChange={comments.setCommentDraft}
           onStartEdit={comments.handleStartEditComment}

@@ -5,6 +5,7 @@ import type { PostProps } from "./PostCard";
 export interface FeedProps {
   posts: PostProps[];
   isLoading?: boolean;
+  showPostMenu?: boolean;
   onLike?: (postId: string) => void | Promise<void>;
   onReply?: (postId: string) => void;
   onFollowToggle?: (
@@ -17,6 +18,7 @@ export interface FeedProps {
 function FeedComponent({
   posts,
   isLoading = false,
+  showPostMenu = true,
   onLike,
   onReply,
   onFollowToggle,
@@ -38,6 +40,7 @@ function FeedComponent({
         <div key={post.id} className="space-y-3">
           <PostCard
             {...post}
+            showPostMenu={showPostMenu}
             onLike={onLike}
             onReply={onReply}
             onFollowToggle={onFollowToggle}
