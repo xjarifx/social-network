@@ -42,44 +42,46 @@ export default function BlocksPage() {
       transition={{ duration: 0.2, ease: "easeOut" }}
       className="min-h-screen bg-neutral-bg"
     >
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 py-8 space-y-6">
-        <div className="card p-6">
-          <h1 className="text-brand text-xl font-bold mb-4">Blocked Users</h1>
-          {error && (
-            <div className="mb-4 rounded-lg bg-red-50 border border-red-200 p-3 text-sm text-red-700">
-              {error}
-            </div>
-          )}
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 py-8 flex justify-center">
+        <div className="card-container space-y-6">
+          <div className="card p-6">
+            <h1 className="text-brand text-xl font-bold mb-4">Blocked Users</h1>
+            {error && (
+              <div className="mb-4 rounded-lg bg-red-50 border border-red-200 p-3 text-sm text-red-700">
+                {error}
+              </div>
+            )}
 
-          {isLoading ? (
-            <div className="text-muted">Loading blocked users...</div>
-          ) : blocked.length === 0 ? (
-            <div className="text-sm text-muted">No blocked users.</div>
-          ) : (
-            <div className="space-y-3">
-              {blocked.map((item) => (
-                <div
-                  key={item.id}
-                  className="flex items-center justify-between rounded-lg border border-neutral-100 p-3"
-                >
-                  <div>
-                    <div className="text-sm text-brand">
-                      {item.user.firstName} {item.user.lastName}
-                    </div>
-                    <div className="text-xs text-muted">
-                      @{item.user.username}
-                    </div>
-                  </div>
-                  <button
-                    className="text-xs text-red-600"
-                    onClick={() => handleUnblock(item.user.id)}
+            {isLoading ? (
+              <div className="text-muted">Loading blocked users...</div>
+            ) : blocked.length === 0 ? (
+              <div className="text-sm text-muted">No blocked users.</div>
+            ) : (
+              <div className="space-y-3">
+                {blocked.map((item) => (
+                  <div
+                    key={item.id}
+                    className="flex items-center justify-between rounded-lg border border-neutral-100 p-3"
                   >
-                    Unblock
-                  </button>
-                </div>
-              ))}
-            </div>
-          )}
+                    <div>
+                      <div className="text-sm text-brand">
+                        {item.user.firstName} {item.user.lastName}
+                      </div>
+                      <div className="text-xs text-muted">
+                        @{item.user.username}
+                      </div>
+                    </div>
+                    <button
+                      className="text-xs text-red-600"
+                      onClick={() => handleUnblock(item.user.id)}
+                    >
+                      Unblock
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
         </div>
       </div>
     </motion.div>

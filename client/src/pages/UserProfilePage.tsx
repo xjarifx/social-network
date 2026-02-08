@@ -196,64 +196,66 @@ export default function UserProfilePage() {
 
   return (
     <div className="min-h-screen bg-neutral-bg">
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 py-8">
-        <div className="card p-6">
-          {error && (
-            <div className="mb-4 rounded-lg bg-red-50 border border-red-200 p-3 text-sm text-red-700">
-              {error}
-            </div>
-          )}
-
-          {isLoading ? (
-            <div className="text-muted">Loading user...</div>
-          ) : (
-            <div className="space-y-4">
-              <div>
-                <div className="text-lg text-brand font-semibold">
-                  {profile?.firstName} {profile?.lastName}
-                </div>
-                <div className="text-sm text-muted">@{profile?.username}</div>
-                <div className="text-sm text-muted">{profile?.email}</div>
-              </div>
-
-              {canFollow && (
-                <div className="flex flex-wrap gap-2">
-                  <button
-                    className={`px-5 py-2 rounded-lg font-semibold ${
-                      isFollowing
-                        ? "bg-neutral-100 text-neutral-700"
-                        : "btn-primary"
-                    }`}
-                    onClick={handleFollowToggle}
-                  >
-                    {isFollowing ? "Unfollow" : "Follow"}
-                  </button>
-                  <button
-                    className="px-5 py-2 rounded-lg font-semibold border border-red-200 text-red-600 hover:bg-red-50"
-                    onClick={handleBlock}
-                    disabled={isBlocking}
-                  >
-                    {isBlocking ? "Blocking..." : "Block"}
-                  </button>
-                </div>
-              )}
-            </div>
-          )}
-
-          <div className="mt-6 pt-2">
-            {postsError && (
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 py-8 flex justify-center">
+        <div className="card-container">
+          <div className="card p-6">
+            {error && (
               <div className="mb-4 rounded-lg bg-red-50 border border-red-200 p-3 text-sm text-red-700">
-                {postsError}
+                {error}
               </div>
             )}
-            <Feed
-              posts={postsWithFollowState}
-              isLoading={postsLoading}
-              showPostMenu={false}
-              onLike={handleLike}
-              onReply={comments.toggleComments}
-              onFollowToggle={handleFollowTogglePost}
-            />
+
+            {isLoading ? (
+              <div className="text-muted">Loading user...</div>
+            ) : (
+              <div className="space-y-4">
+                <div>
+                  <div className="text-lg text-brand font-semibold">
+                    {profile?.firstName} {profile?.lastName}
+                  </div>
+                  <div className="text-sm text-muted">@{profile?.username}</div>
+                  <div className="text-sm text-muted">{profile?.email}</div>
+                </div>
+
+                {canFollow && (
+                  <div className="flex flex-wrap gap-2">
+                    <button
+                      className={`px-5 py-2 rounded-lg font-semibold ${
+                        isFollowing
+                          ? "bg-neutral-100 text-neutral-700"
+                          : "btn-primary"
+                      }`}
+                      onClick={handleFollowToggle}
+                    >
+                      {isFollowing ? "Unfollow" : "Follow"}
+                    </button>
+                    <button
+                      className="px-5 py-2 rounded-lg font-semibold border border-red-200 text-red-600 hover:bg-red-50"
+                      onClick={handleBlock}
+                      disabled={isBlocking}
+                    >
+                      {isBlocking ? "Blocking..." : "Block"}
+                    </button>
+                  </div>
+                )}
+              </div>
+            )}
+
+            <div className="mt-6 pt-2">
+              {postsError && (
+                <div className="mb-4 rounded-lg bg-red-50 border border-red-200 p-3 text-sm text-red-700">
+                  {postsError}
+                </div>
+              )}
+              <Feed
+                posts={postsWithFollowState}
+                isLoading={postsLoading}
+                showPostMenu={false}
+                onLike={handleLike}
+                onReply={comments.toggleComments}
+                onFollowToggle={handleFollowTogglePost}
+              />
+            </div>
           </div>
         </div>
       </div>

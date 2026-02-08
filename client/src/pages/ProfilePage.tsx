@@ -150,120 +150,126 @@ export default function ProfilePage() {
 
   return (
     <div className="min-h-screen bg-neutral-bg">
-      <div className="max-w-5xl mx-auto px-4 sm:px-6 py-8 space-y-6">
-        <div className="card p-6">
-          <h1 className="text-brand text-xl font-bold mb-4">Your Profile</h1>
+      <div className="max-w-5xl mx-auto px-4 sm:px-6 py-8 flex justify-center">
+        <div className="card-container space-y-6">
+          <div className="card p-6">
+            <h1 className="text-brand text-xl font-bold mb-4">My Profile</h1>
 
-          {error && (
-            <div className="mb-4 rounded-lg bg-red-50 border border-red-200 p-3 text-sm text-red-700">
-              {error}
-            </div>
-          )}
-
-          {isLoading ? (
-            <div className="text-muted">Loading profile...</div>
-          ) : (
-            <div className="space-y-4">
-              <div className="grid gap-4 sm:grid-cols-2">
-                <div>
-                  <label className="text-xs text-muted">Username</label>
-                  <div className="input bg-neutral-50">{profile?.username}</div>
-                </div>
-                <div>
-                  <label className="text-xs text-muted">Email</label>
-                  <div className="input bg-neutral-50">{profile?.email}</div>
-                </div>
+            {error && (
+              <div className="mb-4 rounded-lg bg-red-50 border border-red-200 p-3 text-sm text-red-700">
+                {error}
               </div>
+            )}
 
-              <div className="grid gap-4 sm:grid-cols-2">
-                <div>
-                  <label className="text-xs text-muted">First name</label>
-                  <input
-                    className="input"
-                    value={firstName}
-                    onChange={(e) => setFirstName(e.target.value)}
-                  />
+            {isLoading ? (
+              <div className="text-muted">Loading profile...</div>
+            ) : (
+              <div className="space-y-4">
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <div>
+                    <label className="text-xs text-muted">Username</label>
+                    <div className="input bg-neutral-50">
+                      {profile?.username}
+                    </div>
+                  </div>
+                  <div>
+                    <label className="text-xs text-muted">Email</label>
+                    <div className="input bg-neutral-50">{profile?.email}</div>
+                  </div>
                 </div>
-                <div>
-                  <label className="text-xs text-muted">Last name</label>
-                  <input
-                    className="input"
-                    value={lastName}
-                    onChange={(e) => setLastName(e.target.value)}
-                  />
+
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <div>
+                    <label className="text-xs text-muted">First name</label>
+                    <input
+                      className="input"
+                      value={firstName}
+                      onChange={(e) => setFirstName(e.target.value)}
+                    />
+                  </div>
+                  <div>
+                    <label className="text-xs text-muted">Last name</label>
+                    <input
+                      className="input"
+                      value={lastName}
+                      onChange={(e) => setLastName(e.target.value)}
+                    />
+                  </div>
                 </div>
+
+                <button
+                  className="btn-primary px-5 py-2"
+                  onClick={handleSave}
+                  disabled={isSaving}
+                >
+                  {isSaving ? "Saving..." : "Save changes"}
+                </button>
               </div>
+            )}
+          </div>
 
-              <button
-                className="btn-primary px-5 py-2"
-                onClick={handleSave}
-                disabled={isSaving}
-              >
-                {isSaving ? "Saving..." : "Save changes"}
-              </button>
-            </div>
-          )}
-        </div>
+          <div className="grid gap-6 md:grid-cols-3">
+            <button
+              onClick={() => navigate("/followers")}
+              className="card p-6 hover:shadow-lg hover:border-brand-500 transition-all cursor-pointer text-left"
+            >
+              <h2 className="text-brand font-semibold mb-4">Followers</h2>
+              <p className="text-2xl font-bold text-brand mb-2">
+                {followers.length}
+              </p>
+              <p className="text-sm text-muted">
+                {followers.length === 0
+                  ? "No followers yet."
+                  : "Click to see all"}
+              </p>
+            </button>
 
-        <div className="grid gap-6 md:grid-cols-3">
-          <button
-            onClick={() => navigate("/followers")}
-            className="card p-6 hover:shadow-lg hover:border-brand-500 transition-all cursor-pointer text-left"
-          >
-            <h2 className="text-brand font-semibold mb-4">Followers</h2>
-            <p className="text-2xl font-bold text-brand mb-2">
-              {followers.length}
-            </p>
-            <p className="text-sm text-muted">
-              {followers.length === 0
-                ? "No followers yet."
-                : "Click to see all"}
-            </p>
-          </button>
+            <button
+              onClick={() => navigate("/following")}
+              className="card p-6 hover:shadow-lg hover:border-brand-500 transition-all cursor-pointer text-left"
+            >
+              <h2 className="text-brand font-semibold mb-4">Following</h2>
+              <p className="text-2xl font-bold text-brand mb-2">
+                {following.length}
+              </p>
+              <p className="text-sm text-muted">
+                {following.length === 0
+                  ? "Not following anyone yet."
+                  : "Click to see all"}
+              </p>
+            </button>
 
-          <button
-            onClick={() => navigate("/following")}
-            className="card p-6 hover:shadow-lg hover:border-brand-500 transition-all cursor-pointer text-left"
-          >
-            <h2 className="text-brand font-semibold mb-4">Following</h2>
-            <p className="text-2xl font-bold text-brand mb-2">
-              {following.length}
-            </p>
-            <p className="text-sm text-muted">
-              {following.length === 0
-                ? "Not following anyone yet."
-                : "Click to see all"}
-            </p>
-          </button>
+            <button
+              onClick={() => navigate("/blocks")}
+              className="card p-6 hover:shadow-lg hover:border-brand-500 transition-all cursor-pointer text-left"
+            >
+              <h2 className="text-brand font-semibold mb-4">Blocked</h2>
+              <p className="text-2xl font-bold text-brand mb-2">
+                {blocked.length}
+              </p>
+              <p className="text-sm text-muted">
+                {blocked.length === 0
+                  ? "No blocked users."
+                  : "Click to see all"}
+              </p>
+            </button>
+          </div>
 
-          <button
-            onClick={() => navigate("/blocks")}
-            className="card p-6 hover:shadow-lg hover:border-brand-500 transition-all cursor-pointer text-left"
-          >
-            <h2 className="text-brand font-semibold mb-4">Blocked</h2>
-            <p className="text-2xl font-bold text-brand mb-2">
-              {blocked.length}
-            </p>
-            <p className="text-sm text-muted">
-              {blocked.length === 0 ? "No blocked users." : "Click to see all"}
-            </p>
-          </button>
-        </div>
-
-        <div className="card p-6">
-          <h2 className="text-brand text-lg font-semibold mb-4">Posts</h2>
-          {postsError && (
-            <div className="mb-4 rounded-lg bg-red-50 border border-red-200 p-3 text-sm text-red-700">
-              {postsError}
-            </div>
-          )}
-          <Feed
-            posts={posts}
-            isLoading={postsLoading}
-            showPostMenu={false}
-            onLike={handleLike}
-            onReply={comments.toggleComments}
-          />
+          <div className="card p-6">
+            <h2 className="text-brand text-lg font-semibold mb-4">Posts</h2>
+            {postsError && (
+              <div className="mb-4 rounded-lg bg-red-50 border border-red-200 p-3 text-sm text-red-700">
+                {postsError}
+              </div>
+            )}
+            <Feed
+              posts={posts}
+              isLoading={postsLoading}
+              showPostMenu={false}
+              onLike={handleLike}
+              onReply={comments.toggleComments}
+            />
+          </div>
         </div>
       </div>
 

@@ -36,7 +36,7 @@ export default function ComposePage() {
     >
       <div className="max-w-5xl mx-auto px-4 sm:px-6 py-6 sm:py-8">
         <div className="flex justify-center">
-          <div className="w-full max-w-2xl">
+          <div className="card-container">
             <div className="card overflow-hidden">
               <div className="flex items-center justify-between p-5 sm:p-6 border-b border-[#f5d580]">
                 <div>

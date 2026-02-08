@@ -55,69 +55,71 @@ export default function NotificationsPage() {
       transition={{ duration: 0.2, ease: "easeOut" }}
       className="min-h-screen bg-neutral-bg"
     >
-      <div className="max-w-5xl mx-auto px-4 sm:px-6 py-8">
-        <div className="card p-6">
-          <div className="flex items-center justify-between mb-4">
-            <h1 className="text-brand text-xl font-bold">Notifications</h1>
-            <button
-              className="btn-primary px-4 py-2"
-              onClick={loadNotifications}
-            >
-              Refresh
-            </button>
-          </div>
-
-          {error && (
-            <div className="mb-4 rounded-lg bg-red-50 border border-red-200 p-3 text-sm text-red-700">
-              {error}
+      <div className="max-w-5xl mx-auto px-4 sm:px-6 py-8 flex justify-center">
+        <div className="card-container">
+          <div className="card p-6">
+            <div className="flex items-center justify-between mb-4">
+              <h1 className="text-brand text-xl font-bold">Notifications</h1>
+              <button
+                className="btn-primary px-4 py-2"
+                onClick={loadNotifications}
+              >
+                Refresh
+              </button>
             </div>
-          )}
 
-          {isLoading ? (
-            <div className="text-muted">Loading notifications...</div>
-          ) : notifications.length === 0 ? (
-            <div className="text-sm text-muted">No notifications yet.</div>
-          ) : (
-            <div className="space-y-3">
-              {notifications.map((notification) => (
-                <div
-                  key={notification.id}
-                  className={`rounded-lg border p-4 ${
-                    notification.read
-                      ? "border-neutral-100"
-                      : "border-accent-200 bg-accent-50"
-                  }`}
-                >
-                  <div className="flex items-start justify-between gap-4">
-                    <div>
-                      <div className="text-sm text-neutral-900">
-                        {notification.message}
+            {error && (
+              <div className="mb-4 rounded-lg bg-red-50 border border-red-200 p-3 text-sm text-red-700">
+                {error}
+              </div>
+            )}
+
+            {isLoading ? (
+              <div className="text-muted">Loading notifications...</div>
+            ) : notifications.length === 0 ? (
+              <div className="text-sm text-muted">No notifications yet.</div>
+            ) : (
+              <div className="space-y-3">
+                {notifications.map((notification) => (
+                  <div
+                    key={notification.id}
+                    className={`rounded-lg border p-4 ${
+                      notification.read
+                        ? "border-neutral-100"
+                        : "border-accent-200 bg-accent-50"
+                    }`}
+                  >
+                    <div className="flex items-start justify-between gap-4">
+                      <div>
+                        <div className="text-sm text-neutral-900">
+                          {notification.message}
+                        </div>
+                        <div className="text-xs text-muted mt-1">
+                          {new Date(notification.createdAt).toLocaleString()}
+                        </div>
                       </div>
-                      <div className="text-xs text-muted mt-1">
-                        {new Date(notification.createdAt).toLocaleString()}
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      {!notification.read && (
+                      <div className="flex items-center gap-2">
+                        {!notification.read && (
+                          <button
+                            className="text-xs text-accent-600"
+                            onClick={() => handleMarkRead(notification.id)}
+                          >
+                            Mark read
+                          </button>
+                        )}
                         <button
-                          className="text-xs text-accent-600"
-                          onClick={() => handleMarkRead(notification.id)}
+                          className="text-xs text-red-600"
+                          onClick={() => handleDelete(notification.id)}
                         >
-                          Mark read
+                          Delete
                         </button>
-                      )}
-                      <button
-                        className="text-xs text-red-600"
-                        onClick={() => handleDelete(notification.id)}
-                      >
-                        Delete
-                      </button>
+                      </div>
                     </div>
                   </div>
-                </div>
-              ))}
-            </div>
-          )}
+                ))}
+              </div>
+            )}
+          </div>
         </div>
       </div>
     </motion.div>
