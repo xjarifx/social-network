@@ -1,5 +1,8 @@
 import { Router } from "express";
-import { authenticate } from "../../middleware/authenticate.middleware";
+import {
+  authenticate,
+  authenticateOptional,
+} from "../../middleware/authenticate.middleware";
 import {
   createCommentHandler,
   getCommentsHandler,
@@ -7,7 +10,7 @@ import {
   deleteCommentHandler,
 } from "./comments.controller";
 
-const router = Router();
+const router = Router({ mergeParams: true });
 
 // COMMENTS
 
@@ -79,7 +82,7 @@ router.post("/", authenticate, createCommentHandler);
  *       200:
  *         description: Comments retrieved successfully
  */
-router.get("/", getCommentsHandler);
+router.get("/", authenticateOptional, getCommentsHandler);
 /**
  * @openapi
  * /api/v1/posts/{postId}/comments/{commentId}:

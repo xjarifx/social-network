@@ -6,7 +6,7 @@ import {
   getPostLikesHandler,
 } from "./likes.controller";
 
-const router = Router();
+const router = Router({ mergeParams: true });
 
 // LIKES
 

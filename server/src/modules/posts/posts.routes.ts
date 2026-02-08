@@ -185,25 +185,11 @@ router.delete("/:postId", authenticate, deletePostContent);
 // ----------------------------------------------------------------
 
 // LIKES
-
-// create like
-router.post("/:postId/likes", likeRouter);
-// remove like
-router.delete("/:postId/likes", likeRouter);
-// get list of users who liked the post
-router.get("/:postId/likes", likeRouter);
+router.use("/:postId/likes", likeRouter);
 
 // ----------------------------------------------------------------
 
 // COMMENTS
-
-// create comment
-router.post("/:postId/comments", commentsRouter);
-// get comments
-router.get("/:postId/comments", commentsRouter);
-// update comment
-router.patch("/:postId/comments", commentsRouter);
-// delete comment
-router.delete("/:postId/comments", commentsRouter);
+router.use("/:postId/comments", commentsRouter);
 
 export default router;

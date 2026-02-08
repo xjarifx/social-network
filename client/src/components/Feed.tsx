@@ -5,7 +5,7 @@ import type { PostProps } from "./PostCard";
 export interface FeedProps {
   posts: PostProps[];
   isLoading?: boolean;
-  onLike?: (postId: string) => void;
+  onLike?: (postId: string) => void | Promise<void>;
   onReply?: (postId: string) => void;
   onFollowToggle?: (
     authorId: string,

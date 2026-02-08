@@ -4,7 +4,7 @@ import {
   getComments,
   updateComment,
   deleteComment,
-} from './comments.service';
+} from "./comments.service";
 
 export const createCommentHandler = async (
   req: Request,
@@ -34,7 +34,7 @@ export const getCommentsHandler = async (
   res: Response,
 ): Promise<void> => {
   try {
-    const result = await getComments(req.params, req.query);
+    const result = await getComments(req.params, req.query, req.userId);
 
     res.status(200).json(result);
   } catch (error: unknown) {

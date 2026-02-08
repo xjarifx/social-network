@@ -26,7 +26,7 @@ export interface PostProps {
   replies: number;
   liked?: boolean;
   isFollowing?: boolean;
-  onLike?: (id: string) => void;
+  onLike?: (id: string) => void | Promise<void>;
   onReply?: (id: string) => void;
   onFollowToggle?: (
     authorId: string,
@@ -84,10 +84,23 @@ export function PostCard({
     };
   }, [isMenuOpen]);
 
-  const handleLike = () => {
-    setIsLiked(!isLiked);
-    setLikeCount(isLiked ? likeCount - 1 : likeCount + 1);
-    onLike?.(id);
+  const handleLike = async () => {
+    const previousLiked = isLiked;
+    const previousLikeCount = likeCount;
+
+    try {
+      setIsLiked(!isLiked);
+      setLikeCount(isLiked ? likeCount - 1 : likeCount + 1);
+
+      if (onLike) {
+        await onLike(id);
+      }
+    } catch (err) {
+      // Revert on error
+      setIsLiked(previousLiked);
+      setLikeCount(previousLikeCount);
+      console.error("Failed to toggle like:", err);
+    }
   };
 
   const canActOnUser = !!user?.id && !!authorId && user.id !== authorId;

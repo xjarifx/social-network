@@ -1,11 +1,11 @@
-import { PrismaClient } from '../../generated/prisma/index';
+import { PrismaClient } from "../../generated/prisma/index";
 import {
   commentIdParamSchema,
   createCommentSchema,
   getCommentsQuerySchema,
   postIdParamSchema,
   updateCommentSchema,
-} from './comments.validation';
+} from "./comments.validation";
 
 const prisma = new PrismaClient();
 
@@ -87,6 +87,7 @@ export const createComment = async (
 export const getComments = async (
   params: Record<string, unknown>,
   query: Record<string, unknown>,
+  userId?: unknown,
 ) => {
   const paramValidation = postIdParamSchema.safeParse({ params });
   if (!paramValidation.success) {
@@ -110,28 +111,90 @@ export const getComments = async (
     throw { status: 404, error: "Post not found" };
   }
 
-  const comments = await prisma.comment.findMany({
-    where: { postId },
-    include: {
-      author: {
-        select: {
-          id: true,
-          username: true,
-          firstName: true,
-          lastName: true,
-        },
-      },
-    },
-    orderBy: {
-      createdAt: "desc",
-    },
-    take: limit,
-    skip: offset,
-  });
-
   const total = await prisma.comment.count({
     where: { postId },
   });
+
+  const authorId = ensureString(userId);
+  const includeAuthor = {
+    author: {
+      select: {
+        id: true,
+        username: true,
+        firstName: true,
+        lastName: true,
+      },
+    },
+  };
+
+  let comments = [] as Array<{
+    id: string;
+    content: string;
+    author: {
+      id: string;
+      username: string;
+      firstName: string;
+      lastName: string;
+    } | null;
+    postId: string;
+    createdAt: Date;
+  }>;
+
+  if (!authorId) {
+    comments = await prisma.comment.findMany({
+      where: { postId },
+      include: includeAuthor,
+      orderBy: {
+        createdAt: "desc",
+      },
+      take: limit,
+      skip: offset,
+    });
+  } else {
+    const userWhere = { postId, authorId };
+    const otherWhere = { postId, NOT: { authorId } };
+    const userCount = await prisma.comment.count({ where: userWhere });
+
+    if (offset < userCount) {
+      const userTake = Math.min(limit, userCount - offset);
+      const userComments = await prisma.comment.findMany({
+        where: userWhere,
+        include: includeAuthor,
+        orderBy: {
+          createdAt: "desc",
+        },
+        take: userTake,
+        skip: offset,
+      });
+
+      const remaining = limit - userTake;
+      if (remaining > 0) {
+        const otherComments = await prisma.comment.findMany({
+          where: otherWhere,
+          include: includeAuthor,
+          orderBy: {
+            createdAt: "desc",
+          },
+          take: remaining,
+          skip: 0,
+        });
+        comments = [...userComments, ...otherComments];
+      } else {
+        comments = userComments;
+      }
+    } else {
+      const otherOffset = offset - userCount;
+      comments = await prisma.comment.findMany({
+        where: otherWhere,
+        include: includeAuthor,
+        orderBy: {
+          createdAt: "desc",
+        },
+        take: limit,
+        skip: otherOffset,
+      });
+    }
+  }
 
   return {
     comments: comments.map((comment) => ({

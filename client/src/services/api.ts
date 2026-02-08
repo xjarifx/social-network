@@ -415,8 +415,19 @@ export const commentsAPI = {
     });
   },
 
-  getPostComments: async (postId: string): Promise<CommentsResponse> => {
-    return apiRequest(`/posts/${postId}/comments`);
+  getPostComments: async (
+    postId: string,
+    options?: { limit?: number; offset?: number },
+  ): Promise<CommentsResponse> => {
+    const params = new URLSearchParams();
+    if (options?.limit !== undefined) {
+      params.set("limit", String(options.limit));
+    }
+    if (options?.offset !== undefined) {
+      params.set("offset", String(options.offset));
+    }
+    const query = params.toString();
+    return apiRequest(`/posts/${postId}/comments${query ? `?${query}` : ""}`);
   },
 
   updateComment: async (

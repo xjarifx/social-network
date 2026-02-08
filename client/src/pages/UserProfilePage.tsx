@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState, useRef } from "react";
 import { useParams } from "react-router-dom";
 import { motion } from "framer-motion";
-import { usersAPI, followsAPI, blocksAPI } from "../services/api";
+import { usersAPI, followsAPI, blocksAPI, likesAPI } from "../services/api";
 import type { User, Follower } from "../services/api";
 import { useAuth } from "../context/AuthContext";
 import { Feed } from "../components";
@@ -200,6 +200,39 @@ export function UserProfilePage() {
     }
   };
 
+  const handleLike = async (postId: string) => {
+    if (!user?.id) {
+      return;
+    }
+
+    try {
+      const post = posts.find((p) => p.id === postId);
+      if (!post) {
+        return;
+      }
+
+      if (post.liked) {
+        await likesAPI.unlikePost(postId);
+        setPosts(
+          posts.map((p) =>
+            p.id === postId
+              ? { ...p, liked: false, likes: Math.max(0, p.likes - 1) }
+              : p,
+          ),
+        );
+      } else {
+        await likesAPI.likePost(postId);
+        setPosts(
+          posts.map((p) =>
+            p.id === postId ? { ...p, liked: true, likes: p.likes + 1 } : p,
+          ),
+        );
+      }
+    } catch (err) {
+      console.error("Failed to toggle like:", err);
+    }
+  };
+
   return (
     <motion.div
       initial={{ opacity: 0 }}
@@ -258,7 +291,7 @@ export function UserProfilePage() {
               </div>
             )}
 
-            <Feed posts={posts} isLoading={postsLoading} />
+            <Feed posts={posts} isLoading={postsLoading} onLike={handleLike} />
           </div>
         </div>
       </div>
