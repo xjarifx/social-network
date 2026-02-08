@@ -1,11 +1,11 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { followsAPI, usersAPI } from "../services/api";
+import { followsAPI } from "../services/api";
 import type { Follower } from "../services/api";
 import { useAuth } from "../context/AuthContext";
 
-export function FollowersPage() {
+export default function FollowersPage() {
   const navigate = useNavigate();
   const { user } = useAuth();
   const [followers, setFollowers] = useState<Follower[]>([]);

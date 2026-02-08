@@ -1,5 +1,4 @@
-import { memo, useMemo } from "react";
-import { motion } from "framer-motion";
+import { memo } from "react";
 import { PostCard } from "./PostCard";
 import type { PostProps } from "./PostCard";
 
@@ -23,29 +22,11 @@ function FeedComponent({
   onFollowToggle,
   renderPostFooter,
 }: FeedProps) {
-  const loadingPulseVariants = useMemo(
-    () => ({
-      pulse: {
-        opacity: [0.85, 1, 0.85],
-        transition: {
-          duration: 2.2,
-          repeat: Infinity,
-        },
-      },
-    }),
-    [],
-  );
-
   if (isLoading) {
     return (
       <div className="space-y-4">
         {[...Array(3)].map((_, i) => (
-          <motion.div
-            key={i}
-            variants={loadingPulseVariants}
-            animate="pulse"
-            className="card h-64 bg-neutral-100"
-          />
+          <div key={i} className="card h-64 bg-neutral-100 animate-pulse" />
         ))}
       </div>
     );
@@ -66,12 +47,7 @@ function FeedComponent({
       ))}
 
       {posts.length === 0 && (
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.15 }}
-          className="card p-12 text-center"
-        >
+        <div className="card p-12 text-center animate-fade-in">
           <div className="text-center">
             <div className="text-5xl mb-4">🌟</div>
             <h3 className="text-brand text-lg mb-2">No posts yet</h3>
@@ -79,7 +55,7 @@ function FeedComponent({
               Your feed is empty. Follow people to see their posts here.
             </p>
           </div>
-        </motion.div>
+        </div>
       )}
     </div>
   );

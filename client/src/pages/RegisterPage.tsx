@@ -4,7 +4,7 @@ import { motion } from "framer-motion";
 import { useAuth } from "../context/AuthContext";
 import { Eye, EyeOff, AlertCircle } from "lucide-react";
 
-export function RegisterPage() {
+export default function RegisterPage() {
   const navigate = useNavigate();
   const { register, isLoading, error, clearError } = useAuth();
   const [showPassword, setShowPassword] = useState(false);

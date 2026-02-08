@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { postsAPI } from "../services/api";
 
-export function ComposePage() {
+export default function ComposePage() {
   const navigate = useNavigate();
   const [content, setContent] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);

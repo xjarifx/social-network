@@ -1,4 +1,3 @@
-export { Navigation } from "./Navigation";
 export { LeftSidebar } from "./LeftSidebar";
 export { PostCard } from "./PostCard";
 export type { PostProps } from "./PostCard";
@@ -6,6 +5,7 @@ export { Feed } from "./Feed";
 export type { FeedProps } from "./Feed";
 export { ComposeModal } from "./ComposeModal";
 export type { ComposeModalProps } from "./ComposeModal";
+export { CommentsModal } from "./CommentsModal";
 export { Sidebar } from "./Sidebar";
 export type { SidebarProps, TrendingItem } from "./Sidebar";
 export { ProtectedRoute } from "./ProtectedRoute";

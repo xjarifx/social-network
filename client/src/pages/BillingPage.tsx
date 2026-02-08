@@ -3,7 +3,7 @@ import { motion } from "framer-motion";
 import { billingAPI } from "../services/api";
 import type { BillingStatus } from "../services/api";
 
-export function BillingPage() {
+export default function BillingPage() {
   const [status, setStatus] = useState<BillingStatus | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);

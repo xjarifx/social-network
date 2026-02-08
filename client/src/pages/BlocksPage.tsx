@@ -3,7 +3,7 @@ import { motion } from "framer-motion";
 import { blocksAPI } from "../services/api";
 import type { BlockedUser } from "../services/api";
 
-export function BlocksPage() {
+export default function BlocksPage() {
   const [blocked, setBlocked] = useState<BlockedUser[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);

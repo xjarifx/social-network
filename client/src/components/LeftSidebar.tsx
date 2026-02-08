@@ -9,8 +9,15 @@ import {
   LogOut,
   PenSquare,
 } from "lucide-react";
-import { useEffect, useRef, useState, useCallback } from "react";
-import Lottie from "lottie-react";
+import {
+  useEffect,
+  useRef,
+  useState,
+  useCallback,
+  lazy,
+  Suspense,
+} from "react";
+const Lottie = lazy(() => import("lottie-react"));
 import globeAnimation from "../../assets/Earth globe rotating with Seamless loop animation.json";
 import { useAuth } from "../context/AuthContext";
 import { usersAPI, type User as UserType } from "../services/api";
@@ -134,7 +141,9 @@ export function LeftSidebar() {
           }}
         >
           <div className="w-16 mx-auto">
-            <Lottie animationData={globeAnimation} loop autoplay />
+            <Suspense fallback={<div className="w-16 h-16" />}>
+              <Lottie animationData={globeAnimation} loop autoplay />
+            </Suspense>
           </div>
         </motion.div>
       </div>

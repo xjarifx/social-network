@@ -5,7 +5,7 @@ import { usersAPI, type User } from "../services/api";
 import { useAuth } from "../context/AuthContext";
 import { ChevronLeft } from "lucide-react";
 
-export function SearchPage() {
+export default function SearchPage() {
   const navigate = useNavigate();
   const { user: currentUser } = useAuth();
   const [searchParams] = useSearchParams();

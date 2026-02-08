@@ -1,20 +1,30 @@
+import { lazy, Suspense } from "react";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider, useAuth } from "./context/AuthContext";
-import { LoginPage } from "./pages/LoginPage";
-import { RegisterPage } from "./pages/RegisterPage";
-import { HomePage } from "./pages/HomePage";
-import { ProfilePage } from "./pages/ProfilePage";
-import { UserProfilePage } from "./pages/UserProfilePage";
-import { NotificationsPage } from "./pages/NotificationsPage";
-import { BillingPage } from "./pages/BillingPage";
-import { BlocksPage } from "./pages/BlocksPage";
-import { FollowersPage } from "./pages/FollowersPage";
-import { FollowingPage } from "./pages/FollowingPage";
-import { SearchPage } from "./pages/SearchPage";
-import { ComposePage } from "./pages/ComposePage";
 import { LeftSidebar } from "./components";
 import { ProtectedRoute } from "./components/ProtectedRoute";
-import { useEffect } from "react";
+
+// Route-level code splitting
+const LoginPage = lazy(() => import("./pages/LoginPage"));
+const RegisterPage = lazy(() => import("./pages/RegisterPage"));
+const HomePage = lazy(() => import("./pages/HomePage"));
+const ProfilePage = lazy(() => import("./pages/ProfilePage"));
+const UserProfilePage = lazy(() => import("./pages/UserProfilePage"));
+const NotificationsPage = lazy(() => import("./pages/NotificationsPage"));
+const BillingPage = lazy(() => import("./pages/BillingPage"));
+const BlocksPage = lazy(() => import("./pages/BlocksPage"));
+const FollowersPage = lazy(() => import("./pages/FollowersPage"));
+const FollowingPage = lazy(() => import("./pages/FollowingPage"));
+const SearchPage = lazy(() => import("./pages/SearchPage"));
+const ComposePage = lazy(() => import("./pages/ComposePage"));
+
+function PageFallback() {
+  return (
+    <div className="min-h-screen bg-[#fef5bd] flex items-center justify-center">
+      <div className="animate-spin rounded-full h-10 w-10 border-2 border-[#ff7000] border-t-transparent" />
+    </div>
+  );
+}
 
 function AppLayout({ children }: { children: React.ReactNode }) {
   return (
@@ -33,12 +43,26 @@ function AppRoutes() {
       {/* Auth routes - redirect to home if already logged in */}
       <Route
         path="/login"
-        element={isAuthenticated ? <Navigate to="/" replace /> : <LoginPage />}
+        element={
+          isAuthenticated ? (
+            <Navigate to="/" replace />
+          ) : (
+            <Suspense fallback={<PageFallback />}>
+              <LoginPage />
+            </Suspense>
+          )
+        }
       />
       <Route
         path="/register"
         element={
-          isAuthenticated ? <Navigate to="/" replace /> : <RegisterPage />
+          isAuthenticated ? (
+            <Navigate to="/" replace />
+          ) : (
+            <Suspense fallback={<PageFallback />}>
+              <RegisterPage />
+            </Suspense>
+          )
         }
       />
 
@@ -48,7 +72,9 @@ function AppRoutes() {
         element={
           <ProtectedRoute>
             <AppLayout>
-              <HomePage />
+              <Suspense fallback={<PageFallback />}>
+                <HomePage />
+              </Suspense>
             </AppLayout>
           </ProtectedRoute>
         }
@@ -59,7 +85,9 @@ function AppRoutes() {
         element={
           <ProtectedRoute>
             <AppLayout>
-              <ProfilePage />
+              <Suspense fallback={<PageFallback />}>
+                <ProfilePage />
+              </Suspense>
             </AppLayout>
           </ProtectedRoute>
         }
@@ -70,7 +98,9 @@ function AppRoutes() {
         element={
           <ProtectedRoute>
             <AppLayout>
-              <UserProfilePage />
+              <Suspense fallback={<PageFallback />}>
+                <UserProfilePage />
+              </Suspense>
             </AppLayout>
           </ProtectedRoute>
         }
@@ -81,7 +111,9 @@ function AppRoutes() {
         element={
           <ProtectedRoute>
             <AppLayout>
-              <NotificationsPage />
+              <Suspense fallback={<PageFallback />}>
+                <NotificationsPage />
+              </Suspense>
             </AppLayout>
           </ProtectedRoute>
         }
@@ -92,7 +124,9 @@ function AppRoutes() {
         element={
           <ProtectedRoute>
             <AppLayout>
-              <BillingPage />
+              <Suspense fallback={<PageFallback />}>
+                <BillingPage />
+              </Suspense>
             </AppLayout>
           </ProtectedRoute>
         }
@@ -103,7 +137,9 @@ function AppRoutes() {
         element={
           <ProtectedRoute>
             <AppLayout>
-              <BlocksPage />
+              <Suspense fallback={<PageFallback />}>
+                <BlocksPage />
+              </Suspense>
             </AppLayout>
           </ProtectedRoute>
         }
@@ -114,7 +150,9 @@ function AppRoutes() {
         element={
           <ProtectedRoute>
             <AppLayout>
-              <FollowersPage />
+              <Suspense fallback={<PageFallback />}>
+                <FollowersPage />
+              </Suspense>
             </AppLayout>
           </ProtectedRoute>
         }
@@ -125,7 +163,9 @@ function AppRoutes() {
         element={
           <ProtectedRoute>
             <AppLayout>
-              <FollowingPage />
+              <Suspense fallback={<PageFallback />}>
+                <FollowingPage />
+              </Suspense>
             </AppLayout>
           </ProtectedRoute>
         }
@@ -136,7 +176,9 @@ function AppRoutes() {
         element={
           <ProtectedRoute>
             <AppLayout>
-              <SearchPage />
+              <Suspense fallback={<PageFallback />}>
+                <SearchPage />
+              </Suspense>
             </AppLayout>
           </ProtectedRoute>
         }
@@ -147,7 +189,9 @@ function AppRoutes() {
         element={
           <ProtectedRoute>
             <AppLayout>
-              <ComposePage />
+              <Suspense fallback={<PageFallback />}>
+                <ComposePage />
+              </Suspense>
             </AppLayout>
           </ProtectedRoute>
         }
@@ -160,14 +204,6 @@ function AppRoutes() {
 }
 
 function App() {
-  // Set API URL from environment
-  useEffect(() => {
-    console.log(
-      "API URL:",
-      import.meta.env.API_URL || "http://localhost:3000/api/v1",
-    );
-  }, []);
-
   return (
     <BrowserRouter>
       <AuthProvider>

@@ -1,5 +1,4 @@
-import { memo, useRef, useState, useEffect, useCallback, useMemo } from "react";
-import { motion } from "framer-motion";
+import { memo, useRef, useState, useEffect, useCallback } from "react";
 import {
   Heart,
   MessageCircle,
@@ -147,24 +146,8 @@ function PostCardComponent({
     }
   }, [canActOnUser, authorId]);
 
-  const containerVariants = useMemo(
-    () => ({
-      hidden: { opacity: 0 },
-      visible: {
-        opacity: 1,
-        transition: { duration: 0.15 },
-      },
-    }),
-    [],
-  );
-
   return (
-    <motion.div
-      variants={containerVariants}
-      initial="hidden"
-      animate="visible"
-      className="card card-hover overflow-hidden transition-all duration-200"
-    >
+    <div className="card card-hover overflow-hidden transition-all duration-200">
       <div className="p-5 sm:p-6">
         {/* Header */}
         <div className="flex items-start justify-between mb-4">
@@ -209,16 +192,14 @@ function PostCardComponent({
             )}
           </div>
           <div className="relative" ref={menuRef}>
-            <motion.button
-              whileHover={{ scale: 1.03 }}
-              whileTap={{ scale: 0.98 }}
-              className="icon-btn"
+            <button
+              className="icon-btn transition-colors duration-200"
               onClick={() => setIsMenuOpen((prev) => !prev)}
               aria-haspopup="menu"
               aria-expanded={isMenuOpen}
             >
               <MoreHorizontal size={18} />
-            </motion.button>
+            </button>
 
             {isMenuOpen && (
               <div className="absolute right-0 mt-2 w-40 rounded-lg border border-[#f5d580] bg-white shadow-lg z-20 overflow-hidden">
@@ -271,9 +252,7 @@ function PostCardComponent({
 
         {/* Action row */}
         <div className="flex items-center gap-8 border-t border-neutral-100 -mx-5 -mb-5 px-5 py-3 sm:-mx-6 sm:px-6">
-          <motion.button
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
+          <button
             onClick={handleLike}
             className="inline-flex items-center gap-2 text-muted hover:text-neutral-900 transition-colors duration-200"
             style={{
@@ -282,20 +261,18 @@ function PostCardComponent({
           >
             <Heart size={18} />
             <span className="text-xs sm:text-sm">{likeCount}</span>
-          </motion.button>
+          </button>
 
-          <motion.button
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
+          <button
             onClick={() => onReply?.(id)}
             className="inline-flex items-center gap-2 text-muted hover:text-neutral-900 transition-colors duration-200"
           >
             <MessageCircle size={18} />
             <span className="text-xs sm:text-sm">{replies}</span>
-          </motion.button>
+          </button>
         </div>
       </div>
-    </motion.div>
+    </div>
   );
 }
 

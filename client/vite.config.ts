@@ -12,20 +12,22 @@ export default defineConfig({
           framer: ["framer-motion"],
           lottie: ["lottie-react"],
           lucide: ["lucide-react"],
+          router: ["react-router-dom"],
         },
       },
     },
-    minify: "terser",
-    terserOptions: {
-      compress: {
-        drop_console: true,
-      },
-    },
+    target: "esnext",
     sourcemap: false,
     chunkSizeWarningLimit: 1000,
     reportCompressedSize: false,
   },
   optimizeDeps: {
-    include: ["framer-motion", "react", "react-dom", "react-router-dom"],
+    include: [
+      "framer-motion",
+      "react",
+      "react-dom",
+      "react-router-dom",
+      "lucide-react",
+    ],
   },
 });
