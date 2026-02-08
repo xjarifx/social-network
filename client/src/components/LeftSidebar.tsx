@@ -251,7 +251,7 @@ export function LeftSidebar() {
               onClick={() => navigate(item.to)}
               className={`w-full flex items-center gap-4 px-4 py-3 rounded-lg transition-colors duration-150 ${
                 isActive
-                  ? "bg-[#ff7000] text-white font-semibold border-l-4 border-[#ff8e3a] shadow-md"
+                  ? "bg-[#ff8e3a] text-white font-semibold border-l-4 border-[#ff7000] shadow-md"
                   : "text-[#5a412f] hover:bg-[#fce8a0] hover:text-[#3d2b1f]"
               }`}
             >
