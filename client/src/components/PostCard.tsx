@@ -1,3 +1,4 @@
+import { memo, useRef, useState, useEffect, useCallback, useMemo } from "react";
 import { motion } from "framer-motion";
 import {
   Heart,
@@ -6,7 +7,6 @@ import {
   Shield,
   UserPlus,
 } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { blocksAPI, followsAPI } from "../services/api";
 import { useAuth } from "../context/AuthContext";
@@ -34,7 +34,7 @@ export interface PostProps {
   ) => void | Promise<void>;
 }
 
-export function PostCard({
+function PostCardComponent({
   id,
   authorId,
   author,
@@ -84,7 +84,7 @@ export function PostCard({
     };
   }, [isMenuOpen]);
 
-  const handleLike = async () => {
+  const handleLike = useCallback(async () => {
     const previousLiked = isLiked;
     const previousLikeCount = likeCount;
 
@@ -96,16 +96,15 @@ export function PostCard({
         await onLike(id);
       }
     } catch (err) {
-      // Revert on error
       setIsLiked(previousLiked);
       setLikeCount(previousLikeCount);
       console.error("Failed to toggle like:", err);
     }
-  };
+  }, [isLiked, likeCount, id, onLike]);
 
   const canActOnUser = !!user?.id && !!authorId && user.id !== authorId;
 
-  const handleFollow = async () => {
+  const handleFollow = useCallback(async () => {
     if (!canActOnUser || !authorId) {
       return;
     }
@@ -130,9 +129,9 @@ export function PostCard({
     } finally {
       setIsActionLoading(false);
     }
-  };
+  }, [canActOnUser, authorId, isFollowing, onFollowToggle, user?.id]);
 
-  const handleBlock = async () => {
+  const handleBlock = useCallback(async () => {
     if (!canActOnUser || !authorId) {
       return;
     }
@@ -146,37 +145,24 @@ export function PostCard({
     } finally {
       setIsActionLoading(false);
     }
-  };
+  }, [canActOnUser, authorId]);
 
-  const containerVariants = {
-    hidden: { opacity: 0, y: 6 },
-    visible: {
-      opacity: 1,
-      y: 0,
-      transition: { duration: 0.2, ease: "easeOut" },
-    },
-  };
-
-  const imageVariants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: { duration: 0.25, ease: "easeOut", delay: 0.05 },
-    },
-  };
-
-  const actionButtonVariants = {
-    initial: { scale: 1 },
-    hover: { scale: 1.03 },
-    tap: { scale: 0.98 },
-  };
+  const containerVariants = useMemo(
+    () => ({
+      hidden: { opacity: 0 },
+      visible: {
+        opacity: 1,
+        transition: { duration: 0.15 },
+      },
+    }),
+    [],
+  );
 
   return (
     <motion.div
       variants={containerVariants}
       initial="hidden"
       animate="visible"
-      whileHover={{ translateY: -1 }}
       className="card card-hover overflow-hidden transition-all duration-200"
     >
       <div className="p-5 sm:p-6">
@@ -235,13 +221,13 @@ export function PostCard({
             </motion.button>
 
             {isMenuOpen && (
-              <div className="absolute right-0 mt-2 w-40 rounded-lg border border-neutral-200 bg-white shadow-lg z-20 overflow-hidden">
+              <div className="absolute right-0 mt-2 w-40 rounded-lg border border-[#f5d580] bg-white shadow-lg z-20 overflow-hidden">
                 {canActOnUser ? (
                   <div className="flex flex-col">
                     <button
                       onClick={handleFollow}
                       disabled={isActionLoading}
-                      className="flex items-center gap-2 px-3 py-2 text-sm text-neutral-700 hover:bg-neutral-50 disabled:opacity-50"
+                      className="flex items-center gap-2 px-3 py-2 text-sm text-[#5a412f] hover:bg-[#fce8a0] disabled:opacity-50"
                     >
                       <UserPlus size={16} />
                       <span>{isFollowing ? "Unfollow" : "Follow"}</span>
@@ -274,25 +260,20 @@ export function PostCard({
 
         {/* Image */}
         {image && (
-          <motion.div
-            variants={imageVariants}
-            className="mb-4 rounded-lg overflow-hidden bg-neutral-100"
-          >
+          <div className="mb-4 rounded-lg overflow-hidden bg-neutral-100">
             <img
               src={image}
               alt="Post"
               className="w-full h-auto object-cover max-h-96"
             />
-          </motion.div>
+          </div>
         )}
 
         {/* Action row */}
         <div className="flex items-center gap-8 border-t border-neutral-100 -mx-5 -mb-5 px-5 py-3 sm:-mx-6 sm:px-6">
           <motion.button
-            variants={actionButtonVariants}
-            initial="initial"
-            whileHover="hover"
-            whileTap="tap"
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
             onClick={handleLike}
             className="inline-flex items-center gap-2 text-muted hover:text-neutral-900 transition-colors duration-200"
             style={{
@@ -304,10 +285,8 @@ export function PostCard({
           </motion.button>
 
           <motion.button
-            variants={actionButtonVariants}
-            initial="initial"
-            whileHover="hover"
-            whileTap="tap"
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
             onClick={() => onReply?.(id)}
             className="inline-flex items-center gap-2 text-muted hover:text-neutral-900 transition-colors duration-200"
           >
@@ -319,3 +298,5 @@ export function PostCard({
     </motion.div>
   );
 }
+
+export const PostCard = memo(PostCardComponent);

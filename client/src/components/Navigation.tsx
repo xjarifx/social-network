@@ -139,39 +139,31 @@ export function Navigation() {
       initial={{ y: -8, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
       transition={{ duration: 0.2, ease: "easeOut" }}
-      className="sticky top-0 z-40 border-b border-neutral-100 bg-white/80 backdrop-blur-xl"
+      className="sticky top-0 z-40 border-b border-[#f5d580] bg-gradient-to-r from-[#fffef9] to-[#fef5bd]/80 backdrop-blur-xl"
     >
       <div className="max-w-6xl mx-auto px-4 sm:px-6">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
-          <motion.div
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
-            className="flex-shrink-0"
-          >
+          <div className="flex-shrink-0">
             <div className="flex items-center gap-2 cursor-pointer group">
-              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-accent-500 to-accent-600 flex items-center justify-center">
+              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[#ff7000] to-[#ff8e3a] flex items-center justify-center hover:shadow-lg transition-shadow duration-200">
                 <span className="text-white font-bold text-sm">S</span>
               </div>
             </div>
-          </motion.div>
+          </div>
 
           {/* Center nav items */}
           <div className="flex items-center gap-12">
             {navItems.map((item) => (
-              <motion.div
-                key={item.label}
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-              >
+              <div key={item.label}>
                 <NavLink
                   to={item.to}
                   aria-label={item.label}
                   className={({ isActive }) =>
                     `relative flex items-center justify-center px-4 py-3 transition-colors duration-200 group ${
                       isActive
-                        ? "text-accent-600"
-                        : "text-neutral-600 hover:text-neutral-900"
+                        ? "text-[#ff7000]"
+                        : "text-[#5a412f] hover:text-[#ff8e3a]"
                     }`
                   }
                 >
@@ -181,7 +173,7 @@ export function Navigation() {
                       {isActive && (
                         <motion.div
                           layoutId={`underline-${item.label}`}
-                          className="absolute -bottom-3 left-1/2 -translate-x-1/2 h-1 w-12 rounded-full bg-accent-600"
+                          className="absolute -bottom-3 left-1/2 -translate-x-1/2 h-1 w-12 rounded-full bg-[#ff7000]"
                           initial={{ scaleX: 0 }}
                           animate={{ scaleX: 1 }}
                           transition={{ duration: 0.3, ease: "easeInOut" }}
@@ -190,7 +182,7 @@ export function Navigation() {
                     </div>
                   )}
                 </NavLink>
-              </motion.div>
+              </div>
             ))}
           </div>
 
@@ -201,7 +193,7 @@ export function Navigation() {
                 <div className="absolute inset-y-0 left-0 pl-2.5 flex items-center pointer-events-none">
                   <Search
                     size={16}
-                    className="text-neutral-400 group-focus-within:text-accent-500 transition-colors"
+                    className="text-[#c99820] group-focus-within:text-[#ff7000] transition-colors"
                   />
                 </div>
                 <input
@@ -212,7 +204,7 @@ export function Navigation() {
                   onFocus={() =>
                     searchQuery.trim().length >= 2 && setShowSuggestions(true)
                   }
-                  className="w-48 pl-8 pr-3 py-1.5 rounded-full border border-neutral-200 bg-neutral-50 text-xs placeholder-neutral-500 focus:w-72 focus:bg-white focus:border-accent-500 focus:shadow-lg focus:shadow-accent-500/20 focus:outline-none transition-all duration-200"
+                  className="w-48 pl-8 pr-3 py-1.5 rounded-full border border-[#edc560] bg-white text-xs text-[#5a412f] placeholder-[#c99820] focus:w-72 focus:bg-white focus:border-[#ff7000] focus:shadow-lg focus:shadow-[#ff7000]/20 focus:outline-none transition-all duration-200"
                 />
               </div>
 
@@ -223,7 +215,7 @@ export function Navigation() {
                   animate={{ opacity: 1, y: 0, scale: 1 }}
                   exit={{ opacity: 0, y: -12, scale: 0.95 }}
                   transition={{ duration: 0.2, ease: "easeOut" }}
-                  className="absolute top-full left-0 right-0 mt-3 bg-white border-2 border-neutral-200 rounded-xl shadow-xl z-50 max-h-96 overflow-y-auto backdrop-blur-sm"
+                  className="absolute top-full left-0 right-0 mt-3 bg-white border-2 border-[#fce8a0] rounded-xl shadow-xl z-50 max-h-96 overflow-y-auto"
                 >
                   {isLoadingSuggestions ? (
                     <div className="px-4 py-6 text-center">

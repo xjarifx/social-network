@@ -4,32 +4,39 @@ export default {
   theme: {
     extend: {
       colors: {
-        // Neutral palette - clean base
-        neutral: {
-          bg: "#fafafa",
-          50: "#fafafa",
-          100: "#f5f5f5",
-          200: "#e8e8e8",
-          300: "#d4d4d4",
-          400: "#a1a1a1",
-          500: "#737373",
-          600: "#525252",
-          700: "#404040",
-          800: "#262626",
-          900: "#171717",
+        // Earth globe color palette
+        earth: {
+          cream: "#fef5bd", // Light background & highlights
+          brown: "#5a412f", // Dark text & accents
+          orange: "#ff7000", // Primary action
+          oLight: "#ff8e3a", // Secondary action & hover
         },
-        // Primary accent - muted teal/blue
+        // Neutral palette - supporting colors
+        neutral: {
+          bg: "#fef5bd",
+          50: "#fffef9",
+          100: "#fef5bd",
+          200: "#fce8a0",
+          300: "#f5d580",
+          400: "#edc560",
+          500: "#deb040",
+          600: "#c99820",
+          700: "#a87d1a",
+          800: "#5a412f",
+          900: "#3d2b1f",
+        },
+        // Primary accent - orange
         accent: {
-          50: "#f0fdf4",
-          100: "#dcfce7",
-          200: "#bbf7d0",
-          300: "#86efac",
-          400: "#4ade80",
-          500: "#22c55e",
-          600: "#16a34a",
-          700: "#15803d",
-          800: "#166534",
-          900: "#145231",
+          50: "#fff7f0",
+          100: "#ffe8dc",
+          200: "#ffd4b8",
+          300: "#ffb88a",
+          400: "#ff9956",
+          500: "#ff7000",
+          600: "#ff6b00",
+          700: "#cc5500",
+          800: "#994000",
+          900: "#662b00",
         },
       },
       fontFamily: {
@@ -79,7 +86,19 @@ export default {
         300: "300ms",
         400: "400ms",
       },
+      animation: {
+        "fade-in": "fadeIn 0.3s ease-out",
+        "slide-up": "slideInUp 0.3s ease-out",
+        "scale-in": "scaleIn 0.3s ease-out",
+      },
     },
   },
-  plugins: [],
+  plugins: [
+    function ({ addVariant }) {
+      addVariant(
+        "supports-backdrop-blur",
+        "@supports (backdrop-filter: blur(1px))",
+      );
+    },
+  ],
 };

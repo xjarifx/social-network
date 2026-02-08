@@ -63,7 +63,7 @@ export function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen bg-neutral-bg flex items-center justify-center px-4">
+    <div className="min-h-screen bg-[#fef5bd] flex items-center justify-center px-4">
       <motion.div
         variants={containerVariants}
         initial="hidden"
@@ -77,7 +77,7 @@ export function LoginPage() {
           transition={{ duration: 0.3 }}
           className="text-center mb-8"
         >
-          <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-accent-500 to-accent-600 flex items-center justify-center mx-auto mb-4">
+          <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-[#ff7000] to-[#ff8e3a] flex items-center justify-center mx-auto mb-4">
             <span className="text-white font-bold text-lg">S</span>
           </div>
           <h1 className="text-brand text-2xl font-bold">Social Network</h1>

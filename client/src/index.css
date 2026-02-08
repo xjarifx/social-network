@@ -11,8 +11,8 @@ html {
 }
 
 body {
-  background: #fafafa;
-  color: #171717;
+  background: #fef5bd;
+  color: #5a412f;
   font-family: "Inter", "SF Pro Display", system-ui, sans-serif;
   margin: 0;
   min-height: 100vh;
@@ -26,10 +26,10 @@ body {
 
 /* Custom components */
 .card {
-  background-color: white;
+  background-color: #fffef9;
   border-radius: 12px;
+  border: 1px solid #f5d580;
   box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.08);
-  border: 1px solid #e8e8e8;
 }
 
 .card-hover {
@@ -38,7 +38,7 @@ body {
 
 .card-hover:hover {
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.08);
-  border-color: #d4d4d4;
+  border-color: #fce8a0;
 }
 
 /* Button styles */
@@ -51,12 +51,12 @@ body {
 }
 
 .btn-primary {
-  background-color: #22c55e;
+  background-color: #ff7000;
   color: white;
 }
 
 .btn-primary:hover {
-  background-color: #16a34a;
+  background-color: #ff8e3a;
 }
 
 .btn-primary:active {
@@ -64,12 +64,12 @@ body {
 }
 
 .btn-secondary {
-  background-color: #f5f5f5;
-  color: #171717;
+  background-color: #fce8a0;
+  color: #5a412f;
 }
 
 .btn-secondary:hover {
-  background-color: #e8e8e8;
+  background-color: #f5d580;
 }
 
 .btn-secondary:active {
@@ -77,11 +77,11 @@ body {
 }
 
 .btn-ghost {
-  color: #737373;
+  color: #5a412f;
 }
 
 .btn-ghost:hover {
-  background-color: #f5f5f5;
+  background-color: #fce8a0;
 }
 
 .btn-ghost:active {
@@ -95,13 +95,13 @@ body {
   justify-content: center;
   padding: 8px;
   border-radius: 8px;
-  color: #737373;
+  color: #5a412f;
   transition: all 200ms ease-out;
 }
 
 .icon-btn:hover {
-  background-color: #f5f5f5;
-  color: #171717;
+  background-color: #fce8a0;
+  color: #ff7000;
 }
 
 /* Input fields */
@@ -109,34 +109,34 @@ body {
   width: 100%;
   padding: 8px 16px;
   border-radius: 12px;
-  border: 1px solid #d4d4d4;
+  border: 1px solid #edc560;
   background-color: white;
-  color: #171717;
+  color: #5a412f;
   transition: all 200ms ease-out;
 }
 
 .input::placeholder {
-  color: #a1a1a1;
+  color: #c99820;
 }
 
 .input:focus {
   outline: none;
-  border-color: #22c55e;
-  box-shadow: 0 0 0 1px rgba(34, 197, 94, 0.2);
+  border-color: #ff7000;
+  box-shadow: 0 0 0 1px rgba(255, 112, 0, 0.2);
 }
 
 /* Text utilities */
 .text-brand {
-  color: #171717;
+  color: #5a412f;
   font-weight: 600;
 }
 
 .text-muted {
-  color: #737373;
+  color: #a87d1a;
 }
 
 .text-subtle {
-  color: #525252;
+  color: #c99820;
 }
 
 /* Global animations */

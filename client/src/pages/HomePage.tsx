@@ -1,9 +1,9 @@
 import { useState, useEffect, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { postsAPI, likesAPI, commentsAPI, followsAPI } from "../services/api";
-import { Feed, ComposeModal, PostCard } from "../components";
+import { Feed, PostCard } from "../components";
 import type { PostProps } from "../components";
-import { Plus, X } from "lucide-react";
+import { X } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import type { Comment as ApiComment } from "../services/api";
 
@@ -12,7 +12,6 @@ export function HomePage() {
   const commentsPageSize = 5;
   const [posts, setPosts] = useState<PostProps[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [isComposeOpen, setIsComposeOpen] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [followingIds, setFollowingIds] = useState<string[]>([]);
   const [openCommentsPostId, setOpenCommentsPostId] = useState<string | null>(
@@ -349,37 +348,6 @@ export function HomePage() {
     }
   };
 
-  const handleCompose = async (content: string) => {
-    try {
-      const newPost = await postsAPI.create(content);
-
-      // Add to feed
-      const transformedPost: PostProps = {
-        id: newPost.id,
-        authorId: newPost.author?.id,
-        author: {
-          name:
-            newPost.author?.firstName && newPost.author?.lastName
-              ? `${newPost.author.firstName} ${newPost.author.lastName}`
-              : newPost.author?.username || "You",
-          handle: newPost.author?.username || "you",
-          avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${newPost.author?.id || newPost.author?.username || newPost.id}`,
-        },
-        content: newPost.content,
-        timestamp: "1h",
-        likes: 0,
-        replies: 0,
-        liked: false,
-      };
-
-      setPosts([transformedPost, ...posts]);
-      setIsComposeOpen(false);
-    } catch (err) {
-      console.error("Failed to create post:", err);
-      setError(err instanceof Error ? err.message : "Failed to create post");
-    }
-  };
-
   const handleLoadMoreComments = async (postId: string) => {
     const currentComments = commentsByPost[postId] || [];
     const meta = commentMetaByPost[postId];
@@ -440,24 +408,6 @@ export function HomePage() {
       <div className="max-w-5xl mx-auto px-4 sm:px-6 py-6 sm:py-8">
         <div className="flex justify-center">
           <div className="w-full max-w-2xl">
-            {/* Compose button */}
-            <motion.div
-              initial={{ y: -8, opacity: 0 }}
-              animate={{ y: 0, opacity: 1 }}
-              transition={{ duration: 0.2, delay: 0.05 }}
-              className="mb-6"
-            >
-              <motion.button
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-                onClick={() => setIsComposeOpen(true)}
-                className="w-full btn-primary px-6 py-3 rounded-lg font-semibold flex items-center justify-center gap-2"
-              >
-                <Plus size={20} />
-                <span>Create Post</span>
-              </motion.button>
-            </motion.div>
-
             {/* Error message */}
             {error && (
               <motion.div
@@ -691,32 +641,6 @@ export function HomePage() {
           </motion.div>
         )}
       </AnimatePresence>
-
-      {/* Compose Modal */}
-      <ComposeModal
-        isOpen={isComposeOpen}
-        onClose={() => setIsComposeOpen(false)}
-        onSubmit={handleCompose}
-        userName="You"
-        userAvatar="https://api.dicebear.com/7.x/avataaars/svg?seed=You"
-      />
-
-      {/* Floating action button - mobile only */}
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 1 }}
-        className="fixed bottom-6 right-6 md:hidden z-30"
-      >
-        <motion.button
-          whileHover={{ scale: 1.1 }}
-          whileTap={{ scale: 0.95 }}
-          onClick={() => setIsComposeOpen(true)}
-          className="w-14 h-14 rounded-full bg-accent-500 text-white shadow-lg flex items-center justify-center hover:bg-accent-600 transition-colors duration-200"
-        >
-          <Plus size={24} />
-        </motion.button>
-      </motion.div>
     </motion.div>
   );
 }
