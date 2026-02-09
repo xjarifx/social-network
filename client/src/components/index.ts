@@ -1,4 +1,4 @@
-export { LeftSidebar } from "./LeftSidebar";
+export { TopNav } from "./TopNav";
 export { PostCard } from "./PostCard";
 export type { PostProps } from "./PostCard";
 export { Feed } from "./Feed";

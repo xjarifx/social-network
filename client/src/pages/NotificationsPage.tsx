@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { notificationsAPI } from "../services/api";
 import type { Notification } from "../services/api";
 import { Button } from "../components/ui/button";
+import { Bell, RefreshCw } from "lucide-react";
 
 export default function NotificationsPage() {
   const [notifications, setNotifications] = useState<Notification[]>([]);
@@ -49,69 +50,100 @@ export default function NotificationsPage() {
   };
 
   return (
-    <div className="py-4">
-      <div className="rounded-lg border border-[#dadce0] bg-white">
-        <div className="flex items-center justify-between px-5 py-4">
-          <h2 className="text-[16px] font-medium text-[#202124]">
-            Notifications
-          </h2>
-          <Button variant="ghost" onClick={loadNotifications} size="sm">
-            Refresh
-          </Button>
+    <div className="space-y-5">
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <h1 className="text-[20px] font-medium text-[#202124]">
+          Notifications
+        </h1>
+        <button
+          onClick={loadNotifications}
+          className="flex h-9 w-9 items-center justify-center rounded-xl text-[#5f6368] hover:bg-[#f1f3f4] transition cursor-pointer"
+          title="Refresh"
+        >
+          <RefreshCw className="h-[18px] w-[18px]" />
+        </button>
+      </div>
+
+      {error && (
+        <div className="rounded-xl border border-[#ea4335]/30 bg-[#fce8e6] px-4 py-3 text-[13px] text-[#c5221f]">
+          {error}
         </div>
+      )}
 
-        <div className="border-t border-[#e8eaed] px-5 py-4">
-          {error && (
-            <div className="mb-4 rounded-lg border border-[#ea4335]/30 bg-[#fce8e6] px-4 py-3 text-[13px] text-[#c5221f]">
-              {error}
+      {isLoading ? (
+        <div className="space-y-3">
+          {[...Array(3)].map((_, i) => (
+            <div key={i} className="rounded-2xl bg-white p-5">
+              <div className="space-y-2">
+                <div className="h-3 w-3/4 rounded-lg bg-[#f1f3f4] animate-pulse" />
+                <div className="h-2.5 w-1/3 rounded-lg bg-[#f1f3f4] animate-pulse" />
+              </div>
             </div>
-          )}
-
-          {isLoading ? (
-            <p className="text-[13px] text-[#5f6368]">
-              Loading notifications...
-            </p>
-          ) : notifications.length === 0 ? (
-            <p className="text-[13px] text-[#5f6368]">No notifications yet.</p>
-          ) : (
-            <div className="divide-y divide-[#e8eaed]">
-              {notifications.map((notification) => (
+          ))}
+        </div>
+      ) : notifications.length === 0 ? (
+        <div className="rounded-2xl bg-white px-6 py-16 text-center">
+          <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-[#e8f0fe]">
+            <Bell className="h-7 w-7 text-[#1a73e8]" />
+          </div>
+          <p className="text-[15px] font-medium text-[#202124]">
+            All caught up!
+          </p>
+          <p className="mt-1 text-[13px] text-[#5f6368]">
+            No notifications yet.
+          </p>
+        </div>
+      ) : (
+        <div className="space-y-3">
+          {notifications.map((notification) => (
+            <div
+              key={notification.id}
+              className={`rounded-2xl bg-white p-4 transition-shadow hover:shadow-[0_1px_3px_0_rgba(60,64,67,.3),0_4px_8px_3px_rgba(60,64,67,.15)] ${
+                !notification.read ? "border-l-4 border-l-[#1a73e8]" : ""
+              }`}
+            >
+              <div className="flex items-start gap-4">
                 <div
-                  key={notification.id}
-                  className={`flex items-start justify-between gap-4 py-3 ${
-                    !notification.read ? "bg-[#e8f0fe]/30 -mx-5 px-5" : ""
+                  className={`mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-xl ${
+                    !notification.read ? "bg-[#e8f0fe]" : "bg-[#f1f3f4]"
                   }`}
                 >
-                  <div className="min-w-0 flex-1">
-                    <p className="text-[14px] text-[#202124]">
-                      {notification.message}
-                    </p>
-                    <p className="mt-0.5 text-[12px] text-[#5f6368]">
-                      {new Date(notification.createdAt).toLocaleString()}
-                    </p>
-                  </div>
-                  <div className="flex shrink-0 items-center gap-1">
-                    {!notification.read && (
-                      <button
-                        onClick={() => handleMarkRead(notification.id)}
-                        className="rounded-full px-3 py-1.5 text-[12px] font-medium text-[#1a73e8] hover:bg-[#f1f3f4] cursor-pointer"
-                      >
-                        Mark read
-                      </button>
-                    )}
-                    <button
-                      onClick={() => handleDelete(notification.id)}
-                      className="rounded-full px-3 py-1.5 text-[12px] font-medium text-[#ea4335] hover:bg-red-50 cursor-pointer"
-                    >
-                      Delete
-                    </button>
-                  </div>
+                  <Bell
+                    className={`h-[18px] w-[18px] ${
+                      !notification.read ? "text-[#1a73e8]" : "text-[#5f6368]"
+                    }`}
+                  />
                 </div>
-              ))}
+                <div className="min-w-0 flex-1">
+                  <p className="text-[14px] text-[#202124]">
+                    {notification.message}
+                  </p>
+                  <p className="mt-1 text-[12px] text-[#80868b]">
+                    {new Date(notification.createdAt).toLocaleString()}
+                  </p>
+                </div>
+                <div className="flex shrink-0 items-center gap-1">
+                  {!notification.read && (
+                    <button
+                      onClick={() => handleMarkRead(notification.id)}
+                      className="rounded-xl px-3 py-1.5 text-[12px] font-medium text-[#1a73e8] hover:bg-[#e8f0fe] cursor-pointer transition"
+                    >
+                      Mark read
+                    </button>
+                  )}
+                  <button
+                    onClick={() => handleDelete(notification.id)}
+                    className="rounded-xl px-3 py-1.5 text-[12px] font-medium text-[#ea4335] hover:bg-red-50 cursor-pointer transition"
+                  >
+                    Delete
+                  </button>
+                </div>
+              </div>
             </div>
-          )}
+          ))}
         </div>
-      </div>
+      )}
     </div>
   );
 }

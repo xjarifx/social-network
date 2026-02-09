@@ -201,117 +201,149 @@ export default function ProfilePage() {
     : null;
 
   return (
-    <div className="py-4">
-      <div className="space-y-4">
-        {/* Profile card */}
-        <div className="rounded-lg border border-[#dadce0] bg-white p-5">
-          <h2 className="text-[16px] font-medium text-[#202124]">My profile</h2>
-          <div className="mt-4 space-y-4">
-            {error && (
-              <div className="rounded-lg border border-[#ea4335]/30 bg-[#fce8e6] px-4 py-3 text-[13px] text-[#c5221f]">
-                {error}
-              </div>
-            )}
+    <div className="space-y-6">
+      {/* Profile Hero Card */}
+      <div className="overflow-hidden rounded-2xl bg-white">
+        {/* Profile Info */}
+        <div className="px-6 py-5">
+          <div className="flex items-end gap-5">
+            <div className="flex h-20 w-20 shrink-0 items-center justify-center rounded-2xl border-4 border-white bg-[#1a73e8] text-[24px] font-medium text-white shadow-lg">
+              {user?.firstName?.[0]}
+              {user?.lastName?.[0]}
+            </div>
+            <div className="min-w-0 pb-1">
+              <h2 className="text-[20px] font-medium text-[#202124]">
+                {profile?.firstName} {profile?.lastName}
+              </h2>
+              <p className="text-[13px] text-[#5f6368]">@{profile?.username}</p>
+            </div>
+          </div>
 
-            {isLoading ? (
-              <p className="text-[13px] text-[#5f6368]">Loading profile...</p>
-            ) : (
-              <div className="space-y-4">
-                <div className="grid gap-4 sm:grid-cols-2">
-                  <div>
-                    <label className="mb-1 block text-[12px] font-medium text-[#5f6368]">
-                      Username
-                    </label>
-                    <Input value={profile?.username ?? ""} disabled />
-                  </div>
-                  <div>
-                    <label className="mb-1 block text-[12px] font-medium text-[#5f6368]">
-                      Email
-                    </label>
-                    <Input value={profile?.email ?? ""} disabled />
-                  </div>
-                </div>
-
-                <div className="grid gap-4 sm:grid-cols-2">
-                  <div>
-                    <label className="mb-1 block text-[12px] font-medium text-[#5f6368]">
-                      First name
-                    </label>
-                    <Input
-                      value={firstName}
-                      onChange={(e) => setFirstName(e.target.value)}
-                    />
-                  </div>
-                  <div>
-                    <label className="mb-1 block text-[12px] font-medium text-[#5f6368]">
-                      Last name
-                    </label>
-                    <Input
-                      value={lastName}
-                      onChange={(e) => setLastName(e.target.value)}
-                    />
-                  </div>
-                </div>
-
-                <Button onClick={handleSave} disabled={isSaving}>
-                  {isSaving ? "Saving..." : "Save changes"}
-                </Button>
-              </div>
-            )}
+          {/* Stats Row */}
+          <div className="mt-5 flex gap-2">
+            <button
+              onClick={() => navigate("/followers")}
+              className="flex-1 rounded-xl bg-[#f8f9fa] px-4 py-3 text-center transition hover:bg-[#f1f3f4] cursor-pointer"
+            >
+              <p className="text-[20px] font-medium text-[#202124]">
+                {followers.length}
+              </p>
+              <p className="text-[12px] text-[#5f6368]">Followers</p>
+            </button>
+            <button
+              onClick={() => navigate("/following")}
+              className="flex-1 rounded-xl bg-[#f8f9fa] px-4 py-3 text-center transition hover:bg-[#f1f3f4] cursor-pointer"
+            >
+              <p className="text-[20px] font-medium text-[#202124]">
+                {following.length}
+              </p>
+              <p className="text-[12px] text-[#5f6368]">Following</p>
+            </button>
+            <button
+              onClick={() => navigate("/blocks")}
+              className="flex-1 rounded-xl bg-[#f8f9fa] px-4 py-3 text-center transition hover:bg-[#f1f3f4] cursor-pointer"
+            >
+              <p className="text-[20px] font-medium text-[#202124]">
+                {blocked.length}
+              </p>
+              <p className="text-[12px] text-[#5f6368]">Blocked</p>
+            </button>
           </div>
         </div>
+      </div>
 
-        {/* Stats */}
-        <div className="grid gap-3 sm:grid-cols-3">
-          <button
-            onClick={() => navigate("/followers")}
-            className="rounded-lg border border-[#dadce0] bg-white p-4 text-left transition hover:shadow-[0_1px_3px_0_rgba(60,64,67,.3),0_4px_8px_3px_rgba(60,64,67,.15)] cursor-pointer"
-          >
-            <p className="text-[12px] font-medium text-[#5f6368]">Followers</p>
-            <p className="mt-1 text-[24px] font-normal text-[#202124]">
-              {followers.length}
-            </p>
-          </button>
+      {/* Edit Profile Card */}
+      <div className="rounded-2xl bg-white p-6">
+        <h3 className="text-[15px] font-medium text-[#202124]">Edit profile</h3>
 
-          <button
-            onClick={() => navigate("/following")}
-            className="rounded-lg border border-[#dadce0] bg-white p-4 text-left transition hover:shadow-[0_1px_3px_0_rgba(60,64,67,.3),0_4px_8px_3px_rgba(60,64,67,.15)] cursor-pointer"
-          >
-            <p className="text-[12px] font-medium text-[#5f6368]">Following</p>
-            <p className="mt-1 text-[24px] font-normal text-[#202124]">
-              {following.length}
-            </p>
-          </button>
-
-          <button
-            onClick={() => navigate("/blocks")}
-            className="rounded-lg border border-[#dadce0] bg-white p-4 text-left transition hover:shadow-[0_1px_3px_0_rgba(60,64,67,.3),0_4px_8px_3px_rgba(60,64,67,.15)] cursor-pointer"
-          >
-            <p className="text-[12px] font-medium text-[#5f6368]">Blocked</p>
-            <p className="mt-1 text-[24px] font-normal text-[#202124]">
-              {blocked.length}
-            </p>
-          </button>
-        </div>
-
-        {/* Posts */}
-        <div className="rounded-lg border border-[#dadce0] bg-white p-5">
-          <h2 className="mb-4 text-[16px] font-medium text-[#202124]">Posts</h2>
-          {postsError && (
-            <div className="mb-4 rounded-lg border border-[#ea4335]/30 bg-[#fce8e6] px-4 py-3 text-[13px] text-[#c5221f]">
-              {postsError}
+        <div className="mt-4 space-y-4">
+          {error && (
+            <div className="rounded-xl border border-[#ea4335]/30 bg-[#fce8e6] px-4 py-3 text-[13px] text-[#c5221f]">
+              {error}
             </div>
           )}
-          <Feed
-            posts={posts}
-            isLoading={postsLoading}
-            showPostMenu={true}
-            onLike={handleLike}
-            onReply={comments.toggleComments}
-            onEdit={handleEditPost}
-            onDelete={handleDeletePost}
-          />
+
+          {isLoading ? (
+            <p className="text-[13px] text-[#5f6368]">Loading profile...</p>
+          ) : (
+            <>
+              <div className="grid gap-4 sm:grid-cols-2">
+                <div>
+                  <label className="mb-1.5 block text-[12px] font-medium text-[#5f6368]">
+                    Username
+                  </label>
+                  <Input
+                    value={profile?.username ?? ""}
+                    disabled
+                    className="h-11 rounded-xl"
+                  />
+                </div>
+                <div>
+                  <label className="mb-1.5 block text-[12px] font-medium text-[#5f6368]">
+                    Email
+                  </label>
+                  <Input
+                    value={profile?.email ?? ""}
+                    disabled
+                    className="h-11 rounded-xl"
+                  />
+                </div>
+              </div>
+
+              <div className="grid gap-4 sm:grid-cols-2">
+                <div>
+                  <label className="mb-1.5 block text-[12px] font-medium text-[#5f6368]">
+                    First name
+                  </label>
+                  <Input
+                    value={firstName}
+                    onChange={(e) => setFirstName(e.target.value)}
+                    className="h-11 rounded-xl"
+                  />
+                </div>
+                <div>
+                  <label className="mb-1.5 block text-[12px] font-medium text-[#5f6368]">
+                    Last name
+                  </label>
+                  <Input
+                    value={lastName}
+                    onChange={(e) => setLastName(e.target.value)}
+                    className="h-11 rounded-xl"
+                  />
+                </div>
+              </div>
+
+              <Button
+                onClick={handleSave}
+                disabled={isSaving}
+                className="rounded-xl"
+              >
+                {isSaving ? "Saving..." : "Save changes"}
+              </Button>
+            </>
+          )}
         </div>
+      </div>
+
+      {/* Posts Section */}
+      <div>
+        <h3 className="mb-4 text-[15px] font-medium text-[#202124] px-1">
+          Your posts
+        </h3>
+        {postsError && (
+          <div className="mb-4 rounded-xl border border-[#ea4335]/30 bg-[#fce8e6] px-4 py-3 text-[13px] text-[#c5221f]">
+            {postsError}
+          </div>
+        )}
+        <Feed
+          posts={posts}
+          isLoading={postsLoading}
+          showPostMenu={true}
+          onLike={handleLike}
+          onReply={comments.toggleComments}
+          onEdit={handleEditPost}
+          onDelete={handleDeletePost}
+        />
       </div>
 
       {editingPostId && (

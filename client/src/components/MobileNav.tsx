@@ -1,10 +1,9 @@
 import { useLocation, useNavigate } from "react-router-dom";
-import { Home, Bell, Search, User, PenSquare } from "lucide-react";
+import { Home, Bell, User, PenSquare } from "lucide-react";
 import { cn } from "../lib/utils";
 
 const navItems = [
   { icon: Home, label: "Home", to: "/" },
-  { icon: Search, label: "Search", to: "/search" },
   { icon: PenSquare, label: "Post", to: "/compose" },
   { icon: Bell, label: "Alerts", to: "/notifications" },
   { icon: User, label: "Profile", to: "/profile" },
@@ -15,8 +14,8 @@ export function MobileNav() {
   const location = useLocation();
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 z-40 border-t border-[#e8eaed] bg-white px-2 py-1 lg:hidden">
-      <div className="flex items-center justify-around">
+    <div className="fixed bottom-4 left-4 right-4 z-40 lg:hidden">
+      <div className="mx-auto max-w-[400px] flex items-center justify-around rounded-2xl bg-white px-2 py-2 shadow-[0_2px_8px_0_rgba(60,64,67,.25),0_1px_3px_0_rgba(60,64,67,.15)]">
         {navItems.map((item) => {
           const isActive = location.pathname === item.to;
           return (
@@ -24,21 +23,14 @@ export function MobileNav() {
               key={item.to}
               onClick={() => navigate(item.to)}
               className={cn(
-                "flex flex-col items-center gap-0.5 rounded-full px-4 py-2 text-[11px] font-medium transition cursor-pointer",
+                "relative flex h-10 w-10 items-center justify-center rounded-xl transition cursor-pointer",
                 isActive
-                  ? "text-[#1a73e8]"
-                  : "text-[#5f6368] hover:text-[#202124]",
+                  ? "text-[#1a73e8] bg-[#e8f0fe]"
+                  : "text-[#5f6368] hover:text-[#202124] hover:bg-[#f1f3f4]",
               )}
+              title={item.label}
             >
-              <div
-                className={cn(
-                  "flex items-center justify-center rounded-full px-4 py-[4px] transition-colors",
-                  isActive ? "bg-[#e8f0fe]" : "",
-                )}
-              >
-                <item.icon className="h-5 w-5" />
-              </div>
-              <span>{item.label}</span>
+              <item.icon className="h-5 w-5" />
             </button>
           );
         })}

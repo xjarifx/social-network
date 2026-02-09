@@ -4,6 +4,8 @@ import { useAuth } from "../context/AuthContext";
 import { Eye, EyeOff } from "lucide-react";
 import { Input } from "../components/ui/input";
 import { Button } from "../components/ui/button";
+import Lottie from "lottie-react";
+import earthAnimation from "../../assets/Earth globe rotating with Seamless loop animation.json";
 
 export default function RegisterPage() {
   const navigate = useNavigate();
@@ -97,30 +99,57 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-white px-4 py-10">
-      <div className="w-full max-w-[440px]">
-        <div className="rounded-lg border border-[#dadce0] bg-white px-10 py-10">
-          <div className="mb-6 text-center">
-            <div className="mx-auto mb-4 flex h-11 w-11 items-center justify-center rounded-full bg-[#1a73e8]">
-              <span className="text-[16px] font-bold text-white">S</span>
+    <div className="flex min-h-screen bg-white">
+      {/* Left Panel — Brand */}
+      <div className="hidden lg:flex lg:w-[480px] xl:w-[560px] shrink-0 flex-col items-center justify-center bg-[#e8f0fe] px-12">
+        <div className="max-w-[340px] text-center">
+          <div className="mx-auto mb-6 h-20 w-20">
+            <Lottie
+              animationData={earthAnimation}
+              loop={true}
+              autoplay={true}
+            />
+          </div>
+          <h2 className="text-[28px] font-normal text-[#202124]">
+            Join Social Network
+          </h2>
+          <p className="mt-3 text-[15px] leading-relaxed text-[#5f6368]">
+            Create your account and start connecting with people around the
+            world.
+          </p>
+        </div>
+      </div>
+
+      {/* Right Panel — Form */}
+      <div className="flex flex-1 items-center justify-center px-6 py-12">
+        <div className="w-full max-w-[460px]">
+          {/* Mobile logo */}
+          <div className="mb-8 text-center lg:hidden">
+            <div className="mx-auto mb-4 h-14 w-14">
+              <Lottie
+                animationData={earthAnimation}
+                loop={true}
+                autoplay={true}
+              />
             </div>
-            <h1 className="text-[24px] font-normal text-[#202124]">
-              Create your account
-            </h1>
-            <p className="mt-1 text-[14px] text-[#5f6368]">
-              Join the Social Network
-            </p>
           </div>
 
+          <h1 className="text-[28px] font-normal text-[#202124]">
+            Create your account
+          </h1>
+          <p className="mt-2 text-[15px] text-[#5f6368]">
+            Join the Social Network
+          </p>
+
           {error && (
-            <div className="mb-4 rounded-lg border border-[#ea4335]/30 bg-[#fce8e6] px-4 py-3 text-[13px] text-[#c5221f]">
+            <div className="mt-6 rounded-xl border border-[#ea4335]/30 bg-[#fce8e6] px-4 py-3 text-[13px] text-[#c5221f]">
               {error}
             </div>
           )}
 
-          <form onSubmit={handleSubmit} className="space-y-4">
+          <form onSubmit={handleSubmit} className="mt-8 space-y-4">
             <div>
-              <label className="mb-1 block text-[12px] font-medium text-[#5f6368]">
+              <label className="mb-1.5 block text-[13px] font-medium text-[#5f6368]">
                 Username
               </label>
               <Input
@@ -129,7 +158,7 @@ export default function RegisterPage() {
                 value={formData.username}
                 onChange={handleChange}
                 placeholder="johndoe"
-                className={fieldErrors.username ? "border-[#ea4335]" : ""}
+                className={`h-12 rounded-xl ${fieldErrors.username ? "border-[#ea4335]" : ""}`}
               />
               {fieldErrors.username && (
                 <p className="mt-1 text-[12px] text-[#ea4335]">
@@ -139,7 +168,7 @@ export default function RegisterPage() {
             </div>
 
             <div>
-              <label className="mb-1 block text-[12px] font-medium text-[#5f6368]">
+              <label className="mb-1.5 block text-[13px] font-medium text-[#5f6368]">
                 Email address
               </label>
               <Input
@@ -148,7 +177,7 @@ export default function RegisterPage() {
                 value={formData.email}
                 onChange={handleChange}
                 placeholder="you@example.com"
-                className={fieldErrors.email ? "border-[#ea4335]" : ""}
+                className={`h-12 rounded-xl ${fieldErrors.email ? "border-[#ea4335]" : ""}`}
               />
               {fieldErrors.email && (
                 <p className="mt-1 text-[12px] text-[#ea4335]">
@@ -159,7 +188,7 @@ export default function RegisterPage() {
 
             <div className="grid gap-3 sm:grid-cols-2">
               <div>
-                <label className="mb-1 block text-[12px] font-medium text-[#5f6368]">
+                <label className="mb-1.5 block text-[13px] font-medium text-[#5f6368]">
                   First name
                 </label>
                 <Input
@@ -168,7 +197,7 @@ export default function RegisterPage() {
                   value={formData.firstName}
                   onChange={handleChange}
                   placeholder="John"
-                  className={fieldErrors.firstName ? "border-[#ea4335]" : ""}
+                  className={`h-12 rounded-xl ${fieldErrors.firstName ? "border-[#ea4335]" : ""}`}
                 />
                 {fieldErrors.firstName && (
                   <p className="mt-1 text-[12px] text-[#ea4335]">
@@ -177,7 +206,7 @@ export default function RegisterPage() {
                 )}
               </div>
               <div>
-                <label className="mb-1 block text-[12px] font-medium text-[#5f6368]">
+                <label className="mb-1.5 block text-[13px] font-medium text-[#5f6368]">
                   Last name
                 </label>
                 <Input
@@ -186,7 +215,7 @@ export default function RegisterPage() {
                   value={formData.lastName}
                   onChange={handleChange}
                   placeholder="Doe"
-                  className={fieldErrors.lastName ? "border-[#ea4335]" : ""}
+                  className={`h-12 rounded-xl ${fieldErrors.lastName ? "border-[#ea4335]" : ""}`}
                 />
                 {fieldErrors.lastName && (
                   <p className="mt-1 text-[12px] text-[#ea4335]">
@@ -197,7 +226,7 @@ export default function RegisterPage() {
             </div>
 
             <div>
-              <label className="mb-1 block text-[12px] font-medium text-[#5f6368]">
+              <label className="mb-1.5 block text-[13px] font-medium text-[#5f6368]">
                 Password
               </label>
               <div className="relative">
@@ -207,7 +236,7 @@ export default function RegisterPage() {
                   value={formData.password}
                   onChange={handleChange}
                   placeholder="Create a password"
-                  className={fieldErrors.password ? "border-[#ea4335]" : ""}
+                  className={`h-12 rounded-xl ${fieldErrors.password ? "border-[#ea4335]" : ""}`}
                 />
                 <button
                   type="button"
@@ -219,11 +248,11 @@ export default function RegisterPage() {
               </div>
 
               {formData.password && (
-                <div className="mt-2 flex gap-1">
+                <div className="mt-2.5 flex gap-1">
                   {[1, 2, 3, 4, 5].map((s) => (
                     <div
                       key={s}
-                      className={`h-1 flex-1 rounded-full transition-all ${
+                      className={`h-1.5 flex-1 rounded-full transition-all ${
                         s <= passwordStrength
                           ? strengthColor[s]
                           : "bg-[#e8eaed]"
@@ -244,24 +273,28 @@ export default function RegisterPage() {
               </p>
             </div>
 
-            <div className="flex items-center justify-between pt-2">
+            <div className="flex items-center justify-between pt-4">
               <Link
                 to="/login"
                 className="text-[14px] font-medium text-[#1a73e8] hover:underline"
               >
                 Sign in instead
               </Link>
-              <Button type="submit" disabled={isLoading}>
+              <Button
+                type="submit"
+                disabled={isLoading}
+                className="h-11 px-8 rounded-xl"
+              >
                 {isLoading ? "Creating..." : "Create account"}
               </Button>
             </div>
           </form>
-        </div>
 
-        <p className="mt-6 text-center text-[11px] text-[#80868b]">
-          By creating an account, you agree to our Terms of Service and Privacy
-          Policy
-        </p>
+          <p className="mt-10 text-[11px] text-[#80868b]">
+            By creating an account, you agree to our Terms of Service and
+            Privacy Policy
+          </p>
+        </div>
       </div>
     </div>
   );

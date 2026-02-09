@@ -151,15 +151,74 @@ function PostCardComponent({
     .join("");
 
   return (
-    <div className="rounded-lg border border-[#dadce0] bg-white transition-shadow hover:shadow-[0_1px_3px_0_rgba(60,64,67,.3),0_4px_8px_3px_rgba(60,64,67,.15)]">
-      <div className="p-4 sm:px-5 sm:py-4">
-        {/* Header */}
-        <div className="flex items-start justify-between gap-3">
-          <div className="flex min-w-0 items-center gap-3">
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#e8f0fe] text-[13px] font-medium text-[#1a73e8]">
-              {initials}
-            </div>
-            <div className="min-w-0">
+    <article className="group relative rounded-2xl bg-white transition-shadow hover:shadow-[0_1px_3px_0_rgba(60,64,67,.3),0_4px_8px_3px_rgba(60,64,67,.15)] overflow-hidden">
+      {/* Top colored accent bar */}
+      <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-[#1a73e8] to-[#8ab4f8] opacity-0 group-hover:opacity-100 transition-opacity duration-200" />
+
+      {/* Three-dot menu in top right */}
+      {showPostMenu && (
+        <div className="absolute top-3 right-3 z-10">
+          <DropdownMenu open={isMenuOpen} onOpenChange={setIsMenuOpen}>
+            <DropdownMenuTrigger asChild>
+              <button
+                className="rounded-xl p-1.5 text-[#80868b] opacity-0 group-hover:opacity-100 transition hover:bg-[#f1f3f4] cursor-pointer"
+                aria-label="Post actions"
+              >
+                <MoreHorizontal className="h-4 w-4" />
+              </button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              {user?.id === authorId ? (
+                <>
+                  <DropdownMenuItem onClick={handleEdit}>
+                    <Edit className="h-4 w-4" />
+                    Edit
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem
+                    onClick={handleDelete}
+                    className="text-[#ea4335]"
+                    disabled={isActionLoading}
+                  >
+                    <Trash2 className="h-4 w-4" />
+                    Delete
+                  </DropdownMenuItem>
+                </>
+              ) : canActOnUser ? (
+                <>
+                  <DropdownMenuItem onClick={handleFollow}>
+                    <UserPlus className="h-4 w-4" />
+                    {isFollowing ? "Unfollow" : "Follow"}
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem
+                    onClick={handleBlock}
+                    className="text-[#ea4335]"
+                    disabled={isActionLoading}
+                  >
+                    <Shield className="h-4 w-4" />
+                    Block
+                  </DropdownMenuItem>
+                </>
+              ) : (
+                <DropdownMenuItem disabled>No actions</DropdownMenuItem>
+              )}
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
+      )}
+
+      <div className="p-5 pt-6">
+        {/* Header Row */}
+        <div className="flex items-start gap-4">
+          {/* Large square avatar with rounded corners */}
+          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-[#e8f0fe] text-[15px] font-medium text-[#1a73e8]">
+            {initials}
+          </div>
+
+          <div className="min-w-0 flex-1">
+            {/* Author + Timestamp on same line */}
+            <div className="flex items-center gap-2 flex-wrap">
               {authorId && user?.id !== authorId ? (
                 <Link to={`/users/${authorId}`}>
                   <span className="text-[14px] font-medium text-[#202124] hover:underline">
@@ -171,107 +230,55 @@ function PostCardComponent({
                   {author.name}
                 </span>
               )}
-              <div className="flex flex-wrap items-center gap-1.5 text-[12px] text-[#5f6368]">
-                <span>@{author.handle}</span>
-                <span>&middot;</span>
-                <span>{timestamp}</span>
-              </div>
+              <span className="text-[12px] text-[#80868b]">
+                @{author.handle}
+              </span>
+              <span className="text-[12px] text-[#80868b]">&middot;</span>
+              <span className="text-[12px] text-[#80868b]">{timestamp}</span>
+            </div>
+
+            {/* Content — directly under name, indented with avatar */}
+            <div className="mt-2">
+              <p className="text-[14px] leading-[22px] text-[#3c4043] whitespace-pre-wrap">
+                {content}
+              </p>
+
+              {image && (
+                <div className="mt-3 overflow-hidden rounded-xl">
+                  <img
+                    src={image}
+                    alt="Post"
+                    className="h-auto w-full max-h-96 object-cover"
+                  />
+                </div>
+              )}
+            </div>
+
+            {/* Actions — chip style */}
+            <div className="mt-3 flex items-center gap-2">
+              <button
+                onClick={handleLike}
+                className={`inline-flex items-center gap-1.5 rounded-xl px-3 py-1.5 text-[13px] font-medium transition cursor-pointer ${
+                  isLiked
+                    ? "text-[#ea4335] bg-red-50"
+                    : "text-[#5f6368] hover:bg-[#f1f3f4]"
+                }`}
+              >
+                <Heart className={`h-4 w-4 ${isLiked ? "fill-current" : ""}`} />
+                <span>{likeCount}</span>
+              </button>
+              <button
+                onClick={() => onReply?.(id)}
+                className="inline-flex items-center gap-1.5 rounded-xl px-3 py-1.5 text-[13px] font-medium text-[#5f6368] transition hover:bg-[#f1f3f4] cursor-pointer"
+              >
+                <MessageCircle className="h-4 w-4" />
+                <span>{replies}</span>
+              </button>
             </div>
           </div>
-
-          {showPostMenu && (
-            <DropdownMenu open={isMenuOpen} onOpenChange={setIsMenuOpen}>
-              <DropdownMenuTrigger asChild>
-                <button
-                  className="rounded-full p-2 text-[#5f6368] transition hover:bg-[#f1f3f4] cursor-pointer"
-                  aria-label="Post actions"
-                >
-                  <MoreHorizontal className="h-5 w-5" />
-                </button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                {user?.id === authorId ? (
-                  <>
-                    <DropdownMenuItem onClick={handleEdit}>
-                      <Edit className="h-4 w-4" />
-                      Edit
-                    </DropdownMenuItem>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem
-                      onClick={handleDelete}
-                      className="text-[#ea4335]"
-                      disabled={isActionLoading}
-                    >
-                      <Trash2 className="h-4 w-4" />
-                      Delete
-                    </DropdownMenuItem>
-                  </>
-                ) : canActOnUser ? (
-                  <>
-                    <DropdownMenuItem onClick={handleFollow}>
-                      <UserPlus className="h-4 w-4" />
-                      {isFollowing ? "Unfollow" : "Follow"}
-                    </DropdownMenuItem>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem
-                      onClick={handleBlock}
-                      className="text-[#ea4335]"
-                      disabled={isActionLoading}
-                    >
-                      <Shield className="h-4 w-4" />
-                      Block
-                    </DropdownMenuItem>
-                  </>
-                ) : (
-                  <DropdownMenuItem disabled>No actions</DropdownMenuItem>
-                )}
-              </DropdownMenuContent>
-            </DropdownMenu>
-          )}
-        </div>
-
-        {/* Content */}
-        <div className="mt-3">
-          <p className="text-[14px] leading-[22px] text-[#3c4043] whitespace-pre-wrap">
-            {content}
-          </p>
-
-          {image && (
-            <div className="mt-3 overflow-hidden rounded-lg">
-              <img
-                src={image}
-                alt="Post"
-                className="h-auto w-full max-h-96 object-cover"
-              />
-            </div>
-          )}
-        </div>
-
-        {/* Actions */}
-        <div className="mt-3 flex items-center gap-1 -ml-2">
-          <button
-            onClick={handleLike}
-            className={`flex items-center gap-1.5 rounded-full px-3 py-[6px] text-[13px] font-medium transition cursor-pointer ${
-              isLiked
-                ? "text-[#ea4335] hover:bg-red-50"
-                : "text-[#5f6368] hover:bg-[#f1f3f4]"
-            }`}
-          >
-            <Heart
-              className={`h-[18px] w-[18px] ${isLiked ? "fill-current" : ""}`}
-            />
-            <span>{likeCount}</span>
-          </button>
-          <button
-            onClick={() => onReply?.(id)}
-            className="flex items-center gap-1.5 rounded-full px-3 py-[6px] text-[13px] font-medium text-[#5f6368] transition hover:bg-[#f1f3f4] cursor-pointer"
-          >
-            <MessageCircle className="h-[18px] w-[18px]" />
-            <span>{replies}</span>
-          </button>
         </div>
       </div>
-    </div>
+    </article>
   );
 }
 

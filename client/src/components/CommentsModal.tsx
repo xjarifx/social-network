@@ -69,7 +69,7 @@ export function CommentsModal({
             onFollowToggle={onFollowToggle}
           />
 
-          <div className="rounded-lg border border-[#dadce0] bg-white p-4">
+          <div className="rounded-2xl bg-[#f8f9fa] p-5">
             <p className="text-[12px] font-medium uppercase tracking-wide text-[#5f6368]">
               Comments
             </p>
@@ -101,7 +101,7 @@ export function CommentsModal({
                   return (
                     <div
                       key={comment.id}
-                      className="rounded-lg bg-[#f8f9fa] px-3 py-2.5"
+                      className="rounded-xl bg-white px-4 py-3 shadow-sm"
                     >
                       <div className="flex items-start justify-between gap-3">
                         <p className="text-[12px] font-medium text-[#5f6368]">

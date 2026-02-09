@@ -196,72 +196,80 @@ export default function UserProfilePage() {
   );
 
   return (
-    <div className="py-4">
-      <div className="rounded-lg border border-[#dadce0] bg-white p-5">
-        <h2 className="text-[16px] font-medium text-[#202124]">User profile</h2>
-        <div className="mt-4 space-y-4">
+    <div className="space-y-6">
+      {/* Profile Hero */}
+      <div className="overflow-hidden rounded-2xl bg-white">
+        <div className="px-6 py-5">
           {error && (
-            <div className="rounded-lg border border-[#ea4335]/30 bg-[#fce8e6] px-4 py-3 text-[13px] text-[#c5221f]">
+            <div className="mb-4 rounded-xl border border-[#ea4335]/30 bg-[#fce8e6] px-4 py-3 text-[13px] text-[#c5221f]">
               {error}
             </div>
           )}
 
           {isLoading ? (
-            <p className="text-[13px] text-[#5f6368]">Loading user...</p>
+            <div className="py-6">
+              <p className="text-[13px] text-[#5f6368]">Loading user...</p>
+            </div>
           ) : (
-            <div className="space-y-4">
-              <div className="flex items-center gap-3">
-                <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[#e8f0fe] text-[14px] font-medium text-[#1a73e8]">
+            <>
+              <div className="flex items-end gap-5">
+                <div className="flex h-20 w-20 shrink-0 items-center justify-center rounded-2xl border-4 border-white bg-[#e8f0fe] text-[20px] font-medium text-[#1a73e8] shadow-lg">
                   {profile?.firstName?.[0] || ""}
                   {profile?.lastName?.[0] || ""}
                 </div>
-                <div>
-                  <p className="text-[15px] font-medium text-[#202124]">
-                    {profile?.firstName} {profile?.lastName}
-                  </p>
-                  <p className="text-[13px] text-[#5f6368]">
-                    @{profile?.username}
-                  </p>
+                <div className="flex flex-1 items-center justify-between gap-4 pb-1">
+                  <div>
+                    <p className="text-[20px] font-medium text-[#202124]">
+                      {profile?.firstName} {profile?.lastName}
+                    </p>
+                    <p className="text-[13px] text-[#5f6368]">
+                      @{profile?.username}
+                    </p>
+                  </div>
+                  {canFollow && (
+                    <div className="flex items-center gap-2">
+                      <Button
+                        variant={isFollowing ? "secondary" : "default"}
+                        onClick={handleFollowToggle}
+                        className="rounded-xl"
+                      >
+                        {isFollowing ? "Following" : "Follow"}
+                      </Button>
+                      <Button
+                        variant="outline"
+                        onClick={handleBlock}
+                        disabled={isBlocking}
+                        className="rounded-xl text-[#ea4335] hover:text-[#ea4335]"
+                      >
+                        {isBlocking ? "..." : "Block"}
+                      </Button>
+                    </div>
+                  )}
                 </div>
               </div>
-
-              {canFollow && (
-                <div className="flex flex-wrap gap-2">
-                  <Button
-                    variant={isFollowing ? "secondary" : "default"}
-                    onClick={handleFollowToggle}
-                  >
-                    {isFollowing ? "Unfollow" : "Follow"}
-                  </Button>
-                  <Button
-                    variant="outline"
-                    onClick={handleBlock}
-                    disabled={isBlocking}
-                    className="text-[#ea4335] hover:text-[#ea4335]"
-                  >
-                    {isBlocking ? "Blocking..." : "Block"}
-                  </Button>
-                </div>
-              )}
-            </div>
+            </>
           )}
-
-          <div className="mt-4">
-            {postsError && (
-              <div className="mb-4 rounded-lg border border-[#ea4335]/30 bg-[#fce8e6] px-4 py-3 text-[13px] text-[#c5221f]">
-                {postsError}
-              </div>
-            )}
-            <Feed
-              posts={postsWithFollowState}
-              isLoading={postsLoading}
-              showPostMenu={false}
-              onLike={handleLike}
-              onReply={comments.toggleComments}
-              onFollowToggle={handleFollowTogglePost}
-            />
-          </div>
         </div>
+      </div>
+
+      {/* Posts */}
+      <div>
+        <h3 className="mb-4 text-[15px] font-medium text-[#202124] px-1">
+          Posts
+        </h3>
+        {postsError && (
+          <div className="mb-4 rounded-xl border border-[#ea4335]/30 bg-[#fce8e6] px-4 py-3 text-[13px] text-[#c5221f]">
+            {postsError}
+          </div>
+        )}
+        <Feed
+          posts={postsWithFollowState}
+          isLoading={postsLoading}
+          showPostMenu={false}
+          onLike={handleLike}
+          onReply={comments.toggleComments}
+          onFollowToggle={handleFollowTogglePost}
+        />
       </div>
 
       {comments.openCommentsPostId && selectedPost && (

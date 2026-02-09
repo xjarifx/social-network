@@ -22,7 +22,7 @@
   --border: 0 0% 85.5%;
   --input: 0 0% 85.5%;
   --ring: 214 82% 51%;
-  --radius: 8px;
+  --radius: 16px;
 }
 
 * {
@@ -60,13 +60,13 @@ h6 {
 @layer utilities {
   .gm-card {
     background: #fff;
-    border-radius: 8px;
-    border: 1px solid #dadce0;
+    border-radius: 16px;
+    border: none;
   }
 
   .gm-card-elevated {
     background: #fff;
-    border-radius: 8px;
+    border-radius: 16px;
     box-shadow:
       0 1px 2px 0 rgba(60, 64, 67, 0.3),
       0 1px 3px 1px rgba(60, 64, 67, 0.15);

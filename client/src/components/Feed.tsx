@@ -1,4 +1,5 @@
 import { memo } from "react";
+import { MessageCircle } from "lucide-react";
 import { PostCard } from "./PostCard";
 import type { PostProps } from "./PostCard";
 
@@ -30,23 +31,25 @@ function FeedComponent({
 }: FeedProps) {
   if (isLoading) {
     return (
-      <div className="space-y-3">
+      <div className="space-y-4">
         {[...Array(3)].map((_, i) => (
-          <div
-            key={i}
-            className="rounded-lg border border-[#dadce0] bg-white p-4"
-          >
-            <div className="flex items-center gap-3">
-              <div className="h-10 w-10 rounded-full bg-[#f1f3f4] animate-pulse" />
-              <div className="space-y-2 flex-1">
-                <div className="h-3 w-28 rounded bg-[#f1f3f4] animate-pulse" />
-                <div className="h-2.5 w-20 rounded bg-[#f1f3f4] animate-pulse" />
+          <div key={i} className="rounded-2xl bg-white p-5">
+            <div className="flex items-start gap-4">
+              <div className="h-12 w-12 rounded-2xl bg-[#f1f3f4] animate-pulse" />
+              <div className="flex-1 space-y-3">
+                <div className="flex gap-2">
+                  <div className="h-3 w-24 rounded-lg bg-[#f1f3f4] animate-pulse" />
+                  <div className="h-3 w-16 rounded-lg bg-[#f1f3f4] animate-pulse" />
+                </div>
+                <div className="space-y-2">
+                  <div className="h-3 w-full rounded-lg bg-[#f1f3f4] animate-pulse" />
+                  <div className="h-3 w-4/5 rounded-lg bg-[#f1f3f4] animate-pulse" />
+                </div>
+                <div className="flex gap-2">
+                  <div className="h-7 w-16 rounded-xl bg-[#f1f3f4] animate-pulse" />
+                  <div className="h-7 w-16 rounded-xl bg-[#f1f3f4] animate-pulse" />
+                </div>
               </div>
-            </div>
-            <div className="mt-4 space-y-2">
-              <div className="h-3 w-full rounded bg-[#f1f3f4] animate-pulse" />
-              <div className="h-3 w-4/5 rounded bg-[#f1f3f4] animate-pulse" />
-              <div className="h-3 w-3/5 rounded bg-[#f1f3f4] animate-pulse" />
             </div>
           </div>
         ))}
@@ -55,7 +58,7 @@ function FeedComponent({
   }
 
   return (
-    <div className="space-y-3">
+    <div className="space-y-4">
       {posts.map((post) => (
         <div key={post.id}>
           <PostCard
@@ -72,8 +75,11 @@ function FeedComponent({
       ))}
 
       {posts.length === 0 && (
-        <div className="rounded-lg border border-[#dadce0] bg-white px-6 py-12 text-center">
-          <p className="text-[14px] font-medium text-[#202124]">No posts yet</p>
+        <div className="rounded-2xl bg-white px-6 py-16 text-center">
+          <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-[#e8f0fe]">
+            <MessageCircle className="h-7 w-7 text-[#1a73e8]" />
+          </div>
+          <p className="text-[15px] font-medium text-[#202124]">No posts yet</p>
           <p className="mt-1 text-[13px] text-[#5f6368]">
             Your feed is empty. Follow people to see their posts here.
           </p>

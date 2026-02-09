@@ -52,7 +52,7 @@ export function EditPostModal({
           />
 
           {error && (
-            <div className="rounded-lg border border-[#ea4335]/30 bg-[#fce8e6] px-4 py-3 text-[13px] text-[#c5221f]">
+            <div className="rounded-xl bg-[#fce8e6] px-4 py-3 text-[13px] text-[#c5221f]">
               {error}
             </div>
           )}

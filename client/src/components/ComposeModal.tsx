@@ -42,7 +42,7 @@ export function ComposeModal({
 
         <div className="space-y-4 px-6 pb-6">
           <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#e8f0fe] text-[13px] font-medium text-[#1a73e8]">
+            <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-[#1a73e8] text-[13px] font-medium text-white">
               {initials}
             </div>
             <div>
@@ -57,7 +57,7 @@ export function ComposeModal({
             value={content}
             onChange={(e) => setContent(e.target.value)}
             placeholder="What's on your mind?"
-            className="min-h-[140px] border-none bg-transparent text-[14px] shadow-none focus-visible:ring-0 resize-none"
+            className="min-h-[140px] border-none bg-[#f8f9fa] rounded-xl text-[14px] shadow-none focus-visible:ring-0 resize-none"
             autoFocus
           />
 

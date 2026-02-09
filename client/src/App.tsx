@@ -2,7 +2,9 @@ import { lazy, Suspense } from "react";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { Toaster } from "sonner";
 import { AuthProvider, useAuth } from "./context/AuthContext";
-import { LeftSidebar, MobileNav } from "./components";
+import { TopNav } from "./components/TopNav";
+import { MobileNav } from "./components";
+import { Sidebar } from "./components/Sidebar";
 import { ProtectedRoute } from "./components/ProtectedRoute";
 
 // Route-level code splitting
@@ -30,12 +32,13 @@ function PageFallback() {
 function AppLayout({ children }: { children: React.ReactNode }) {
   return (
     <div className="min-h-screen bg-[#f8f9fa] text-[#202124]">
-      <LeftSidebar />
-      {/* Main content area offset for sidebar on desktop */}
-      <div className="pb-20 pt-0 lg:ml-[280px] lg:pb-0">
-        <main className="mx-auto w-full max-w-[720px] px-4 py-6 lg:py-8">
-          {children}
-        </main>
+      <TopNav />
+      {/* Centered single column layout */}
+      <div className="pb-20 pt-[80px] lg:pt-16 lg:pb-0">
+        <div className="mx-auto w-full max-w-[680px] px-4 py-6 lg:py-8">
+          {/* Main content */}
+          <main className="w-full">{children}</main>
+        </div>
       </div>
       <MobileNav />
     </div>
