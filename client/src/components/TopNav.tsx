@@ -13,22 +13,30 @@ import { useEffect, useRef, useState, useCallback } from "react";
 import { useAuth } from "../context/AuthContext";
 import { usersAPI, type User as UserType } from "../services/api";
 import { cn } from "../lib/utils";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "./ui/dialog";
+import { Button } from "./ui/button";
 import Lottie from "lottie-react";
 import earthAnimation from "../../assets/Earth globe rotating with Seamless loop animation.json";
 
 export function TopNav() {
-  const { logout, user } = useAuth();
+  const { logout } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const [searchQuery, setSearchQuery] = useState("");
   const [suggestions, setSuggestions] = useState<UserType[]>([]);
   const [isLoadingSuggestions, setIsLoadingSuggestions] = useState(false);
   const [showSuggestions, setShowSuggestions] = useState(false);
-  const [showUserMenu, setShowUserMenu] = useState(false);
   const [showMobileSearchModal, setShowMobileSearchModal] = useState(false);
+  const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
   const debounceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const searchRef = useRef<HTMLDivElement | null>(null);
-  const userMenuRef = useRef<HTMLDivElement | null>(null);
 
   const navItems = [
     { icon: Home, label: "Home", to: "/" },
@@ -94,12 +102,6 @@ export function TopNav() {
       ) {
         setShowSuggestions(false);
       }
-      if (
-        userMenuRef.current &&
-        !userMenuRef.current.contains(event.target as Node)
-      ) {
-        setShowUserMenu(false);
-      }
     };
     document.addEventListener("mousedown", handleOutsideClick);
     document.addEventListener("touchstart", handleOutsideClick);
@@ -116,9 +118,16 @@ export function TopNav() {
     setShowSuggestions(false);
   };
 
-  const initials = user
-    ? `${user.firstName?.[0] || ""}${user.lastName?.[0] || ""}`
-    : "?";
+  const handleConfirmLogout = async () => {
+    try {
+      await logout();
+      navigate("/login", { replace: true });
+    } catch (err) {
+      console.error("Failed to logout:", err);
+    } finally {
+      setShowLogoutConfirm(false);
+    }
+  };
 
   return (
     <>
@@ -233,57 +242,28 @@ export function TopNav() {
               {/* Divider */}
               <div className="mx-2 h-6 w-px bg-[#e8eaed]" />
 
-              {/* User Avatar + Menu */}
-              <div className="relative" ref={userMenuRef}>
-                <button
-                  onClick={() => setShowUserMenu(!showUserMenu)}
-                  className="flex h-9 w-9 items-center justify-center rounded-full bg-[#1a73e8] text-[13px] font-medium text-white cursor-pointer hover:shadow-[0_1px_3px_0_rgba(60,64,67,.3)] transition-shadow"
-                  title="Account"
-                >
-                  {initials}
-                </button>
-
-                {showUserMenu && (
-                  <div className="absolute right-0 top-12 z-50 w-[300px] rounded-2xl bg-white py-3 shadow-[0_4px_12px_0_rgba(60,64,67,.15),0_1px_4px_0_rgba(60,64,67,.3)]">
-                    {/* User Info */}
-                    <div className="px-5 pb-3 text-center border-b border-[#e8eaed]">
-                      <div className="mx-auto mb-2 flex h-16 w-16 items-center justify-center rounded-full bg-[#1a73e8] text-[22px] font-medium text-white">
-                        {initials}
-                      </div>
-                      <p className="text-[15px] font-medium text-[#202124]">
-                        {user?.firstName} {user?.lastName}
-                      </p>
-                      <p className="text-[13px] text-[#5f6368]">
-                        @{user?.username}
-                      </p>
-                    </div>
-
-                    {/* Menu Items */}
-                    <div className="py-1">
-                      <button
-                        onClick={() => {
-                          navigate("/profile");
-                          setShowUserMenu(false);
-                        }}
-                        className="flex w-full items-center gap-3 px-5 py-2.5 text-left text-[14px] text-[#3c4043] hover:bg-[#f1f3f4] cursor-pointer transition"
-                      >
-                        <User className="h-[18px] w-[18px] text-[#5f6368]" />
-                        <span>My Profile</span>
-                      </button>
-                      <button
-                        onClick={() => {
-                          logout();
-                          setShowUserMenu(false);
-                        }}
-                        className="flex w-full items-center gap-3 px-5 py-2.5 text-left text-[14px] text-[#3c4043] hover:bg-[#f1f3f4] cursor-pointer transition"
-                      >
-                        <LogOut className="h-[18px] w-[18px] text-[#5f6368]" />
-                        <span>Sign out</span>
-                      </button>
-                    </div>
-                  </div>
+              {/* Profile Button */}
+              <button
+                onClick={() => navigate("/profile")}
+                className={cn(
+                  "relative flex h-10 w-10 items-center justify-center rounded-full transition-colors cursor-pointer",
+                  location.pathname === "/profile"
+                    ? "text-[#1a73e8] bg-[#e8f0fe]"
+                    : "text-[#5f6368] hover:bg-[#f1f3f4]",
                 )}
-              </div>
+                title="My Profile"
+              >
+                <User className="h-[20px] w-[20px]" />
+              </button>
+
+              {/* Sign Out Button */}
+              <button
+                onClick={() => setShowLogoutConfirm(true)}
+                className="flex h-10 w-10 items-center justify-center rounded-full text-[#5f6368] hover:bg-[#f1f3f4] transition-colors cursor-pointer"
+                title="Sign Out"
+              >
+                <LogOut className="h-[20px] w-[20px]" />
+              </button>
             </div>
           </div>
         </div>
@@ -319,57 +299,14 @@ export function TopNav() {
               <Search className="h-5 w-5" />
             </button>
 
-            {/* User Avatar */}
-            <div className="relative" ref={userMenuRef}>
-              <button
-                onClick={() => setShowUserMenu(!showUserMenu)}
-                className="flex h-8 w-8 items-center justify-center rounded-full bg-[#1a73e8] text-[12px] font-medium text-white cursor-pointer"
-                title="Account"
-              >
-                {initials}
-              </button>
-
-              {showUserMenu && (
-                <div className="absolute right-0 top-10 z-50 w-[280px] rounded-2xl bg-white py-3 shadow-[0_4px_12px_0_rgba(60,64,67,.15),0_1px_4px_0_rgba(60,64,67,.3)]">
-                  {/* User Info */}
-                  <div className="px-5 pb-3 text-center border-b border-[#e8eaed]">
-                    <div className="mx-auto mb-2 flex h-14 w-14 items-center justify-center rounded-full bg-[#1a73e8] text-[20px] font-medium text-white">
-                      {initials}
-                    </div>
-                    <p className="text-[14px] font-medium text-[#202124]">
-                      {user?.firstName} {user?.lastName}
-                    </p>
-                    <p className="text-[12px] text-[#5f6368]">
-                      @{user?.username}
-                    </p>
-                  </div>
-
-                  {/* Menu Items */}
-                  <div className="py-1">
-                    <button
-                      onClick={() => {
-                        navigate("/profile");
-                        setShowUserMenu(false);
-                      }}
-                      className="flex w-full items-center gap-3 px-5 py-2.5 text-left text-[14px] text-[#3c4043] hover:bg-[#f1f3f4] cursor-pointer transition"
-                    >
-                      <User className="h-[18px] w-[18px] text-[#5f6368]" />
-                      <span>My Profile</span>
-                    </button>
-                    <button
-                      onClick={() => {
-                        logout();
-                        setShowUserMenu(false);
-                      }}
-                      className="flex w-full items-center gap-3 px-5 py-2.5 text-left text-[14px] text-[#3c4043] hover:bg-[#f1f3f4] cursor-pointer transition"
-                    >
-                      <LogOut className="h-[18px] w-[18px] text-[#5f6368]" />
-                      <span>Sign out</span>
-                    </button>
-                  </div>
-                </div>
-              )}
-            </div>
+            {/* Sign Out Button */}
+            <button
+              onClick={() => setShowLogoutConfirm(true)}
+              className="flex h-8 w-8 items-center justify-center rounded-full text-[#5f6368] hover:bg-[#f1f3f4] transition-colors cursor-pointer"
+              title="Sign Out"
+            >
+              <LogOut className="h-[18px] w-[18px]" />
+            </button>
           </div>
 
           {/* Mobile Search Modal - Full screen overlay */}
@@ -461,6 +398,28 @@ export function TopNav() {
           )}
         </div>
       </header>
+
+      <Dialog open={showLogoutConfirm} onOpenChange={setShowLogoutConfirm}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Sign out?</DialogTitle>
+            <DialogDescription>
+              You will need to log in again to access your account.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setShowLogoutConfirm(false)}
+            >
+              Cancel
+            </Button>
+            <Button variant="destructive" onClick={handleConfirmLogout}>
+              Sign out
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </>
   );
 }

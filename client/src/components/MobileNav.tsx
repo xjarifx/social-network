@@ -1,11 +1,12 @@
 import { useLocation, useNavigate } from "react-router-dom";
-import { Home, Bell, User, PenSquare } from "lucide-react";
+import { Home, Bell, User, PenSquare, CreditCard } from "lucide-react";
 import { cn } from "../lib/utils";
 
 const navItems = [
   { icon: Home, label: "Home", to: "/" },
   { icon: PenSquare, label: "Post", to: "/compose" },
   { icon: Bell, label: "Alerts", to: "/notifications" },
+  { icon: CreditCard, label: "Billing", to: "/billing" },
   { icon: User, label: "Profile", to: "/profile" },
 ];
 

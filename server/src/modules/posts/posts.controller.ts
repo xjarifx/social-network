@@ -32,7 +32,18 @@ export const createNewPost = async (
   } catch (error: unknown) {
     const err = error as { status?: number; error?: unknown };
     if (err.status === 400) {
-      res.status(400).json({ error: err.error });
+      // Convert error to string if it's an object
+      const errorMessage =
+        typeof err.error === "string"
+          ? err.error
+          : err.error && typeof err.error === "object"
+            ? JSON.stringify(err.error)
+            : String(err.error);
+      res.status(400).json({ error: errorMessage });
+      return;
+    }
+    if (err.status === 404) {
+      res.status(404).json({ error: err.error });
       return;
     }
     console.error("Create post error:", error);

@@ -13,6 +13,26 @@ export const ensureString = (val: unknown): string =>
 const getPlanPostLimit = (plan: string | null | undefined): number =>
   plan === "PRO" ? 100 : 20;
 
+const getValidationErrorMessage = (error: {
+  fieldErrors?: Record<string, string[]>;
+  formErrors?: string[];
+}): string => {
+  if (error.fieldErrors) {
+    const firstField = Object.entries(error.fieldErrors)[0];
+    if (firstField && Array.isArray(firstField[1]) && firstField[1][0]) {
+      return firstField[1][0];
+    }
+  }
+  if (
+    error.formErrors &&
+    Array.isArray(error.formErrors) &&
+    error.formErrors[0]
+  ) {
+    return error.formErrors[0];
+  }
+  return "Validation failed";
+};
+
 export const getFeed = async (
   userId: string,
   query: Record<string, unknown>,
@@ -97,7 +117,10 @@ export const createPost = async (
   const validationResult = createPostSchema.safeParse({ body });
 
   if (!validationResult.success) {
-    throw { status: 400, error: validationResult.error.flatten() };
+    throw {
+      status: 400,
+      error: getValidationErrorMessage(validationResult.error.flatten()),
+    };
   }
 
   const { content } = validationResult.data.body;
@@ -138,7 +161,10 @@ export const createPost = async (
 export const getPostById = async (params: Record<string, unknown>) => {
   const paramValidation = postIdParamSchema.safeParse({ params });
   if (!paramValidation.success) {
-    throw { status: 400, error: paramValidation.error.flatten() };
+    throw {
+      status: 400,
+      error: getValidationErrorMessage(paramValidation.error.flatten()),
+    };
   }
 
   const { postId } = paramValidation.data.params;
@@ -205,13 +231,18 @@ export const updatePost = async (
 ) => {
   const paramValidation = postIdParamSchema.safeParse({ params });
   if (!paramValidation.success) {
-    throw { status: 400, error: paramValidation.error.flatten() };
+    throw {
+      status: 400,
+      error: getValidationErrorMessage(paramValidation.error.flatten()),
+    };
   }
 
   const validationResult = updatePostSchema.safeParse({ body });
-
   if (!validationResult.success) {
-    throw { status: 400, error: validationResult.error.flatten() };
+    throw {
+      status: 400,
+      error: getValidationErrorMessage(validationResult.error.flatten()),
+    };
   }
 
   const { postId } = paramValidation.data.params;
@@ -271,7 +302,10 @@ export const deletePost = async (
 ) => {
   const paramValidation = postIdParamSchema.safeParse({ params });
   if (!paramValidation.success) {
-    throw { status: 400, error: paramValidation.error.flatten() };
+    throw {
+      status: 400,
+      error: getValidationErrorMessage(paramValidation.error.flatten()),
+    };
   }
 
   const { postId } = paramValidation.data.params;

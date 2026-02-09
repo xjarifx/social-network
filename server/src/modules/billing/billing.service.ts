@@ -7,9 +7,31 @@ const STRIPE_SECRET_KEY = process.env.STRIPE_SECRET_KEY || "";
 const STRIPE_WEBHOOK_SECRET = process.env.STRIPE_WEBHOOK_SECRET || "";
 const FRONTEND_URL = process.env.FRONTEND_URL || "";
 
-const stripe = new Stripe(STRIPE_SECRET_KEY, {
-  apiVersion: "2026-01-28.clover",
-});
+let stripe: Stripe | null = null;
+
+if (STRIPE_SECRET_KEY) {
+  try {
+    stripe = new Stripe(STRIPE_SECRET_KEY, {
+      typescript: true,
+    });
+    console.log("✅ Stripe initialized successfully");
+  } catch (error) {
+    console.error("❌ Failed to initialize Stripe:", error);
+  }
+} else {
+  console.warn("⚠️ STRIPE_SECRET_KEY is not configured");
+}
+
+const getStripe = (): Stripe => {
+  if (!stripe) {
+    throw {
+      status: 500,
+      error:
+        "Stripe is not configured. Please set STRIPE_SECRET_KEY in environment variables.",
+    };
+  }
+  return stripe;
+};
 
 const PRO_CURRENCY = process.env.STRIPE_PRO_CURRENCY || "usd";
 const PRO_PRICE_CENTS = Number(process.env.STRIPE_PRO_PRICE_CENTS || 999);
@@ -23,8 +45,6 @@ const CANCEL_URL =
   (FRONTEND_URL ? `${FRONTEND_URL}/billing/cancel` : "");
 const TEST_TRIAL_SECONDS = Number(process.env.STRIPE_TEST_TRIAL_SECONDS || 0);
 
-let cachedPriceId = process.env.STRIPE_PRO_PRICE_ID || "";
-
 const ensureString = (val: unknown): string =>
   typeof val === "string" ? val : Array.isArray(val) ? val[0] : "";
 
@@ -36,23 +56,18 @@ const requireEnv = (value: string, name: string) => {
 };
 
 const getOrCreateProPrice = async (): Promise<string> => {
-  if (cachedPriceId) {
-    return cachedPriceId;
-  }
-
-  const product = await stripe.products.create({
+  const product = await getStripe().products.create({
     name: "Pro Plan",
     description: "Monthly Pro subscription",
   });
 
-  const price = await stripe.prices.create({
+  const price = await getStripe().prices.create({
     product: product.id,
     unit_amount: PRO_PRICE_CENTS,
     currency: PRO_CURRENCY,
     recurring: { interval: "month" },
   });
 
-  cachedPriceId = price.id;
   return price.id;
 };
 
@@ -73,6 +88,9 @@ const syncSubscriptionToUser = async (subscription: Stripe.Subscription) => {
       : null;
 
   if (!user) {
+    console.warn(
+      `Could not find user for subscription ${subscription.id}. Metadata userId: ${metadataUserId}, Customer: ${customerId}`,
+    );
     return;
   }
 
@@ -89,6 +107,10 @@ const syncSubscriptionToUser = async (subscription: Stripe.Subscription) => {
       stripeSubscriptionId: subscription.id,
     },
   });
+
+  console.log(
+    `✅ Synced subscription ${subscription.id} for user ${user.id}: plan=${isPro ? "PRO" : "FREE"}`,
+  );
 };
 
 export const createCheckoutSession = async (userId: unknown) => {
@@ -106,46 +128,55 @@ export const createCheckoutSession = async (userId: unknown) => {
     throw { status: 404, error: "User not found" };
   }
 
-  let customerId = user.stripeCustomerId || "";
+  try {
+    let customerId = user.stripeCustomerId || "";
 
-  if (!customerId) {
-    const customer = await stripe.customers.create({
-      email: user.email,
-      name: `${user.firstName} ${user.lastName}`.trim(),
+    if (!customerId) {
+      const customer = await getStripe().customers.create({
+        email: user.email,
+        name: `${user.firstName} ${user.lastName}`.trim(),
+        metadata: { userId: user.id },
+      });
+
+      customerId = customer.id;
+
+      await prisma.user.update({
+        where: { id: user.id },
+        data: { stripeCustomerId: customerId },
+      });
+    }
+
+    const priceId = await getOrCreateProPrice();
+    const subscriptionData: Stripe.Checkout.SessionCreateParams.SubscriptionData =
+      {
+        metadata: { userId: user.id },
+      };
+
+    if (TEST_TRIAL_SECONDS > 0) {
+      subscriptionData.trial_end =
+        Math.floor(Date.now() / 1000) + TEST_TRIAL_SECONDS;
+    }
+
+    const session = await getStripe().checkout.sessions.create({
+      mode: "subscription",
+      customer: customerId,
+      line_items: [{ price: priceId, quantity: 1 }],
+      success_url: SUCCESS_URL,
+      cancel_url: CANCEL_URL,
+      client_reference_id: user.id,
       metadata: { userId: user.id },
+      subscription_data: subscriptionData,
     });
 
-    customerId = customer.id;
-
-    await prisma.user.update({
-      where: { id: user.id },
-      data: { stripeCustomerId: customerId },
-    });
+    return { url: session.url };
+  } catch (error) {
+    const message =
+      error && typeof error === "object" && "message" in error
+        ? String((error as { message?: unknown }).message)
+        : "Stripe request failed";
+    console.error("Stripe checkout session error:", error);
+    throw { status: 500, error: message };
   }
-
-  const priceId = await getOrCreateProPrice();
-  const subscriptionData: Stripe.Checkout.SessionCreateParams.SubscriptionData =
-    {
-      metadata: { userId: user.id },
-    };
-
-  if (TEST_TRIAL_SECONDS > 0) {
-    subscriptionData.trial_end =
-      Math.floor(Date.now() / 1000) + TEST_TRIAL_SECONDS;
-  }
-
-  const session = await stripe.checkout.sessions.create({
-    mode: "subscription",
-    customer: customerId,
-    line_items: [{ price: priceId, quantity: 1 }],
-    success_url: SUCCESS_URL,
-    cancel_url: CANCEL_URL,
-    client_reference_id: user.id,
-    metadata: { userId: user.id },
-    subscription_data: subscriptionData,
-  });
-
-  return { url: session.url };
 };
 
 export const getBillingStatus = async (userId: unknown) => {
@@ -191,7 +222,11 @@ export const handleCheckoutSuccess = async (
     throw { status: 400, error: "Missing session_id" };
   }
 
-  const session = await stripe.checkout.sessions.retrieve(sessionIdValue, {
+  console.log(
+    `📍 Processing checkout success for user ${id}, session ${sessionIdValue}`,
+  );
+
+  const session = await getStripe().checkout.sessions.retrieve(sessionIdValue, {
     expand: ["subscription", "customer"],
   });
 
@@ -208,11 +243,21 @@ export const handleCheckoutSuccess = async (
         ? session.subscription
         : session.subscription.id;
 
-    const subscription = await stripe.subscriptions.retrieve(subscriptionId, {
-      expand: ["customer"],
-    });
+    console.log(`🔄 Retrieving subscription ${subscriptionId}`);
 
+    const subscription = await getStripe().subscriptions.retrieve(
+      subscriptionId,
+      {
+        expand: ["customer"],
+      },
+    );
+
+    console.log(
+      `💾 Syncing subscription to database (status: ${subscription.status})`,
+    );
     await syncSubscriptionToUser(subscription);
+  } else {
+    console.warn(`⚠️ Session ${sessionIdValue} has no subscription`);
   }
 
   return {
@@ -245,34 +290,64 @@ export const handleStripeWebhook = async (
     throw { status: 400, error: "Missing Stripe signature" };
   }
 
-  const event = stripe.webhooks.constructEvent(
-    payload,
-    signature,
-    STRIPE_WEBHOOK_SECRET,
-  );
-
-  if (event.type === "checkout.session.completed") {
-    const session = event.data.object as Stripe.Checkout.Session;
-    if (session.subscription) {
-      const subscriptionId =
-        typeof session.subscription === "string"
-          ? session.subscription
-          : session.subscription.id;
-
-      const subscription = await stripe.subscriptions.retrieve(subscriptionId, {
-        expand: ["customer"],
-      });
-
-      await syncSubscriptionToUser(subscription);
-    }
+  let event: Stripe.Event;
+  try {
+    event = getStripe().webhooks.constructEvent(
+      payload,
+      signature,
+      STRIPE_WEBHOOK_SECRET,
+    );
+    console.log(`📨 Received Stripe webhook: ${event.type}`);
+  } catch (err) {
+    console.error("❌ Webhook signature verification failed:", err);
+    throw {
+      status: 400,
+      error: "Invalid webhook signature",
+    };
   }
 
-  if (
-    event.type === "customer.subscription.updated" ||
-    event.type === "customer.subscription.deleted"
-  ) {
-    const subscription = event.data.object as Stripe.Subscription;
-    await syncSubscriptionToUser(subscription);
+  try {
+    if (event.type === "checkout.session.completed") {
+      const session = event.data.object as Stripe.Checkout.Session;
+      console.log(
+        `💳 Checkout session completed. Subscription: ${session.subscription}`,
+      );
+
+      if (session.subscription) {
+        const subscriptionId =
+          typeof session.subscription === "string"
+            ? session.subscription
+            : session.subscription.id;
+
+        const subscription = await getStripe().subscriptions.retrieve(
+          subscriptionId,
+          {
+            expand: ["customer"],
+          },
+        );
+
+        await syncSubscriptionToUser(subscription);
+      }
+    }
+
+    if (
+      event.type === "customer.subscription.updated" ||
+      event.type === "customer.subscription.deleted"
+    ) {
+      const subscription = event.data.object as Stripe.Subscription;
+      console.log(
+        `📝 Subscription ${event.type}: ${subscription.id} (status: ${subscription.status})`,
+      );
+      await syncSubscriptionToUser(subscription);
+    }
+
+    console.log(`✅ Webhook processed successfully: ${event.type}`);
+  } catch (err) {
+    console.error(`❌ Error processing webhook ${event.type}:`, err);
+    throw {
+      status: 500,
+      error: `Failed to process webhook: ${err instanceof Error ? err.message : String(err)}`,
+    };
   }
 
   return { received: true };

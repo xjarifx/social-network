@@ -5,7 +5,7 @@ import {
   handleCheckoutCancel,
   handleCheckoutSuccess,
   handleStripeWebhook,
-} from './billing.service';
+} from "./billing.service";
 
 export const createSubscriptionCheckout = async (
   req: Request,
@@ -28,7 +28,12 @@ export const createSubscriptionCheckout = async (
       res.status(404).json({ error: err.error });
       return;
     }
-    console.error("Create checkout session error:", error);
+    if (err.status === 500) {
+      res.status(500).json({ error: err.error });
+      return;
+    }
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    console.error("Create checkout session error:", errorMessage, error);
     res.status(500).json({ error: "Unable to create checkout session" });
   }
 };
@@ -50,7 +55,12 @@ export const getMyBillingStatus = async (
       res.status(404).json({ error: err.error });
       return;
     }
-    console.error("Get billing status error:", error);
+    if (err.status === 500) {
+      res.status(500).json({ error: err.error });
+      return;
+    }
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    console.error("Get billing status error:", errorMessage, error);
     res.status(500).json({ error: "Unable to fetch billing status" });
   }
 };

@@ -15,6 +15,8 @@ const ProfilePage = lazy(() => import("./pages/ProfilePage"));
 const UserProfilePage = lazy(() => import("./pages/UserProfilePage"));
 const NotificationsPage = lazy(() => import("./pages/NotificationsPage"));
 const BillingPage = lazy(() => import("./pages/BillingPage"));
+const BillingSuccessPage = lazy(() => import("./pages/BillingSuccessPage"));
+const BillingCancelPage = lazy(() => import("./pages/BillingCancelPage"));
 const BlocksPage = lazy(() => import("./pages/BlocksPage"));
 const FollowersPage = lazy(() => import("./pages/FollowersPage"));
 const FollowingPage = lazy(() => import("./pages/FollowingPage"));
@@ -136,6 +138,32 @@ function AppRoutes() {
             <AppLayout>
               <Suspense fallback={<PageFallback />}>
                 <BillingPage />
+              </Suspense>
+            </AppLayout>
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/billing/success"
+        element={
+          <ProtectedRoute>
+            <AppLayout>
+              <Suspense fallback={<PageFallback />}>
+                <BillingSuccessPage />
+              </Suspense>
+            </AppLayout>
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/billing/cancel"
+        element={
+          <ProtectedRoute>
+            <AppLayout>
+              <Suspense fallback={<PageFallback />}>
+                <BillingCancelPage />
               </Suspense>
             </AppLayout>
           </ProtectedRoute>

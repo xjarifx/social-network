@@ -31,11 +31,15 @@ export default function BillingPage() {
   const handleUpgrade = async () => {
     try {
       setIsCheckoutLoading(true);
+      setError(null);
       const response = await billingAPI.createCheckoutSession();
       if (response.url) {
         window.location.href = response.url;
       }
     } catch (err) {
+      const message =
+        err instanceof Error ? err.message : "Failed to start checkout";
+      setError(message);
       console.error("Failed to start checkout:", err);
     } finally {
       setIsCheckoutLoading(false);

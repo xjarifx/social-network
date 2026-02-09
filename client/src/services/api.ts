@@ -214,10 +214,24 @@ async function apiRequest<T>(
   }
 
   if (!response.ok) {
-    const errorData = await response.json().catch(() => ({}));
-    throw new Error(
-      errorData.error || errorData.message || `API Error: ${response.status}`,
-    );
+    let errorMessage = `API Error: ${response.status}`;
+    try {
+      const errorData = await response.json();
+      if (errorData.error) {
+        // Convert error to string if needed
+        errorMessage =
+          typeof errorData.error === "string"
+            ? errorData.error
+            : typeof errorData.error === "object"
+              ? JSON.stringify(errorData.error)
+              : String(errorData.error);
+      } else if (errorData.message) {
+        errorMessage = errorData.message;
+      }
+    } catch {
+      // Unable to parse error response
+    }
+    throw new Error(errorMessage);
   }
 
   if (response.status === 204 || response.status === 205) {
