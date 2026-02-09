@@ -6,12 +6,15 @@ import { useAuth } from "../context/AuthContext";
 import { useComments } from "../hooks";
 import { transformPost } from "../utils";
 
+type FeedTab = "following" | "forYou";
+
 export default function HomePage() {
   const { user } = useAuth();
   const [posts, setPosts] = useState<PostProps[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [followingIds, setFollowingIds] = useState<string[]>([]);
+  const [activeTab, setActiveTab] = useState<FeedTab>("forYou");
 
   const comments = useComments();
 
@@ -78,6 +81,17 @@ export default function HomePage() {
     }));
   }, [posts, followingIds]);
 
+  const filteredPosts = useMemo(() => {
+    if (activeTab === "following") {
+      const followingSet = new Set(followingIds);
+      return postsWithFollowState.filter(
+        (post) => post.authorId && followingSet.has(post.authorId),
+      );
+    }
+    // "forYou" tab - empty for now
+    return [];
+  }, [postsWithFollowState, followingIds, activeTab]);
+
   const handleFollowToggle = useCallback(
     async (authorId: string, isFollowing: boolean) => {
       if (!user?.id) return;
@@ -137,6 +151,40 @@ export default function HomePage() {
 
   return (
     <div>
+      {/* Tab Navigation */}
+      <div className="sticky top-[60px] z-10 border-b border-[#ececec] bg-white/80 backdrop-blur-sm">
+        <div className="flex">
+          <button
+            onClick={() => setActiveTab("forYou")}
+            className={`flex-1 px-4 py-3 text-center font-medium transition-colors ${
+              activeTab === "forYou"
+                ? "text-[#1a73e8]"
+                : "text-[#5f6368] hover:text-[#202124]"
+            }`}
+          >
+            For you
+          </button>
+          <button
+            onClick={() => setActiveTab("following")}
+            className={`flex-1 px-4 py-3 text-center font-medium transition-colors ${
+              activeTab === "following"
+                ? "text-[#1a73e8]"
+                : "text-[#5f6368] hover:text-[#202124]"
+            }`}
+          >
+            Following
+          </button>
+        </div>
+        {/* Underline indicator */}
+        <div className="relative h-1 bg-[#e8e8e8]">
+          <div
+            className={`absolute top-0 h-full w-1/2 bg-[#1a73e8] transition-all duration-300 ${
+              activeTab === "following" ? "translate-x-full" : ""
+            }`}
+          />
+        </div>
+      </div>
+
       <div className="py-4">
         {error && (
           <div className="mb-4 rounded-lg border border-[#ea4335]/30 bg-[#fce8e6] px-4 py-3 text-[13px] text-[#c5221f]">
@@ -144,7 +192,7 @@ export default function HomePage() {
           </div>
         )}
         <Feed
-          posts={postsWithFollowState}
+          posts={filteredPosts}
           isLoading={isLoading}
           onLike={handleLike}
           onReply={comments.toggleComments}
