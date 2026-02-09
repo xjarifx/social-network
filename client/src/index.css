@@ -1,74 +1,28 @@
 @import "tailwindcss";
+@import url("https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;600;700&family=Google+Sans+Text:wght@400;500;600&family=Roboto:wght@400;500&display=swap");
 
 :root {
   color-scheme: light;
-  --background: 40 33% 97%;
-  --foreground: 222 20% 12%;
-  --card: 0 0% 100% / 0.72;
-  --card-foreground: 222 20% 12%;
+  --background: 0 0% 97.5%;
+  --foreground: 0 0% 13%;
+  --card: 0 0% 100%;
+  --card-foreground: 0 0% 13%;
   --popover: 0 0% 100%;
-  --popover-foreground: 222 20% 12%;
-  --primary: 221 83% 56%;
-  --primary-foreground: 210 40% 98%;
-  --secondary: 220 24% 94%;
-  --secondary-foreground: 222 30% 18%;
-  --muted: 220 16% 92%;
-  --muted-foreground: 220 10% 42%;
-  --accent: 30 96% 62%;
-  --accent-foreground: 222 30% 16%;
-  --destructive: 0 82% 56%;
-  --destructive-foreground: 210 40% 98%;
-  --border: 220 18% 86%;
-  --input: 220 18% 86%;
-  --ring: 221 83% 56%;
-  --radius: 18px;
-  --page-gradient:
-    radial-gradient(
-      circle at 20% 20%,
-      rgba(246, 235, 212, 0.7),
-      rgba(255, 255, 255, 0)
-    ),
-    radial-gradient(
-      circle at 80% 10%,
-      rgba(226, 235, 255, 0.7),
-      rgba(255, 255, 255, 0)
-    ),
-    linear-gradient(180deg, rgba(255, 255, 255, 0.8), rgba(245, 245, 248, 1));
-}
-
-.dark {
-  color-scheme: dark;
-  --background: 222 28% 10%;
-  --foreground: 210 40% 96%;
-  --card: 222 28% 12% / 0.72;
-  --card-foreground: 210 40% 96%;
-  --popover: 222 30% 12%;
-  --popover-foreground: 210 40% 96%;
-  --primary: 214 88% 64%;
-  --primary-foreground: 222 28% 12%;
-  --secondary: 222 22% 18%;
-  --secondary-foreground: 210 40% 96%;
-  --muted: 222 18% 20%;
-  --muted-foreground: 215 16% 68%;
-  --accent: 32 92% 58%;
-  --accent-foreground: 222 28% 12%;
-  --destructive: 0 72% 52%;
-  --destructive-foreground: 210 40% 96%;
-  --border: 222 16% 24%;
-  --input: 222 16% 24%;
-  --ring: 214 88% 64%;
-  --page-gradient:
-    radial-gradient(
-      circle at 15% 15%,
-      rgba(41, 58, 92, 0.5),
-      rgba(15, 23, 42, 0)
-    ),
-    radial-gradient(
-      circle at 85% 20%,
-      rgba(72, 54, 28, 0.45),
-      rgba(15, 23, 42, 0)
-    ),
-    linear-gradient(180deg, rgba(15, 23, 42, 0.9), rgba(15, 23, 42, 1));
+  --popover-foreground: 0 0% 13%;
+  --primary: 214 82% 51%;
+  --primary-foreground: 0 0% 100%;
+  --secondary: 214 100% 96%;
+  --secondary-foreground: 214 82% 51%;
+  --muted: 0 0% 94%;
+  --muted-foreground: 0 0% 45%;
+  --accent: 214 100% 96%;
+  --accent-foreground: 214 82% 51%;
+  --destructive: 4 90% 58%;
+  --destructive-foreground: 0 0% 100%;
+  --border: 0 0% 85.5%;
+  --input: 0 0% 85.5%;
+  --ring: 214 82% 51%;
+  --radius: 8px;
 }
 
 * {
@@ -81,12 +35,9 @@ html {
 }
 
 body {
-  background: hsl(var(--background));
-  background-image: var(--page-gradient);
-  color: hsl(var(--foreground));
-  font-family:
-    "SF Pro Display", "SF Pro Text", "Neue Haas Grotesk Display",
-    "Helvetica Neue", sans-serif;
+  background: #f8f9fa;
+  color: #202124;
+  font-family: "Google Sans Text", "Google Sans", "Roboto", Arial, sans-serif;
   margin: 0;
   min-height: 100vh;
   -webkit-font-smoothing: antialiased;
@@ -97,15 +48,40 @@ body {
   min-height: 100vh;
 }
 
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: "Google Sans", "Roboto", Arial, sans-serif;
+}
+
 @layer utilities {
-  .glass-panel {
-    backdrop-filter: blur(18px);
-    background: hsl(var(--card));
-    border: 1px solid hsl(var(--border) / 0.6);
-    box-shadow: 0 20px 50px -30px rgba(15, 23, 42, 0.55);
+  .gm-card {
+    background: #fff;
+    border-radius: 8px;
+    border: 1px solid #dadce0;
   }
 
-  .text-hero {
-    letter-spacing: -0.02em;
+  .gm-card-elevated {
+    background: #fff;
+    border-radius: 8px;
+    box-shadow:
+      0 1px 2px 0 rgba(60, 64, 67, 0.3),
+      0 1px 3px 1px rgba(60, 64, 67, 0.15);
+    border: none;
+  }
+
+  .gm-shadow {
+    box-shadow:
+      0 1px 2px 0 rgba(60, 64, 67, 0.3),
+      0 1px 3px 1px rgba(60, 64, 67, 0.15);
+  }
+
+  .gm-shadow-hover {
+    box-shadow:
+      0 1px 3px 0 rgba(60, 64, 67, 0.3),
+      0 4px 8px 3px rgba(60, 64, 67, 0.15);
   }
 }

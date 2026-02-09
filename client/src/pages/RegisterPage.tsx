@@ -1,15 +1,7 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import { motion } from "framer-motion";
 import { useAuth } from "../context/AuthContext";
-import { Eye, EyeOff, AlertCircle } from "lucide-react";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "../components/ui/card";
+import { Eye, EyeOff } from "lucide-react";
 import { Input } from "../components/ui/input";
 import { Button } from "../components/ui/button";
 
@@ -35,7 +27,6 @@ export default function RegisterPage() {
       setFieldErrors({ ...fieldErrors, [name]: "" });
     }
 
-    // Password strength calculation
     if (name === "password") {
       let strength = 0;
       if (value.length >= 8) strength++;
@@ -96,212 +87,182 @@ export default function RegisterPage() {
     }
   };
 
-  const containerVariants = {
-    hidden: { opacity: 0, y: 20 },
-    visible: {
-      opacity: 1,
-      y: 0,
-      transition: { duration: 0.4, ease: "easeOut" },
-    },
-  };
-
-  const strengthColor = {
-    0: "bg-neutral-200",
-    1: "bg-red-500",
-    2: "bg-orange-500",
-    3: "bg-yellow-500",
-    4: "bg-lime-500",
-    5: "bg-green-500",
+  const strengthColor: Record<number, string> = {
+    0: "bg-[#dadce0]",
+    1: "bg-[#ea4335]",
+    2: "bg-[#fa7b17]",
+    3: "bg-[#f9ab00]",
+    4: "bg-[#34a853]",
+    5: "bg-[#188038]",
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center px-4 py-10">
-      <motion.div
-        variants={containerVariants}
-        initial="hidden"
-        animate="visible"
-        className="w-full max-w-md"
-      >
-        <motion.div
-          initial={{ scale: 0.8, opacity: 0 }}
-          animate={{ scale: 1, opacity: 1 }}
-          transition={{ duration: 0.3 }}
-          className="text-center mb-8"
-        >
-          <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-primary/15 text-primary">
-            <span className="text-lg font-bold">S</span>
+    <div className="flex min-h-screen items-center justify-center bg-white px-4 py-10">
+      <div className="w-full max-w-[440px]">
+        <div className="rounded-lg border border-[#dadce0] bg-white px-10 py-10">
+          <div className="mb-6 text-center">
+            <div className="mx-auto mb-4 flex h-11 w-11 items-center justify-center rounded-full bg-[#1a73e8]">
+              <span className="text-[16px] font-bold text-white">S</span>
+            </div>
+            <h1 className="text-[24px] font-normal text-[#202124]">
+              Create your account
+            </h1>
+            <p className="mt-1 text-[14px] text-[#5f6368]">
+              Join the Social Network
+            </p>
           </div>
-          <h1 className="text-2xl font-semibold text-hero">Social Network</h1>
-          <p className="text-sm text-muted-foreground">
-            Start building your space
-          </p>
-        </motion.div>
 
-        <motion.div variants={containerVariants}>
-          <Card>
-            <CardHeader>
-              <CardTitle>Create account</CardTitle>
-              <CardDescription>Join the community in minutes</CardDescription>
-            </CardHeader>
-            <CardContent>
-              {error && (
-                <motion.div
-                  initial={{ opacity: 0, y: -10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  className="mb-4 flex gap-3 rounded-2xl border border-destructive/40 bg-destructive/10 p-4 text-sm text-destructive"
+          {error && (
+            <div className="mb-4 rounded-lg border border-[#ea4335]/30 bg-[#fce8e6] px-4 py-3 text-[13px] text-[#c5221f]">
+              {error}
+            </div>
+          )}
+
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div>
+              <label className="mb-1 block text-[12px] font-medium text-[#5f6368]">
+                Username
+              </label>
+              <Input
+                type="text"
+                name="username"
+                value={formData.username}
+                onChange={handleChange}
+                placeholder="johndoe"
+                className={fieldErrors.username ? "border-[#ea4335]" : ""}
+              />
+              {fieldErrors.username && (
+                <p className="mt-1 text-[12px] text-[#ea4335]">
+                  {fieldErrors.username}
+                </p>
+              )}
+            </div>
+
+            <div>
+              <label className="mb-1 block text-[12px] font-medium text-[#5f6368]">
+                Email address
+              </label>
+              <Input
+                type="email"
+                name="email"
+                value={formData.email}
+                onChange={handleChange}
+                placeholder="you@example.com"
+                className={fieldErrors.email ? "border-[#ea4335]" : ""}
+              />
+              {fieldErrors.email && (
+                <p className="mt-1 text-[12px] text-[#ea4335]">
+                  {fieldErrors.email}
+                </p>
+              )}
+            </div>
+
+            <div className="grid gap-3 sm:grid-cols-2">
+              <div>
+                <label className="mb-1 block text-[12px] font-medium text-[#5f6368]">
+                  First name
+                </label>
+                <Input
+                  type="text"
+                  name="firstName"
+                  value={formData.firstName}
+                  onChange={handleChange}
+                  placeholder="John"
+                  className={fieldErrors.firstName ? "border-[#ea4335]" : ""}
+                />
+                {fieldErrors.firstName && (
+                  <p className="mt-1 text-[12px] text-[#ea4335]">
+                    {fieldErrors.firstName}
+                  </p>
+                )}
+              </div>
+              <div>
+                <label className="mb-1 block text-[12px] font-medium text-[#5f6368]">
+                  Last name
+                </label>
+                <Input
+                  type="text"
+                  name="lastName"
+                  value={formData.lastName}
+                  onChange={handleChange}
+                  placeholder="Doe"
+                  className={fieldErrors.lastName ? "border-[#ea4335]" : ""}
+                />
+                {fieldErrors.lastName && (
+                  <p className="mt-1 text-[12px] text-[#ea4335]">
+                    {fieldErrors.lastName}
+                  </p>
+                )}
+              </div>
+            </div>
+
+            <div>
+              <label className="mb-1 block text-[12px] font-medium text-[#5f6368]">
+                Password
+              </label>
+              <div className="relative">
+                <Input
+                  type={showPassword ? "text" : "password"}
+                  name="password"
+                  value={formData.password}
+                  onChange={handleChange}
+                  placeholder="Create a password"
+                  className={fieldErrors.password ? "border-[#ea4335]" : ""}
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-[#5f6368] hover:text-[#202124] cursor-pointer"
                 >
-                  <AlertCircle size={18} className="mt-0.5 flex-shrink-0" />
-                  <p>{error}</p>
-                </motion.div>
+                  {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                </button>
+              </div>
+
+              {formData.password && (
+                <div className="mt-2 flex gap-1">
+                  {[1, 2, 3, 4, 5].map((s) => (
+                    <div
+                      key={s}
+                      className={`h-1 flex-1 rounded-full transition-all ${
+                        s <= passwordStrength
+                          ? strengthColor[s]
+                          : "bg-[#e8eaed]"
+                      }`}
+                    />
+                  ))}
+                </div>
               )}
 
-              <form onSubmit={handleSubmit} className="space-y-4">
-                <div>
-                  <label className="text-sm font-medium">Username</label>
-                  <Input
-                    type="text"
-                    name="username"
-                    value={formData.username}
-                    onChange={handleChange}
-                    placeholder="johndoe"
-                    className={fieldErrors.username ? "border-destructive" : ""}
-                  />
-                  {fieldErrors.username && (
-                    <p className="mt-1 text-xs text-destructive">
-                      {fieldErrors.username}
-                    </p>
-                  )}
-                </div>
+              {fieldErrors.password && (
+                <p className="mt-1 text-[12px] text-[#ea4335]">
+                  {fieldErrors.password}
+                </p>
+              )}
+              <p className="mt-1 text-[11px] text-[#80868b]">
+                Must be 8+ characters with uppercase, number, and special
+                character
+              </p>
+            </div>
 
-                <div>
-                  <label className="text-sm font-medium">Email address</label>
-                  <Input
-                    type="email"
-                    name="email"
-                    value={formData.email}
-                    onChange={handleChange}
-                    placeholder="you@example.com"
-                    className={fieldErrors.email ? "border-destructive" : ""}
-                  />
-                  {fieldErrors.email && (
-                    <p className="mt-1 text-xs text-destructive">
-                      {fieldErrors.email}
-                    </p>
-                  )}
-                </div>
+            <div className="flex items-center justify-between pt-2">
+              <Link
+                to="/login"
+                className="text-[14px] font-medium text-[#1a73e8] hover:underline"
+              >
+                Sign in instead
+              </Link>
+              <Button type="submit" disabled={isLoading}>
+                {isLoading ? "Creating..." : "Create account"}
+              </Button>
+            </div>
+          </form>
+        </div>
 
-                <div className="grid gap-3 sm:grid-cols-2">
-                  <div>
-                    <label className="text-sm font-medium">First name</label>
-                    <Input
-                      type="text"
-                      name="firstName"
-                      value={formData.firstName}
-                      onChange={handleChange}
-                      placeholder="John"
-                      className={
-                        fieldErrors.firstName ? "border-destructive" : ""
-                      }
-                    />
-                    {fieldErrors.firstName && (
-                      <p className="mt-1 text-xs text-destructive">
-                        {fieldErrors.firstName}
-                      </p>
-                    )}
-                  </div>
-                  <div>
-                    <label className="text-sm font-medium">Last name</label>
-                    <Input
-                      type="text"
-                      name="lastName"
-                      value={formData.lastName}
-                      onChange={handleChange}
-                      placeholder="Doe"
-                      className={
-                        fieldErrors.lastName ? "border-destructive" : ""
-                      }
-                    />
-                    {fieldErrors.lastName && (
-                      <p className="mt-1 text-xs text-destructive">
-                        {fieldErrors.lastName}
-                      </p>
-                    )}
-                  </div>
-                </div>
-
-                <div>
-                  <label className="text-sm font-medium">Password</label>
-                  <div className="relative mb-2">
-                    <Input
-                      type={showPassword ? "text" : "password"}
-                      name="password"
-                      value={formData.password}
-                      onChange={handleChange}
-                      placeholder="••••••••"
-                      className={
-                        fieldErrors.password ? "border-destructive" : ""
-                      }
-                    />
-                    <button
-                      type="button"
-                      onClick={() => setShowPassword(!showPassword)}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
-                    >
-                      {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-                    </button>
-                  </div>
-
-                  {formData.password && (
-                    <div className="mb-2 flex gap-1">
-                      {[1, 2, 3, 4, 5].map((strength) => (
-                        <div
-                          key={strength}
-                          className={`h-1 flex-1 rounded-full transition-all ${
-                            strength <= passwordStrength
-                              ? strengthColor[
-                                  strength as keyof typeof strengthColor
-                                ]
-                              : "bg-muted"
-                          }`}
-                        />
-                      ))}
-                    </div>
-                  )}
-
-                  {fieldErrors.password && (
-                    <p className="mt-1 text-xs text-destructive">
-                      {fieldErrors.password}
-                    </p>
-                  )}
-                  <p className="text-xs text-muted-foreground">
-                    Must be 8+ characters with uppercase, number, and special
-                    character
-                  </p>
-                </div>
-
-                <Button type="submit" className="w-full" disabled={isLoading}>
-                  {isLoading ? "Creating account..." : "Create account"}
-                </Button>
-              </form>
-
-              <div className="mt-6 text-center text-sm text-muted-foreground">
-                Already have an account?{" "}
-                <Link
-                  to="/login"
-                  className="font-medium text-primary hover:underline"
-                >
-                  Sign in
-                </Link>
-              </div>
-            </CardContent>
-          </Card>
-        </motion.div>
-
-        <p className="mt-6 text-center text-xs text-muted-foreground">
+        <p className="mt-6 text-center text-[11px] text-[#80868b]">
           By creating an account, you agree to our Terms of Service and Privacy
           Policy
         </p>
-      </motion.div>
+      </div>
     </div>
   );
 }

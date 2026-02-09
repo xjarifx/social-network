@@ -1,13 +1,6 @@
 import { useEffect, useState } from "react";
-import { motion } from "framer-motion";
 import { notificationsAPI } from "../services/api";
 import type { Notification } from "../services/api";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "../components/ui/card";
 import { Button } from "../components/ui/button";
 
 export default function NotificationsPage() {
@@ -56,80 +49,69 @@ export default function NotificationsPage() {
   };
 
   return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      transition={{ duration: 0.2, ease: "easeOut" }}
-      className="min-h-screen"
-    >
-      <div className="mx-auto max-w-5xl px-4 sm:px-6 py-8">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between">
-            <CardTitle>Notifications</CardTitle>
-            <Button onClick={loadNotifications}>Refresh</Button>
-          </CardHeader>
-          <CardContent>
-            {error && (
-              <div className="mb-4 rounded-2xl border border-destructive/40 bg-destructive/10 p-3 text-sm text-destructive">
-                {error}
-              </div>
-            )}
+    <div className="py-4">
+      <div className="rounded-lg border border-[#dadce0] bg-white">
+        <div className="flex items-center justify-between px-5 py-4">
+          <h2 className="text-[16px] font-medium text-[#202124]">
+            Notifications
+          </h2>
+          <Button variant="ghost" onClick={loadNotifications} size="sm">
+            Refresh
+          </Button>
+        </div>
 
-            {isLoading ? (
-              <div className="text-sm text-muted-foreground">
-                Loading notifications...
-              </div>
-            ) : notifications.length === 0 ? (
-              <div className="text-sm text-muted-foreground">
-                No notifications yet.
-              </div>
-            ) : (
-              <div className="space-y-3">
-                {notifications.map((notification) => (
-                  <div
-                    key={notification.id}
-                    className={`rounded-2xl border p-4 ${
-                      notification.read
-                        ? "border-border/60"
-                        : "border-primary/40 bg-primary/5"
-                    }`}
-                  >
-                    <div className="flex items-start justify-between gap-4">
-                      <div>
-                        <div className="text-sm text-foreground">
-                          {notification.message}
-                        </div>
-                        <div className="mt-1 text-xs text-muted-foreground">
-                          {new Date(notification.createdAt).toLocaleString()}
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        {!notification.read && (
-                          <Button
-                            size="sm"
-                            variant="ghost"
-                            onClick={() => handleMarkRead(notification.id)}
-                          >
-                            Mark read
-                          </Button>
-                        )}
-                        <Button
-                          size="sm"
-                          variant="ghost"
-                          className="text-destructive"
-                          onClick={() => handleDelete(notification.id)}
-                        >
-                          Delete
-                        </Button>
-                      </div>
-                    </div>
+        <div className="border-t border-[#e8eaed] px-5 py-4">
+          {error && (
+            <div className="mb-4 rounded-lg border border-[#ea4335]/30 bg-[#fce8e6] px-4 py-3 text-[13px] text-[#c5221f]">
+              {error}
+            </div>
+          )}
+
+          {isLoading ? (
+            <p className="text-[13px] text-[#5f6368]">
+              Loading notifications...
+            </p>
+          ) : notifications.length === 0 ? (
+            <p className="text-[13px] text-[#5f6368]">No notifications yet.</p>
+          ) : (
+            <div className="divide-y divide-[#e8eaed]">
+              {notifications.map((notification) => (
+                <div
+                  key={notification.id}
+                  className={`flex items-start justify-between gap-4 py-3 ${
+                    !notification.read ? "bg-[#e8f0fe]/30 -mx-5 px-5" : ""
+                  }`}
+                >
+                  <div className="min-w-0 flex-1">
+                    <p className="text-[14px] text-[#202124]">
+                      {notification.message}
+                    </p>
+                    <p className="mt-0.5 text-[12px] text-[#5f6368]">
+                      {new Date(notification.createdAt).toLocaleString()}
+                    </p>
                   </div>
-                ))}
-              </div>
-            )}
-          </CardContent>
-        </Card>
+                  <div className="flex shrink-0 items-center gap-1">
+                    {!notification.read && (
+                      <button
+                        onClick={() => handleMarkRead(notification.id)}
+                        className="rounded-full px-3 py-1.5 text-[12px] font-medium text-[#1a73e8] hover:bg-[#f1f3f4] cursor-pointer"
+                      >
+                        Mark read
+                      </button>
+                    )}
+                    <button
+                      onClick={() => handleDelete(notification.id)}
+                      className="rounded-full px-3 py-1.5 text-[12px] font-medium text-[#ea4335] hover:bg-red-50 cursor-pointer"
+                    >
+                      Delete
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
       </div>
-    </motion.div>
+    </div>
   );
 }

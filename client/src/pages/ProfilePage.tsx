@@ -14,12 +14,6 @@ import { Feed, CommentsModal, EditPostModal } from "../components";
 import type { PostProps } from "../components";
 import { useComments } from "../hooks";
 import { transformPost } from "../utils";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "../components/ui/card";
 import { Button } from "../components/ui/button";
 import { Input } from "../components/ui/input";
 
@@ -207,148 +201,116 @@ export default function ProfilePage() {
     : null;
 
   return (
-    <div className="min-h-screen">
-      <div className="mx-auto max-w-5xl px-4 sm:px-6 py-8">
-        <div className="space-y-6">
-          <Card>
-            <CardHeader>
-              <CardTitle>My profile</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              {error && (
-                <div className="rounded-2xl border border-destructive/40 bg-destructive/10 p-3 text-sm text-destructive">
-                  {error}
-                </div>
-              )}
+    <div className="py-4">
+      <div className="space-y-4">
+        {/* Profile card */}
+        <div className="rounded-lg border border-[#dadce0] bg-white p-5">
+          <h2 className="text-[16px] font-medium text-[#202124]">My profile</h2>
+          <div className="mt-4 space-y-4">
+            {error && (
+              <div className="rounded-lg border border-[#ea4335]/30 bg-[#fce8e6] px-4 py-3 text-[13px] text-[#c5221f]">
+                {error}
+              </div>
+            )}
 
-              {isLoading ? (
-                <div className="text-sm text-muted-foreground">
-                  Loading profile...
-                </div>
-              ) : (
-                <div className="space-y-4">
-                  <div className="grid gap-4 sm:grid-cols-2">
-                    <div>
-                      <label className="text-xs text-muted-foreground">
-                        Username
-                      </label>
-                      <Input value={profile?.username ?? ""} disabled />
-                    </div>
-                    <div>
-                      <label className="text-xs text-muted-foreground">
-                        Email
-                      </label>
-                      <Input value={profile?.email ?? ""} disabled />
-                    </div>
+            {isLoading ? (
+              <p className="text-[13px] text-[#5f6368]">Loading profile...</p>
+            ) : (
+              <div className="space-y-4">
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <div>
+                    <label className="mb-1 block text-[12px] font-medium text-[#5f6368]">
+                      Username
+                    </label>
+                    <Input value={profile?.username ?? ""} disabled />
                   </div>
-
-                  <div className="grid gap-4 sm:grid-cols-2">
-                    <div>
-                      <label className="text-xs text-muted-foreground">
-                        First name
-                      </label>
-                      <Input
-                        value={firstName}
-                        onChange={(e) => setFirstName(e.target.value)}
-                      />
-                    </div>
-                    <div>
-                      <label className="text-xs text-muted-foreground">
-                        Last name
-                      </label>
-                      <Input
-                        value={lastName}
-                        onChange={(e) => setLastName(e.target.value)}
-                      />
-                    </div>
+                  <div>
+                    <label className="mb-1 block text-[12px] font-medium text-[#5f6368]">
+                      Email
+                    </label>
+                    <Input value={profile?.email ?? ""} disabled />
                   </div>
-
-                  <Button onClick={handleSave} disabled={isSaving}>
-                    {isSaving ? "Saving..." : "Save changes"}
-                  </Button>
                 </div>
-              )}
-            </CardContent>
-          </Card>
 
-          <div className="grid gap-6 md:grid-cols-3">
-            <Card
-              className="cursor-pointer transition hover:shadow-soft"
-              onClick={() => navigate("/followers")}
-            >
-              <CardContent className="p-6">
-                <h2 className="text-sm font-semibold text-muted-foreground">
-                  Followers
-                </h2>
-                <p className="mt-3 text-3xl font-semibold">
-                  {followers.length}
-                </p>
-                <p className="mt-2 text-sm text-muted-foreground">
-                  {followers.length === 0
-                    ? "No followers yet."
-                    : "Click to see all"}
-                </p>
-              </CardContent>
-            </Card>
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <div>
+                    <label className="mb-1 block text-[12px] font-medium text-[#5f6368]">
+                      First name
+                    </label>
+                    <Input
+                      value={firstName}
+                      onChange={(e) => setFirstName(e.target.value)}
+                    />
+                  </div>
+                  <div>
+                    <label className="mb-1 block text-[12px] font-medium text-[#5f6368]">
+                      Last name
+                    </label>
+                    <Input
+                      value={lastName}
+                      onChange={(e) => setLastName(e.target.value)}
+                    />
+                  </div>
+                </div>
 
-            <Card
-              className="cursor-pointer transition hover:shadow-soft"
-              onClick={() => navigate("/following")}
-            >
-              <CardContent className="p-6">
-                <h2 className="text-sm font-semibold text-muted-foreground">
-                  Following
-                </h2>
-                <p className="mt-3 text-3xl font-semibold">
-                  {following.length}
-                </p>
-                <p className="mt-2 text-sm text-muted-foreground">
-                  {following.length === 0
-                    ? "Not following anyone yet."
-                    : "Click to see all"}
-                </p>
-              </CardContent>
-            </Card>
-
-            <Card
-              className="cursor-pointer transition hover:shadow-soft"
-              onClick={() => navigate("/blocks")}
-            >
-              <CardContent className="p-6">
-                <h2 className="text-sm font-semibold text-muted-foreground">
-                  Blocked
-                </h2>
-                <p className="mt-3 text-3xl font-semibold">{blocked.length}</p>
-                <p className="mt-2 text-sm text-muted-foreground">
-                  {blocked.length === 0
-                    ? "No blocked users."
-                    : "Click to see all"}
-                </p>
-              </CardContent>
-            </Card>
+                <Button onClick={handleSave} disabled={isSaving}>
+                  {isSaving ? "Saving..." : "Save changes"}
+                </Button>
+              </div>
+            )}
           </div>
+        </div>
 
-          <Card>
-            <CardHeader>
-              <CardTitle>Posts</CardTitle>
-            </CardHeader>
-            <CardContent>
-              {postsError && (
-                <div className="mb-4 rounded-2xl border border-destructive/40 bg-destructive/10 p-3 text-sm text-destructive">
-                  {postsError}
-                </div>
-              )}
-              <Feed
-                posts={posts}
-                isLoading={postsLoading}
-                showPostMenu={true}
-                onLike={handleLike}
-                onReply={comments.toggleComments}
-                onEdit={handleEditPost}
-                onDelete={handleDeletePost}
-              />
-            </CardContent>
-          </Card>
+        {/* Stats */}
+        <div className="grid gap-3 sm:grid-cols-3">
+          <button
+            onClick={() => navigate("/followers")}
+            className="rounded-lg border border-[#dadce0] bg-white p-4 text-left transition hover:shadow-[0_1px_3px_0_rgba(60,64,67,.3),0_4px_8px_3px_rgba(60,64,67,.15)] cursor-pointer"
+          >
+            <p className="text-[12px] font-medium text-[#5f6368]">Followers</p>
+            <p className="mt-1 text-[24px] font-normal text-[#202124]">
+              {followers.length}
+            </p>
+          </button>
+
+          <button
+            onClick={() => navigate("/following")}
+            className="rounded-lg border border-[#dadce0] bg-white p-4 text-left transition hover:shadow-[0_1px_3px_0_rgba(60,64,67,.3),0_4px_8px_3px_rgba(60,64,67,.15)] cursor-pointer"
+          >
+            <p className="text-[12px] font-medium text-[#5f6368]">Following</p>
+            <p className="mt-1 text-[24px] font-normal text-[#202124]">
+              {following.length}
+            </p>
+          </button>
+
+          <button
+            onClick={() => navigate("/blocks")}
+            className="rounded-lg border border-[#dadce0] bg-white p-4 text-left transition hover:shadow-[0_1px_3px_0_rgba(60,64,67,.3),0_4px_8px_3px_rgba(60,64,67,.15)] cursor-pointer"
+          >
+            <p className="text-[12px] font-medium text-[#5f6368]">Blocked</p>
+            <p className="mt-1 text-[24px] font-normal text-[#202124]">
+              {blocked.length}
+            </p>
+          </button>
+        </div>
+
+        {/* Posts */}
+        <div className="rounded-lg border border-[#dadce0] bg-white p-5">
+          <h2 className="mb-4 text-[16px] font-medium text-[#202124]">Posts</h2>
+          {postsError && (
+            <div className="mb-4 rounded-lg border border-[#ea4335]/30 bg-[#fce8e6] px-4 py-3 text-[13px] text-[#c5221f]">
+              {postsError}
+            </div>
+          )}
+          <Feed
+            posts={posts}
+            isLoading={postsLoading}
+            showPostMenu={true}
+            onLike={handleLike}
+            onReply={comments.toggleComments}
+            onEdit={handleEditPost}
+            onDelete={handleDeletePost}
+          />
         </div>
       </div>
 

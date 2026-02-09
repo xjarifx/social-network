@@ -7,12 +7,6 @@ import { Feed, CommentsModal } from "../components";
 import type { PostProps } from "../components";
 import { useComments } from "../hooks";
 import { transformPost } from "../utils";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "../components/ui/card";
 import { Button } from "../components/ui/button";
 
 export default function UserProfilePage() {
@@ -202,75 +196,72 @@ export default function UserProfilePage() {
   );
 
   return (
-    <div className="min-h-screen">
-      <div className="mx-auto max-w-4xl px-4 sm:px-6 py-8">
-        <Card>
-          <CardHeader>
-            <CardTitle>User profile</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-6">
-            {error && (
-              <div className="rounded-2xl border border-destructive/40 bg-destructive/10 p-3 text-sm text-destructive">
-                {error}
-              </div>
-            )}
+    <div className="py-4">
+      <div className="rounded-lg border border-[#dadce0] bg-white p-5">
+        <h2 className="text-[16px] font-medium text-[#202124]">User profile</h2>
+        <div className="mt-4 space-y-4">
+          {error && (
+            <div className="rounded-lg border border-[#ea4335]/30 bg-[#fce8e6] px-4 py-3 text-[13px] text-[#c5221f]">
+              {error}
+            </div>
+          )}
 
-            {isLoading ? (
-              <div className="text-sm text-muted-foreground">
-                Loading user...
-              </div>
-            ) : (
-              <div className="space-y-4">
-                <div>
-                  <div className="text-lg font-semibold">
-                    {profile?.firstName} {profile?.lastName}
-                  </div>
-                  <div className="text-sm text-muted-foreground">
-                    @{profile?.username}
-                  </div>
-                  <div className="text-sm text-muted-foreground">
-                    {profile?.email}
-                  </div>
+          {isLoading ? (
+            <p className="text-[13px] text-[#5f6368]">Loading user...</p>
+          ) : (
+            <div className="space-y-4">
+              <div className="flex items-center gap-3">
+                <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[#e8f0fe] text-[14px] font-medium text-[#1a73e8]">
+                  {profile?.firstName?.[0] || ""}
+                  {profile?.lastName?.[0] || ""}
                 </div>
-
-                {canFollow && (
-                  <div className="flex flex-wrap gap-2">
-                    <Button
-                      variant={isFollowing ? "secondary" : "default"}
-                      onClick={handleFollowToggle}
-                    >
-                      {isFollowing ? "Unfollow" : "Follow"}
-                    </Button>
-                    <Button
-                      variant="outline"
-                      onClick={handleBlock}
-                      disabled={isBlocking}
-                      className="text-destructive"
-                    >
-                      {isBlocking ? "Blocking..." : "Block"}
-                    </Button>
-                  </div>
-                )}
+                <div>
+                  <p className="text-[15px] font-medium text-[#202124]">
+                    {profile?.firstName} {profile?.lastName}
+                  </p>
+                  <p className="text-[13px] text-[#5f6368]">
+                    @{profile?.username}
+                  </p>
+                </div>
               </div>
-            )}
 
-            <div>
-              {postsError && (
-                <div className="mb-4 rounded-2xl border border-destructive/40 bg-destructive/10 p-3 text-sm text-destructive">
-                  {postsError}
+              {canFollow && (
+                <div className="flex flex-wrap gap-2">
+                  <Button
+                    variant={isFollowing ? "secondary" : "default"}
+                    onClick={handleFollowToggle}
+                  >
+                    {isFollowing ? "Unfollow" : "Follow"}
+                  </Button>
+                  <Button
+                    variant="outline"
+                    onClick={handleBlock}
+                    disabled={isBlocking}
+                    className="text-[#ea4335] hover:text-[#ea4335]"
+                  >
+                    {isBlocking ? "Blocking..." : "Block"}
+                  </Button>
                 </div>
               )}
-              <Feed
-                posts={postsWithFollowState}
-                isLoading={postsLoading}
-                showPostMenu={false}
-                onLike={handleLike}
-                onReply={comments.toggleComments}
-                onFollowToggle={handleFollowTogglePost}
-              />
             </div>
-          </CardContent>
-        </Card>
+          )}
+
+          <div className="mt-4">
+            {postsError && (
+              <div className="mb-4 rounded-lg border border-[#ea4335]/30 bg-[#fce8e6] px-4 py-3 text-[13px] text-[#c5221f]">
+                {postsError}
+              </div>
+            )}
+            <Feed
+              posts={postsWithFollowState}
+              isLoading={postsLoading}
+              showPostMenu={false}
+              onLike={handleLike}
+              onReply={comments.toggleComments}
+              onFollowToggle={handleFollowTogglePost}
+            />
+          </div>
+        </div>
       </div>
 
       {comments.openCommentsPostId && selectedPost && (

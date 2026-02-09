@@ -1,6 +1,6 @@
-import { createContext, useContext, useEffect, useMemo, useState } from "react";
+import { createContext, useContext, useEffect, useMemo } from "react";
 
-type Theme = "light" | "dark";
+type Theme = "light";
 
 interface ThemeContextValue {
   theme: Theme;
@@ -10,32 +10,20 @@ interface ThemeContextValue {
 
 const ThemeContext = createContext<ThemeContextValue | undefined>(undefined);
 
-const STORAGE_KEY = "social-theme";
-
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
-  const [theme, setTheme] = useState<Theme>(() => {
-    if (typeof window === "undefined") {
-      return "dark";
-    }
-    const stored = window.localStorage.getItem(STORAGE_KEY) as Theme | null;
-    return stored ?? "dark";
-  });
-
   useEffect(() => {
     const root = document.documentElement;
-    root.classList.toggle("dark", theme === "dark");
-    root.setAttribute("data-theme", theme);
-    window.localStorage.setItem(STORAGE_KEY, theme);
-  }, [theme]);
+    root.classList.remove("dark");
+    root.setAttribute("data-theme", "light");
+  }, []);
 
   const value = useMemo(
     () => ({
-      theme,
-      setTheme,
-      toggleTheme: () =>
-        setTheme((prev) => (prev === "dark" ? "light" : "dark")),
+      theme: "light" as Theme,
+      setTheme: () => {},
+      toggleTheme: () => {},
     }),
-    [theme],
+    [],
   );
 
   return (

@@ -1,15 +1,8 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { motion } from "framer-motion";
 import { followsAPI } from "../services/api";
 import type { Follower } from "../services/api";
 import { useAuth } from "../context/AuthContext";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "../components/ui/card";
 import { Button } from "../components/ui/button";
 
 export default function FollowersPage() {
@@ -21,9 +14,7 @@ export default function FollowersPage() {
 
   useEffect(() => {
     const loadFollowers = async () => {
-      if (!user?.id) {
-        return;
-      }
+      if (!user?.id) return;
       try {
         setIsLoading(true);
         const response = await followsAPI.getUserFollowers(user.id);
@@ -36,64 +27,63 @@ export default function FollowersPage() {
         setIsLoading(false);
       }
     };
-
     loadFollowers();
   }, [user?.id]);
 
   return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      transition={{ duration: 0.2, ease: "easeOut" }}
-      className="min-h-screen"
-    >
-      <div className="mx-auto max-w-4xl px-4 sm:px-6 py-8">
-        <Card>
-          <CardHeader>
-            <CardTitle>Your followers</CardTitle>
-          </CardHeader>
-          <CardContent>
-            {error && (
-              <div className="mb-4 rounded-2xl border border-destructive/40 bg-destructive/10 p-3 text-sm text-destructive">
-                {error}
-              </div>
-            )}
+    <div className="py-4">
+      <div className="rounded-lg border border-[#dadce0] bg-white">
+        <div className="px-5 py-4">
+          <h2 className="text-[16px] font-medium text-[#202124]">
+            Your followers
+          </h2>
+        </div>
 
-            {isLoading ? (
-              <div className="text-sm text-muted-foreground">
-                Loading followers...
-              </div>
-            ) : followers.length === 0 ? (
-              <div className="text-sm text-muted-foreground">
-                No followers yet.
-              </div>
-            ) : (
-              <div className="space-y-3">
-                {followers.map((item) => (
-                  <div
-                    key={item.id}
-                    className="flex items-center justify-between rounded-2xl border border-border/60 bg-muted/30 p-4"
-                  >
-                    <div className="flex-1">
-                      <div className="text-sm font-medium">
-                        {item.follower?.firstName} {item.follower?.lastName}
-                      </div>
-                      <div className="text-xs text-muted-foreground">
-                        @{item.follower?.username}
-                      </div>
+        <div className="border-t border-[#e8eaed] px-5 py-4">
+          {error && (
+            <div className="mb-4 rounded-lg border border-[#ea4335]/30 bg-[#fce8e6] px-4 py-3 text-[13px] text-[#c5221f]">
+              {error}
+            </div>
+          )}
+
+          {isLoading ? (
+            <p className="text-[13px] text-[#5f6368]">Loading followers...</p>
+          ) : followers.length === 0 ? (
+            <p className="text-[13px] text-[#5f6368]">No followers yet.</p>
+          ) : (
+            <div className="divide-y divide-[#e8eaed]">
+              {followers.map((item) => (
+                <div
+                  key={item.id}
+                  className="flex items-center justify-between py-3"
+                >
+                  <div className="flex items-center gap-3">
+                    <div className="flex h-9 w-9 items-center justify-center rounded-full bg-[#e8f0fe] text-[12px] font-medium text-[#1a73e8]">
+                      {item.follower?.firstName?.[0] || ""}
+                      {item.follower?.lastName?.[0] || ""}
                     </div>
-                    <Button
-                      onClick={() => navigate(`/users/${item.follower?.id}`)}
-                    >
-                      View profile
-                    </Button>
+                    <div>
+                      <p className="text-[14px] font-medium text-[#202124]">
+                        {item.follower?.firstName} {item.follower?.lastName}
+                      </p>
+                      <p className="text-[12px] text-[#5f6368]">
+                        @{item.follower?.username}
+                      </p>
+                    </div>
                   </div>
-                ))}
-              </div>
-            )}
-          </CardContent>
-        </Card>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => navigate(`/users/${item.follower?.id}`)}
+                  >
+                    View profile
+                  </Button>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
       </div>
-    </motion.div>
+    </div>
   );
 }

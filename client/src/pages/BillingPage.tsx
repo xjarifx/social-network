@@ -1,13 +1,6 @@
 import { useEffect, useState } from "react";
-import { motion } from "framer-motion";
 import { billingAPI } from "../services/api";
 import type { BillingStatus } from "../services/api";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "../components/ui/card";
 import { Button } from "../components/ui/button";
 
 export default function BillingPage() {
@@ -52,79 +45,84 @@ export default function BillingPage() {
   const isPro = currentPlan === "PRO";
 
   return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      transition={{ duration: 0.2, ease: "easeOut" }}
-      className="min-h-screen"
-    >
-      <div className="mx-auto max-w-5xl px-4 sm:px-6 py-8">
-        <h1 className="text-2xl font-semibold mb-2 text-center">
+    <div className="py-4">
+      <div className="text-center mb-6">
+        <h1 className="text-[22px] font-normal text-[#202124]">
           Choose Your Plan
         </h1>
-        <p className="text-muted-foreground text-center mb-8">
+        <p className="mt-1 text-[14px] text-[#5f6368]">
           Select the plan that works best for you
         </p>
-
-        {error && (
-          <div className="mb-6 rounded-2xl border border-destructive/40 bg-destructive/10 p-3 text-sm text-destructive max-w-2xl mx-auto">
-            {error}
-          </div>
-        )}
-
-        {isLoading ? (
-          <div className="text-muted text-center">Loading plans...</div>
-        ) : (
-          <div className="grid gap-6 md:grid-cols-2">
-            <Card className={isPro ? "opacity-70" : "ring-2 ring-primary/40"}>
-              <CardHeader>
-                <CardTitle>Free</CardTitle>
-                <p className="text-3xl font-semibold">$0</p>
-                <p className="text-sm text-muted-foreground">Forever free</p>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="text-sm text-muted-foreground">
-                  Posts up to 20 characters
-                </div>
-                <Button
-                  variant="secondary"
-                  disabled={!isPro}
-                  className="w-full"
-                >
-                  {!isPro ? "Your Current Plan" : "Downgrade"}
-                </Button>
-              </CardContent>
-            </Card>
-
-            <Card className={isPro ? "ring-2 ring-primary/40" : ""}>
-              <CardHeader>
-                <CardTitle>Pro</CardTitle>
-                <p className="text-3xl font-semibold">$9.99</p>
-                <p className="text-sm text-muted-foreground">per month</p>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="text-sm text-muted-foreground">
-                  Posts up to 100 characters
-                </div>
-                <div className="text-sm text-muted-foreground">
-                  Pro badge beside your name
-                </div>
-                <Button
-                  className="w-full"
-                  onClick={handleUpgrade}
-                  disabled={isPro || isCheckoutLoading}
-                >
-                  {isPro
-                    ? "Your Current Plan"
-                    : isCheckoutLoading
-                      ? "Redirecting..."
-                      : "Upgrade to Pro"}
-                </Button>
-              </CardContent>
-            </Card>
-          </div>
-        )}
       </div>
-    </motion.div>
+
+      {error && (
+        <div className="mb-4 rounded-lg border border-[#ea4335]/30 bg-[#fce8e6] px-4 py-3 text-[13px] text-[#c5221f]">
+          {error}
+        </div>
+      )}
+
+      {isLoading ? (
+        <p className="text-center text-[13px] text-[#5f6368]">
+          Loading plans...
+        </p>
+      ) : (
+        <div className="grid gap-4 sm:grid-cols-2">
+          <div
+            className={`rounded-lg border bg-white p-6 ${
+              !isPro
+                ? "border-[#1a73e8] ring-1 ring-[#1a73e8]"
+                : "border-[#dadce0]"
+            }`}
+          >
+            <h3 className="text-[16px] font-medium text-[#202124]">Free</h3>
+            <p className="mt-1 text-[28px] font-normal text-[#202124]">$0</p>
+            <p className="text-[13px] text-[#5f6368]">Forever free</p>
+            <div className="mt-4 space-y-2">
+              <p className="text-[13px] text-[#5f6368]">
+                Posts up to 20 characters
+              </p>
+            </div>
+            <Button
+              variant="secondary"
+              disabled={!isPro}
+              className="mt-6 w-full"
+            >
+              {!isPro ? "Current Plan" : "Downgrade"}
+            </Button>
+          </div>
+
+          <div
+            className={`rounded-lg border bg-white p-6 ${
+              isPro
+                ? "border-[#1a73e8] ring-1 ring-[#1a73e8]"
+                : "border-[#dadce0]"
+            }`}
+          >
+            <h3 className="text-[16px] font-medium text-[#202124]">Pro</h3>
+            <p className="mt-1 text-[28px] font-normal text-[#202124]">$9.99</p>
+            <p className="text-[13px] text-[#5f6368]">per month</p>
+            <div className="mt-4 space-y-2">
+              <p className="text-[13px] text-[#5f6368]">
+                Posts up to 100 characters
+              </p>
+              <p className="text-[13px] text-[#5f6368]">
+                Pro badge beside your name
+              </p>
+            </div>
+            <Button
+              className="mt-6 w-full"
+              onClick={handleUpgrade}
+              disabled={isPro || isCheckoutLoading}
+            >
+              {isPro
+                ? "Current Plan"
+                : isCheckoutLoading
+                  ? "Redirecting..."
+                  : "Upgrade to Pro"}
+            </Button>
+          </div>
+        </div>
+      )}
+    </div>
   );
 }

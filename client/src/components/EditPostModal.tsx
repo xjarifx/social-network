@@ -37,7 +37,7 @@ export function EditPostModal({
 
   return (
     <Dialog onOpenChange={(open: boolean) => !open && onClose()} open>
-      <DialogContent className="max-w-2xl">
+      <DialogContent className="max-w-xl">
         <DialogHeader>
           <DialogTitle>Edit post</DialogTitle>
         </DialogHeader>
@@ -47,12 +47,12 @@ export function EditPostModal({
             value={editingContent}
             onChange={(e) => onContentChange(e.target.value)}
             placeholder="What would you like to change?"
-            className="min-h-[160px]"
+            className="min-h-[140px]"
             autoFocus
           />
 
           {error && (
-            <div className="rounded-2xl border border-destructive/40 bg-destructive/10 px-4 py-3 text-sm text-destructive">
+            <div className="rounded-lg border border-[#ea4335]/30 bg-[#fce8e6] px-4 py-3 text-[13px] text-[#c5221f]">
               {error}
             </div>
           )}

@@ -1,7 +1,6 @@
 import { memo } from "react";
 import { PostCard } from "./PostCard";
 import type { PostProps } from "./PostCard";
-import { Card, CardContent } from "./ui/card";
 
 export interface FeedProps {
   posts: PostProps[];
@@ -31,21 +30,34 @@ function FeedComponent({
 }: FeedProps) {
   if (isLoading) {
     return (
-      <div className="space-y-4">
+      <div className="space-y-3">
         {[...Array(3)].map((_, i) => (
           <div
             key={i}
-            className="h-64 rounded-3xl border border-border/60 bg-muted/60 animate-pulse"
-          />
+            className="rounded-lg border border-[#dadce0] bg-white p-4"
+          >
+            <div className="flex items-center gap-3">
+              <div className="h-10 w-10 rounded-full bg-[#f1f3f4] animate-pulse" />
+              <div className="space-y-2 flex-1">
+                <div className="h-3 w-28 rounded bg-[#f1f3f4] animate-pulse" />
+                <div className="h-2.5 w-20 rounded bg-[#f1f3f4] animate-pulse" />
+              </div>
+            </div>
+            <div className="mt-4 space-y-2">
+              <div className="h-3 w-full rounded bg-[#f1f3f4] animate-pulse" />
+              <div className="h-3 w-4/5 rounded bg-[#f1f3f4] animate-pulse" />
+              <div className="h-3 w-3/5 rounded bg-[#f1f3f4] animate-pulse" />
+            </div>
+          </div>
         ))}
       </div>
     );
   }
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-3">
       {posts.map((post) => (
-        <div key={post.id} className="space-y-3">
+        <div key={post.id}>
           <PostCard
             {...post}
             showPostMenu={showPostMenu}
@@ -60,15 +72,12 @@ function FeedComponent({
       ))}
 
       {posts.length === 0 && (
-        <Card className="animate-fade-in">
-          <CardContent className="p-10 text-center">
-            <div className="text-4xl mb-4">🌟</div>
-            <h3 className="text-lg font-semibold">No posts yet</h3>
-            <p className="text-sm text-muted-foreground mt-2">
-              Your feed is empty. Follow people to see their posts here.
-            </p>
-          </CardContent>
-        </Card>
+        <div className="rounded-lg border border-[#dadce0] bg-white px-6 py-12 text-center">
+          <p className="text-[14px] font-medium text-[#202124]">No posts yet</p>
+          <p className="mt-1 text-[13px] text-[#5f6368]">
+            Your feed is empty. Follow people to see their posts here.
+          </p>
+        </div>
       )}
     </div>
   );

@@ -136,10 +136,10 @@ export default function HomePage() {
     : null;
 
   return (
-    <div className="min-h-screen">
-      <div className="mx-auto max-w-5xl px-4 sm:px-6 py-6 sm:py-10">
+    <div>
+      <div className="py-4">
         {error && (
-          <div className="mb-6 rounded-2xl border border-destructive/40 bg-destructive/10 p-4 text-sm text-destructive">
+          <div className="mb-4 rounded-lg border border-[#ea4335]/30 bg-[#fce8e6] px-4 py-3 text-[13px] text-[#c5221f]">
             {error}
           </div>
         )}

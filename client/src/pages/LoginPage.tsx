@@ -1,15 +1,7 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import { motion } from "framer-motion";
 import { useAuth } from "../context/AuthContext";
 import { Eye, EyeOff } from "lucide-react";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "../components/ui/card";
 import { Input } from "../components/ui/input";
 import { Button } from "../components/ui/button";
 
@@ -62,125 +54,93 @@ export default function LoginPage() {
     }
   };
 
-  const containerVariants = {
-    hidden: { opacity: 0, y: 20 },
-    visible: {
-      opacity: 1,
-      y: 0,
-      transition: { duration: 0.4, ease: "easeOut" },
-    },
-  };
-
   return (
-    <div className="min-h-screen flex items-center justify-center px-4 py-10">
-      <motion.div
-        variants={containerVariants}
-        initial="hidden"
-        animate="visible"
-        className="w-full max-w-md"
-      >
-        <motion.div
-          initial={{ scale: 0.8, opacity: 0 }}
-          animate={{ scale: 1, opacity: 1 }}
-          transition={{ duration: 0.3 }}
-          className="text-center mb-8"
-        >
-          <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-primary/15 text-primary">
-            <span className="text-lg font-bold">S</span>
+    <div className="flex min-h-screen items-center justify-center bg-white px-4 py-10">
+      <div className="w-full max-w-[400px]">
+        <div className="rounded-lg border border-[#dadce0] bg-white px-10 py-12">
+          {/* Logo */}
+          <div className="mb-6 text-center">
+            <div className="mx-auto mb-4 flex h-11 w-11 items-center justify-center rounded-full bg-[#1a73e8]">
+              <span className="text-[16px] font-bold text-white">S</span>
+            </div>
+            <h1 className="text-[24px] font-normal text-[#202124]">Sign in</h1>
+            <p className="mt-1 text-[14px] text-[#5f6368]">
+              Use your Social Network account
+            </p>
           </div>
-          <h1 className="text-2xl font-semibold text-hero">Social Network</h1>
-          <p className="text-sm text-muted-foreground">
-            Welcome back to your orbit
-          </p>
-        </motion.div>
 
-        <motion.div variants={containerVariants}>
-          <Card>
-            <CardHeader>
-              <CardTitle>Sign in</CardTitle>
-              <CardDescription>
-                Use your credentials to continue
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              {error && (
-                <motion.div
-                  initial={{ opacity: 0, y: -10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  className="mb-4 rounded-2xl border border-destructive/40 bg-destructive/10 p-4 text-sm text-destructive"
-                >
-                  {error}
-                </motion.div>
+          {error && (
+            <div className="mb-4 rounded-lg border border-[#ea4335]/30 bg-[#fce8e6] px-4 py-3 text-[13px] text-[#c5221f]">
+              {error}
+            </div>
+          )}
+
+          <form onSubmit={handleSubmit} className="space-y-5">
+            <div>
+              <label className="mb-1 block text-[12px] font-medium text-[#5f6368]">
+                Email address
+              </label>
+              <Input
+                type="email"
+                name="email"
+                value={formData.email}
+                onChange={handleChange}
+                placeholder="you@example.com"
+                className={fieldErrors.email ? "border-[#ea4335]" : ""}
+              />
+              {fieldErrors.email && (
+                <p className="mt-1 text-[12px] text-[#ea4335]">
+                  {fieldErrors.email}
+                </p>
               )}
+            </div>
 
-              <form onSubmit={handleSubmit} className="space-y-4">
-                <div>
-                  <label className="text-sm font-medium">Email address</label>
-                  <Input
-                    type="email"
-                    name="email"
-                    value={formData.email}
-                    onChange={handleChange}
-                    placeholder="you@example.com"
-                    className={fieldErrors.email ? "border-destructive" : ""}
-                  />
-                  {fieldErrors.email && (
-                    <p className="mt-1 text-xs text-destructive">
-                      {fieldErrors.email}
-                    </p>
-                  )}
-                </div>
-
-                <div>
-                  <label className="text-sm font-medium">Password</label>
-                  <div className="relative">
-                    <Input
-                      type={showPassword ? "text" : "password"}
-                      name="password"
-                      value={formData.password}
-                      onChange={handleChange}
-                      placeholder="••••••••"
-                      className={
-                        fieldErrors.password ? "border-destructive" : ""
-                      }
-                    />
-                    <button
-                      type="button"
-                      onClick={() => setShowPassword(!showPassword)}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
-                    >
-                      {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-                    </button>
-                  </div>
-                  {fieldErrors.password && (
-                    <p className="mt-1 text-xs text-destructive">
-                      {fieldErrors.password}
-                    </p>
-                  )}
-                </div>
-
-                <Button type="submit" className="w-full" disabled={isLoading}>
-                  {isLoading ? "Signing in..." : "Sign in"}
-                </Button>
-              </form>
-
-              <div className="mt-6 text-center text-sm text-muted-foreground">
-                Don't have an account?{" "}
-                <Link
-                  to="/register"
-                  className="font-medium text-primary hover:underline"
+            <div>
+              <label className="mb-1 block text-[12px] font-medium text-[#5f6368]">
+                Password
+              </label>
+              <div className="relative">
+                <Input
+                  type={showPassword ? "text" : "password"}
+                  name="password"
+                  value={formData.password}
+                  onChange={handleChange}
+                  placeholder="Enter your password"
+                  className={fieldErrors.password ? "border-[#ea4335]" : ""}
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-[#5f6368] hover:text-[#202124] cursor-pointer"
                 >
-                  Create one
-                </Link>
+                  {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                </button>
               </div>
-            </CardContent>
-          </Card>
-        </motion.div>
+              {fieldErrors.password && (
+                <p className="mt-1 text-[12px] text-[#ea4335]">
+                  {fieldErrors.password}
+                </p>
+              )}
+            </div>
 
-        <p className="mt-6 text-center text-xs text-muted-foreground">
+            <div className="flex items-center justify-between pt-2">
+              <Link
+                to="/register"
+                className="text-[14px] font-medium text-[#1a73e8] hover:underline"
+              >
+                Create account
+              </Link>
+              <Button type="submit" disabled={isLoading}>
+                {isLoading ? "Signing in..." : "Sign in"}
+              </Button>
+            </div>
+          </form>
+        </div>
+
+        <p className="mt-6 text-center text-[11px] text-[#80868b]">
           By signing in, you agree to our Terms of Service and Privacy Policy
         </p>
-      </motion.div>
+      </div>
     </div>
   );
 }

@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { Image, Smile } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "./ui/dialog";
 import { Button } from "./ui/button";
 import { Textarea } from "./ui/textarea";
@@ -16,7 +15,6 @@ export function ComposeModal({
   isOpen,
   onClose,
   onSubmit,
-  userAvatar = "https://api.dicebear.com/7.x/avataaars/svg?seed=User",
   userName = "User",
 }: ComposeModalProps) {
   const [content, setContent] = useState("");
@@ -29,45 +27,41 @@ export function ComposeModal({
     }
   };
 
+  const initials = userName
+    .split(" ")
+    .map((p) => p[0])
+    .slice(0, 2)
+    .join("");
+
   return (
     <Dialog open={isOpen} onOpenChange={(open: boolean) => !open && onClose()}>
-      <DialogContent className="max-w-2xl">
+      <DialogContent className="max-w-xl">
         <DialogHeader>
-          <DialogTitle className="text-2xl">Create a post</DialogTitle>
+          <DialogTitle>Create a post</DialogTitle>
         </DialogHeader>
 
         <div className="space-y-4 px-6 pb-6">
           <div className="flex items-center gap-3">
-            <img
-              src={userAvatar}
-              alt={userName}
-              className="h-12 w-12 rounded-2xl object-cover"
-            />
+            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#e8f0fe] text-[13px] font-medium text-[#1a73e8]">
+              {initials}
+            </div>
             <div>
-              <div className="text-sm font-semibold text-foreground">
+              <p className="text-[14px] font-medium text-[#202124]">
                 {userName}
-              </div>
-              <div className="text-xs text-muted-foreground">Just now</div>
+              </p>
+              <p className="text-[12px] text-[#5f6368]">Public</p>
             </div>
           </div>
 
           <Textarea
             value={content}
             onChange={(e) => setContent(e.target.value)}
-            placeholder="What do you want to share today?"
-            className="min-h-[160px] text-base"
+            placeholder="What's on your mind?"
+            className="min-h-[140px] border-none bg-transparent text-[14px] shadow-none focus-visible:ring-0 resize-none"
             autoFocus
           />
 
-          <div className="flex flex-wrap items-center justify-between gap-3">
-            <div className="flex items-center gap-2 text-muted-foreground">
-              <Button variant="ghost" size="icon" aria-label="Add image">
-                <Image className="h-4 w-4" />
-              </Button>
-              <Button variant="ghost" size="icon" aria-label="Add emoji">
-                <Smile className="h-4 w-4" />
-              </Button>
-            </div>
+          <div className="flex items-center justify-end border-t border-[#e8eaed] pt-4">
             <Button onClick={handleSubmit} disabled={!content.trim()}>
               Post
             </Button>

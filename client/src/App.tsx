@@ -3,8 +3,6 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { Toaster } from "sonner";
 import { AuthProvider, useAuth } from "./context/AuthContext";
 import { LeftSidebar, MobileNav } from "./components";
-import { ThemeToggle } from "./components/ThemeToggle";
-import { useTheme } from "./components/theme/ThemeProvider";
 import { ProtectedRoute } from "./components/ProtectedRoute";
 
 // Route-level code splitting
@@ -31,18 +29,14 @@ function PageFallback() {
 
 function AppLayout({ children }: { children: React.ReactNode }) {
   return (
-    <div className="min-h-screen bg-background text-foreground px-4 pb-24 pt-4 lg:pl-80 lg:pr-6 lg:py-6">
+    <div className="min-h-screen bg-[#f8f9fa] text-[#202124]">
       <LeftSidebar />
-      <main className="mx-auto w-full max-w-6xl">
-        <div className="mb-6 flex items-center justify-between rounded-2xl border border-border/60 bg-card/80 px-4 py-3 shadow-glass backdrop-blur-xl lg:hidden">
-          <div>
-            <div className="text-sm font-semibold">Social Network</div>
-            <div className="text-xs text-muted-foreground">Your orbit</div>
-          </div>
-          <ThemeToggle />
-        </div>
-        {children}
-      </main>
+      {/* Main content area offset for sidebar on desktop */}
+      <div className="pb-20 pt-0 lg:ml-[280px] lg:pb-0">
+        <main className="mx-auto w-full max-w-[720px] px-4 py-6 lg:py-8">
+          {children}
+        </main>
+      </div>
       <MobileNav />
     </div>
   );
@@ -217,8 +211,6 @@ function AppRoutes() {
 }
 
 function App() {
-  const { theme } = useTheme();
-
   return (
     <BrowserRouter
       future={{ v7_startTransition: true, v7_relativeSplatPath: true }}
@@ -226,7 +218,7 @@ function App() {
       <AuthProvider>
         <AppRoutes />
       </AuthProvider>
-      <Toaster position="top-right" theme={theme} />
+      <Toaster position="top-right" theme="light" />
     </BrowserRouter>
   );
 }

@@ -5,7 +5,6 @@ import { useAuth } from "../context/AuthContext";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "./ui/dialog";
 import { Input } from "./ui/input";
 import { Button } from "./ui/button";
-import { Separator } from "./ui/separator";
 
 interface CommentsModalProps {
   post: PostProps;
@@ -57,12 +56,12 @@ export function CommentsModal({
 
   return (
     <Dialog onOpenChange={(open: boolean) => !open && onClose()} open>
-      <DialogContent className="max-w-3xl">
+      <DialogContent className="max-w-2xl">
         <DialogHeader>
           <DialogTitle>Post</DialogTitle>
         </DialogHeader>
 
-        <div className="space-y-6 px-6 pb-6">
+        <div className="space-y-4 px-6 pb-6">
           <PostCard
             {...post}
             showPostMenu={false}
@@ -70,11 +69,11 @@ export function CommentsModal({
             onFollowToggle={onFollowToggle}
           />
 
-          <div className="rounded-3xl border border-border/60 bg-background/70 p-4">
-            <div className="text-xs uppercase tracking-wide text-muted-foreground">
+          <div className="rounded-lg border border-[#dadce0] bg-white p-4">
+            <p className="text-[12px] font-medium uppercase tracking-wide text-[#5f6368]">
               Comments
-            </div>
-            <Separator className="my-3" />
+            </p>
+            <div className="my-3 h-px bg-[#e8eaed]" />
 
             <div className="flex flex-wrap items-center gap-2">
               <Input
@@ -83,14 +82,16 @@ export function CommentsModal({
                 placeholder="Write a comment..."
                 className="flex-1"
               />
-              <Button onClick={() => onAddComment(post.id)}>Send</Button>
+              <Button onClick={() => onAddComment(post.id)} size="sm">
+                Send
+              </Button>
             </div>
 
-            <div className="mt-4 space-y-3">
+            <div className="mt-4 space-y-2">
               {isLoading ? (
-                <div className="text-sm text-muted-foreground">
+                <p className="text-[13px] text-[#5f6368]">
                   Loading comments...
-                </div>
+                </p>
               ) : comments.length > 0 ? (
                 comments.map((comment) => {
                   const isEditing = editingCommentId === comment.id;
@@ -100,28 +101,28 @@ export function CommentsModal({
                   return (
                     <div
                       key={comment.id}
-                      className="rounded-2xl border border-border/50 bg-muted/40 px-3 py-2"
+                      className="rounded-lg bg-[#f8f9fa] px-3 py-2.5"
                     >
                       <div className="flex items-start justify-between gap-3">
-                        <div className="text-xs text-muted-foreground">
+                        <p className="text-[12px] font-medium text-[#5f6368]">
                           {comment.author
                             ? `${comment.author.firstName} ${comment.author.lastName}`.trim() ||
                               comment.author.username
                             : "User"}
-                        </div>
+                        </p>
                         {canManage && !isEditing && (
-                          <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                          <div className="flex items-center gap-3 text-[12px]">
                             <button
                               type="button"
                               onClick={() => onStartEdit(post.id, comment)}
-                              className="hover:text-foreground"
+                              className="text-[#1a73e8] hover:underline cursor-pointer"
                             >
                               Edit
                             </button>
                             <button
                               type="button"
                               onClick={() => onDelete(post.id, comment.id)}
-                              className="text-destructive"
+                              className="text-[#ea4335] hover:underline cursor-pointer"
                             >
                               Delete
                             </button>
@@ -156,29 +157,26 @@ export function CommentsModal({
                           </div>
                         </div>
                       ) : (
-                        <div className="text-sm text-foreground">
+                        <p className="mt-0.5 text-[14px] text-[#202124]">
                           {comment.content}
-                        </div>
+                        </p>
                       )}
                     </div>
                   );
                 })
               ) : (
-                <div className="text-sm text-muted-foreground">
-                  No comments yet.
-                </div>
+                <p className="text-[13px] text-[#5f6368]">No comments yet.</p>
               )}
 
               {hasMore && (
-                <div className="flex justify-center">
-                  <Button
-                    variant="ghost"
-                    size="sm"
+                <div className="flex justify-center pt-1">
+                  <button
                     onClick={() => onLoadMore(post.id)}
                     disabled={isMoreLoading}
+                    className="text-[13px] font-medium text-[#1a73e8] hover:underline disabled:opacity-50 cursor-pointer"
                   >
-                    {isMoreLoading ? "Loading..." : "More comments"}
-                  </Button>
+                    {isMoreLoading ? "Loading..." : "Show more comments"}
+                  </button>
                 </div>
               )}
             </div>
