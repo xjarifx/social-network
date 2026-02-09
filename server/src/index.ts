@@ -5,7 +5,7 @@ import { fileURLToPath } from "url";
 // Configure dotenv before any imports that need environment variables
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const envPath = path.resolve(__dirname, "../../.env");
-dotenv.config({ path: envPath });
+dotenv.config({ path: envPath, debug: false });
 
 // Now dynamically import the rest of the application
 async function main() {

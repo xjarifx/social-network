@@ -1,6 +1,7 @@
 import { PrismaClient } from "../../generated/prisma/index";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
+import { randomBytes } from "crypto";
 import { registerSchema, loginSchema } from "./auth.validation";
 
 const prisma = new PrismaClient();
@@ -13,13 +14,17 @@ const REFRESH_TOKEN_EXPIRES_IN: string =
   process.env.REFRESH_TOKEN_EXPIRES_IN || "";
 
 const generateToken = (userId: string): string => {
-  return jwt.sign({ userId }, JWT_SECRET, { expiresIn: JWT_EXPIRES_IN });
+  return jwt.sign({ userId }, JWT_SECRET as jwt.Secret, { expiresIn: JWT_EXPIRES_IN });
 };
 
 const generateRefreshToken = (userId: string): string => {
-  return jwt.sign({ userId }, REFRESH_TOKEN_SECRET, {
-    expiresIn: REFRESH_TOKEN_EXPIRES_IN,
-  });
+  return jwt.sign(
+    { userId, jti: randomBytes(16).toString("hex") },
+    REFRESH_TOKEN_SECRET as jwt.Secret,
+    {
+      expiresIn: REFRESH_TOKEN_EXPIRES_IN,
+    },
+  );
 };
 
 export const registerUser = async (input: any) => {
