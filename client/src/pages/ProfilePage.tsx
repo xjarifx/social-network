@@ -1,9 +1,16 @@
 import { useEffect, useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
-import { usersAPI, followsAPI, blocksAPI, likesAPI } from "../services/api";
+import { toast } from "sonner";
+import {
+  usersAPI,
+  followsAPI,
+  blocksAPI,
+  likesAPI,
+  postsAPI,
+} from "../services/api";
 import type { User, Follower, BlockedUser } from "../services/api";
 import { useAuth } from "../context/AuthContext";
-import { Feed, CommentsModal } from "../components";
+import { Feed, CommentsModal, EditPostModal } from "../components";
 import type { PostProps } from "../components";
 import { useComments } from "../hooks";
 import { transformPost } from "../utils";
@@ -23,6 +30,9 @@ export default function ProfilePage() {
   const [posts, setPosts] = useState<PostProps[]>([]);
   const [postsLoading, setPostsLoading] = useState(true);
   const [postsError, setPostsError] = useState<string | null>(null);
+  const [editingPostId, setEditingPostId] = useState<string | null>(null);
+  const [editingContent, setEditingContent] = useState("");
+  const [isSavingEdit, setIsSavingEdit] = useState(false);
 
   const comments = useComments();
 
@@ -39,13 +49,12 @@ export default function ProfilePage() {
   }, []);
 
   useEffect(() => {
-    document.documentElement.style.overflow = comments.openCommentsPostId
-      ? "hidden"
-      : "";
+    document.documentElement.style.overflow =
+      comments.openCommentsPostId || editingPostId ? "hidden" : "";
     return () => {
       document.documentElement.style.overflow = "";
     };
-  }, [comments.openCommentsPostId]);
+  }, [comments.openCommentsPostId, editingPostId]);
 
   useEffect(() => {
     const loadProfile = async () => {
@@ -107,6 +116,7 @@ export default function ProfilePage() {
       setError(null);
       const updated = await usersAPI.updateProfile({ firstName, lastName });
       setProfile(updated);
+      toast.success("Profile updated successfully!");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to update profile");
     } finally {
@@ -143,6 +153,46 @@ export default function ProfilePage() {
     },
     [posts, user?.id],
   );
+
+  const handleEditPost = useCallback((postId: string, content: string) => {
+    setEditingPostId(postId);
+    setEditingContent(content);
+  }, []);
+
+  const handleSaveEditPost = async () => {
+    if (!editingPostId || !editingContent.trim()) {
+      return;
+    }
+
+    try {
+      setIsSavingEdit(true);
+      await postsAPI.updatePost(editingPostId, editingContent.trim());
+      setPosts((prev) =>
+        prev.map((p) =>
+          p.id === editingPostId ? { ...p, content: editingContent.trim() } : p,
+        ),
+      );
+      setEditingPostId(null);
+      setEditingContent("");
+      toast.success("Post updated successfully!");
+    } catch (err) {
+      console.error("Failed to update post:", err);
+      toast.error(err instanceof Error ? err.message : "Failed to update post");
+    } finally {
+      setIsSavingEdit(false);
+    }
+  };
+
+  const handleDeletePost = async (postId: string) => {
+    try {
+      await postsAPI.deletePost(postId);
+      setPosts((prev) => prev.filter((p) => p.id !== postId));
+      toast.success("Post deleted successfully!");
+    } catch (err) {
+      console.error("Failed to delete post:", err);
+      toast.error(err instanceof Error ? err.message : "Failed to delete post");
+    }
+  };
 
   const selectedPost = comments.openCommentsPostId
     ? (posts.find((p) => p.id === comments.openCommentsPostId) ?? null)
@@ -265,13 +315,28 @@ export default function ProfilePage() {
             <Feed
               posts={posts}
               isLoading={postsLoading}
-              showPostMenu={false}
+              showPostMenu={true}
               onLike={handleLike}
               onReply={comments.toggleComments}
+              onEdit={handleEditPost}
+              onDelete={handleDeletePost}
             />
           </div>
         </div>
       </div>
+
+      {editingPostId && (
+        <EditPostModal
+          editingContent={editingContent}
+          isSaving={isSavingEdit}
+          onClose={() => {
+            setEditingPostId(null);
+            setEditingContent("");
+          }}
+          onSave={handleSaveEditPost}
+          onContentChange={setEditingContent}
+        />
+      )}
 
       {comments.openCommentsPostId && selectedPost && (
         <CommentsModal

@@ -1,5 +1,6 @@
 import { lazy, Suspense } from "react";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { Toaster } from "sonner";
 import { AuthProvider, useAuth } from "./context/AuthContext";
 import { LeftSidebar } from "./components";
 import { ProtectedRoute } from "./components/ProtectedRoute";
@@ -205,10 +206,13 @@ function AppRoutes() {
 
 function App() {
   return (
-    <BrowserRouter>
+    <BrowserRouter
+      future={{ v7_startTransition: true, v7_relativeSplatPath: true }}
+    >
       <AuthProvider>
         <AppRoutes />
       </AuthProvider>
+      <Toaster position="top-right" />
     </BrowserRouter>
   );
 }

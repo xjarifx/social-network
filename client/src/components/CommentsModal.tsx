@@ -69,7 +69,12 @@ function CommentsModalComponent({
           </button>
         </div>
         <div className="p-4 sm:p-5 space-y-4 overflow-y-auto max-h-[70vh]">
-          <PostCard {...post} onLike={onLike} onFollowToggle={onFollowToggle} />
+          <PostCard
+            {...post}
+            showPostMenu={false}
+            onLike={onLike}
+            onFollowToggle={onFollowToggle}
+          />
 
           <div className="card p-4 sm:p-5">
             <div className="space-y-4">

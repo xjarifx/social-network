@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
+import { toast } from "sonner";
 import { postsAPI } from "../services/api";
 
 export default function ComposePage() {
@@ -18,6 +19,7 @@ export default function ComposePage() {
       setIsSubmitting(true);
       setError(null);
       await postsAPI.create(content.trim());
+      toast.success("Post created successfully!");
       navigate("/", { replace: true });
     } catch (err) {
       console.error("Failed to create post:", err);

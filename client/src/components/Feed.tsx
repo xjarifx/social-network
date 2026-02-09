@@ -12,6 +12,8 @@ export interface FeedProps {
     authorId: string,
     isFollowing: boolean,
   ) => void | Promise<void>;
+  onEdit?: (postId: string, content: string) => void | Promise<void>;
+  onDelete?: (postId: string) => void | Promise<void>;
   renderPostFooter?: (post: PostProps) => React.ReactNode;
 }
 
@@ -22,6 +24,8 @@ function FeedComponent({
   onLike,
   onReply,
   onFollowToggle,
+  onEdit,
+  onDelete,
   renderPostFooter,
 }: FeedProps) {
   if (isLoading) {
@@ -44,6 +48,8 @@ function FeedComponent({
             onLike={onLike}
             onReply={onReply}
             onFollowToggle={onFollowToggle}
+            onEdit={onEdit}
+            onDelete={onDelete}
           />
           {renderPostFooter?.(post)}
         </div>

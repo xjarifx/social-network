@@ -5,6 +5,8 @@ import {
   MoreHorizontal,
   Shield,
   UserPlus,
+  Edit,
+  Trash2,
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { blocksAPI, followsAPI } from "../services/api";
@@ -32,6 +34,8 @@ export interface PostProps {
     authorId: string,
     isFollowing: boolean,
   ) => void | Promise<void>;
+  onEdit?: (id: string, content: string) => void | Promise<void>;
+  onDelete?: (id: string) => void | Promise<void>;
 }
 
 function PostCardComponent({
@@ -49,6 +53,8 @@ function PostCardComponent({
   onLike,
   onReply,
   onFollowToggle,
+  onEdit,
+  onDelete,
 }: PostProps) {
   const { user } = useAuth();
   const [isLiked, setIsLiked] = useState(liked);
@@ -148,13 +154,36 @@ function PostCardComponent({
     }
   }, [canActOnUser, authorId]);
 
+  const handleDelete = useCallback(async () => {
+    if (!onDelete) {
+      return;
+    }
+
+    try {
+      setIsActionLoading(true);
+      await onDelete(id);
+      setIsMenuOpen(false);
+    } catch (err) {
+      console.error("Failed to delete post:", err);
+    } finally {
+      setIsActionLoading(false);
+    }
+  }, [id, onDelete]);
+
+  const handleEdit = useCallback(() => {
+    if (onEdit) {
+      onEdit(id, content);
+    }
+    setIsMenuOpen(false);
+  }, [id, content, onEdit]);
+
   return (
     <div className="card card-hover overflow-hidden transition-all duration-200">
       <div className="p-5 sm:p-6">
         {/* Header */}
         <div className="flex items-start justify-between mb-4">
           <div className="flex items-center gap-3 min-w-0">
-            {authorId ? (
+            {authorId && user?.id !== authorId ? (
               <Link
                 to={`/users/${authorId}`}
                 className="flex items-center gap-3 min-w-0"
@@ -206,7 +235,26 @@ function PostCardComponent({
 
               {isMenuOpen && (
                 <div className="absolute right-0 mt-2 w-40 rounded-lg border border-[#f5d580] bg-white shadow-lg z-20 overflow-hidden">
-                  {canActOnUser ? (
+                  {user?.id === authorId ? (
+                    <div className="flex flex-col">
+                      <button
+                        onClick={handleEdit}
+                        disabled={isActionLoading}
+                        className="flex items-center gap-2 px-3 py-2 text-sm text-[#5a412f] hover:bg-[#fce8a0] disabled:opacity-50"
+                      >
+                        <Edit size={16} />
+                        <span>Edit</span>
+                      </button>
+                      <button
+                        onClick={handleDelete}
+                        disabled={isActionLoading}
+                        className="flex items-center gap-2 px-3 py-2 text-sm text-red-600 hover:bg-red-50 disabled:opacity-50"
+                      >
+                        <Trash2 size={16} />
+                        <span>Delete</span>
+                      </button>
+                    </div>
+                  ) : canActOnUser ? (
                     <div className="flex flex-col">
                       <button
                         onClick={handleFollow}

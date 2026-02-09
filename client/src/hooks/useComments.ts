@@ -1,7 +1,6 @@
 import { useState, useCallback } from "react";
 import { commentsAPI } from "../services/api";
 import type { Comment as ApiComment } from "../services/api";
-import type { PostProps } from "../components";
 
 interface CommentMeta {
   total: number;
