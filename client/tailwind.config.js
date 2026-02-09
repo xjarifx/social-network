@@ -1,104 +1,87 @@
 /** @type {import('tailwindcss').Config} */
 export default {
+  darkMode: ["class"],
   content: ["./index.html", "./src/**/*.{js,ts,jsx,tsx}"],
   theme: {
     extend: {
       colors: {
-        // Earth globe color palette
-        earth: {
-          cream: "#fef5bd", // Light background & highlights
-          brown: "#5a412f", // Dark text & accents
-          orange: "#ff7000", // Primary action
-          oLight: "#ff8e3a", // Secondary action & hover
+        border: "hsl(var(--border))",
+        input: "hsl(var(--input))",
+        ring: "hsl(var(--ring))",
+        background: "hsl(var(--background))",
+        foreground: "hsl(var(--foreground))",
+        primary: {
+          DEFAULT: "hsl(var(--primary))",
+          foreground: "hsl(var(--primary-foreground))",
         },
-        // Neutral palette - supporting colors
-        neutral: {
-          bg: "#fef5bd",
-          50: "#fffef9",
-          100: "#fef5bd",
-          200: "#fce8a0",
-          300: "#f5d580",
-          400: "#edc560",
-          500: "#deb040",
-          600: "#c99820",
-          700: "#a87d1a",
-          800: "#5a412f",
-          900: "#3d2b1f",
+        secondary: {
+          DEFAULT: "hsl(var(--secondary))",
+          foreground: "hsl(var(--secondary-foreground))",
         },
-        // Primary accent - orange
+        destructive: {
+          DEFAULT: "hsl(var(--destructive))",
+          foreground: "hsl(var(--destructive-foreground))",
+        },
+        muted: {
+          DEFAULT: "hsl(var(--muted))",
+          foreground: "hsl(var(--muted-foreground))",
+        },
         accent: {
-          50: "#fff7f0",
-          100: "#ffe8dc",
-          200: "#ffd4b8",
-          300: "#ffb88a",
-          400: "#ff9956",
-          500: "#ff7000",
-          600: "#ff6b00",
-          700: "#cc5500",
-          800: "#994000",
-          900: "#662b00",
+          DEFAULT: "hsl(var(--accent))",
+          foreground: "hsl(var(--accent-foreground))",
+        },
+        popover: {
+          DEFAULT: "hsl(var(--popover))",
+          foreground: "hsl(var(--popover-foreground))",
+        },
+        card: {
+          DEFAULT: "hsl(var(--card))",
+          foreground: "hsl(var(--card-foreground))",
         },
       },
       fontFamily: {
-        sans: ["Inter", "SF Pro Display", "system-ui", "sans-serif"],
-        display: ["Inter", "SF Pro Display", "system-ui", "sans-serif"],
-      },
-      fontSize: {
-        xs: ["12px", { lineHeight: "16px" }],
-        sm: ["14px", { lineHeight: "20px" }],
-        base: ["16px", { lineHeight: "24px" }],
-        lg: ["18px", { lineHeight: "28px" }],
-        xl: ["20px", { lineHeight: "28px" }],
-        "2xl": ["24px", { lineHeight: "32px" }],
-        "3xl": ["30px", { lineHeight: "36px" }],
+        sans: [
+          "SF Pro Display",
+          "SF Pro Text",
+          "Neue Haas Grotesk Display",
+          "Helvetica Neue",
+          "sans-serif",
+        ],
       },
       borderRadius: {
-        sm: "8px",
-        md: "12px",
-        lg: "16px",
-        xl: "20px",
+        lg: "var(--radius)",
+        md: "calc(var(--radius) - 2px)",
+        sm: "calc(var(--radius) - 4px)",
       },
       boxShadow: {
-        xs: "0 1px 2px 0 rgba(0, 0, 0, 0.05)",
-        sm: "0 1px 3px 0 rgba(0, 0, 0, 0.08)",
-        md: "0 4px 6px -1px rgba(0, 0, 0, 0.08)",
-        lg: "0 10px 15px -3px rgba(0, 0, 0, 0.08)",
-        xl: "0 20px 25px -5px rgba(0, 0, 0, 0.08)",
+        soft: "0 12px 35px -18px rgba(15, 23, 42, 0.35)",
+        glass: "0 12px 30px -20px rgba(15, 23, 42, 0.5)",
       },
-      spacing: {
-        0.5: "2px",
-        1: "4px",
-        2: "8px",
-        3: "12px",
-        4: "16px",
-        5: "20px",
-        6: "24px",
-        7: "28px",
-        8: "32px",
-        9: "36px",
-        10: "40px",
-        12: "48px",
-        14: "56px",
-        16: "64px",
-      },
-      transitionDuration: {
-        200: "200ms",
-        300: "300ms",
-        400: "400ms",
+      keyframes: {
+        "fade-in": {
+          from: { opacity: "0" },
+          to: { opacity: "1" },
+        },
+        "slide-up": {
+          from: { opacity: "0", transform: "translateY(12px)" },
+          to: { opacity: "1", transform: "translateY(0)" },
+        },
+        "slide-down": {
+          from: { opacity: "0", transform: "translateY(-12px)" },
+          to: { opacity: "1", transform: "translateY(0)" },
+        },
+        "scale-in": {
+          from: { opacity: "0", transform: "scale(0.98)" },
+          to: { opacity: "1", transform: "scale(1)" },
+        },
       },
       animation: {
-        "fade-in": "fadeIn 0.3s ease-out",
-        "slide-up": "slideInUp 0.3s ease-out",
-        "scale-in": "scaleIn 0.3s ease-out",
+        "fade-in": "fade-in 220ms ease-out",
+        "slide-up": "slide-up 240ms ease-out",
+        "slide-down": "slide-down 240ms ease-out",
+        "scale-in": "scale-in 200ms ease-out",
       },
     },
   },
-  plugins: [
-    function ({ addVariant }) {
-      addVariant(
-        "supports-backdrop-blur",
-        "@supports (backdrop-filter: blur(1px))",
-      );
-    },
-  ],
+  plugins: [],
 };

@@ -1,5 +1,9 @@
 import { motion } from "framer-motion";
 import { Search, Sparkles } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
+import { Input } from "./ui/input";
+import { Button } from "./ui/button";
+import { Separator } from "./ui/separator";
 
 export interface TrendingItem {
   id: string;
@@ -46,91 +50,80 @@ export function Sidebar({ trends = [], showSearch = true }: SidebarProps) {
     >
       {/* Search */}
       {showSearch && (
-        <div className="card p-4">
-          <div className="relative">
-            <Search
-              className="absolute left-3 top-1/2 -translate-y-1/2 text-neutral-400"
-              size={18}
-            />
-            <input
-              type="text"
-              placeholder="Search..."
-              className="input pl-10 bg-neutral-50 border-0"
-            />
-          </div>
-        </div>
+        <Card>
+          <CardContent className="p-4">
+            <div className="relative">
+              <Search
+                className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground"
+                size={18}
+              />
+              <Input type="text" placeholder="Search..." className="pl-10" />
+            </div>
+          </CardContent>
+        </Card>
       )}
 
       {/* What's happening */}
-      <div className="card overflow-hidden">
-        {/* Header */}
-        <div className="p-4 sm:p-5 border-b border-neutral-100">
+      <Card>
+        <CardHeader className="pb-3">
           <div className="flex items-center gap-2">
-            <Sparkles size={20} className="text-accent-500" />
-            <h2 className="text-brand font-bold text-base sm:text-lg">
+            <Sparkles size={18} className="text-accent" />
+            <CardTitle className="text-base sm:text-lg">
               What's happening
-            </h2>
+            </CardTitle>
           </div>
-        </div>
-
-        {/* Trends list */}
-        <motion.div className="divide-y divide-neutral-100">
-          {trends.length > 0 ? (
-            trends.map((item, idx) => (
-              <motion.button
-                key={item.id}
-                custom={idx}
-                variants={itemVariants}
-                initial="hidden"
-                animate="visible"
-                whileHover={{
-                  backgroundColor: "#f5f5f5",
-                }}
-                className="w-full p-4 sm:p-5 text-left transition-colors duration-200 hover:bg-neutral-50"
-              >
-                <div className="flex items-start justify-between gap-4">
-                  <div className="flex-1 min-w-0">
-                    <p className="text-muted text-xs sm:text-sm">
-                      {item.category}
-                    </p>
-                    <h3 className="text-brand font-bold text-sm sm:text-base truncate">
-                      {item.title}
-                    </h3>
-                    <p className="text-muted text-xs sm:text-sm">
-                      {item.count.toLocaleString()} posts
-                    </p>
-                  </div>
-                  {item.trend === "up" && (
-                    <div className="text-accent-500 text-xs font-semibold">
-                      +
+        </CardHeader>
+        <CardContent className="p-0">
+          <motion.div className="divide-y divide-border/60">
+            {trends.length > 0 ? (
+              trends.map((item, idx) => (
+                <motion.button
+                  key={item.id}
+                  custom={idx}
+                  variants={itemVariants}
+                  initial="hidden"
+                  animate="visible"
+                  className="w-full p-4 text-left transition hover:bg-muted/50"
+                >
+                  <div className="flex items-start justify-between gap-4">
+                    <div className="flex-1 min-w-0">
+                      <p className="text-xs text-muted-foreground">
+                        {item.category}
+                      </p>
+                      <h3 className="truncate text-sm font-semibold text-foreground">
+                        {item.title}
+                      </h3>
+                      <p className="text-xs text-muted-foreground">
+                        {item.count.toLocaleString()} posts
+                      </p>
                     </div>
-                  )}
-                </div>
-              </motion.button>
-            ))
-          ) : (
-            <div className="p-4 sm:p-5 text-center">
-              <p className="text-muted text-sm">No trends available</p>
+                    {item.trend === "up" && (
+                      <div className="text-xs font-semibold text-accent">+</div>
+                    )}
+                  </div>
+                </motion.button>
+              ))
+            ) : (
+              <div className="p-5 text-center">
+                <p className="text-sm text-muted-foreground">
+                  No trends available
+                </p>
+              </div>
+            )}
+          </motion.div>
+          {trends.length > 0 && (
+            <div className="p-4">
+              <Separator className="mb-4" />
+              <Button variant="ghost" className="w-full">
+                View More
+              </Button>
             </div>
           )}
-        </motion.div>
-
-        {/* View more button */}
-        {trends.length > 0 && (
-          <div className="p-4 sm:p-5 border-t border-neutral-100">
-            <motion.button
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-              className="w-full py-2 text-accent-500 hover:text-accent-600 font-semibold text-sm transition-colors duration-200"
-            >
-              View More
-            </motion.button>
-          </div>
-        )}
-      </div>
+        </CardContent>
+      </Card>
 
       {/* Footer note */}
-      <div className="text-center text-muted text-xs">
+      <div className="text-center text-xs text-muted-foreground">
         <p>© 2026 Social. All rights reserved.</p>
       </div>
     </motion.div>

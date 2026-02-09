@@ -2,6 +2,13 @@ import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { notificationsAPI } from "../services/api";
 import type { Notification } from "../services/api";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "../components/ui/card";
+import { Button } from "../components/ui/button";
 
 export default function NotificationsPage() {
   const [notifications, setNotifications] = useState<Notification[]>([]);
@@ -53,74 +60,75 @@ export default function NotificationsPage() {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.2, ease: "easeOut" }}
-      className="min-h-screen bg-neutral-bg"
+      className="min-h-screen"
     >
-      <div className="max-w-5xl mx-auto px-4 sm:px-6 py-8 flex justify-center">
-        <div className="card-container">
-          <div className="card p-6">
-            <div className="flex items-center justify-between mb-4">
-              <h1 className="text-brand text-xl font-bold">Notifications</h1>
-              <button
-                className="btn-primary px-4 py-2"
-                onClick={loadNotifications}
-              >
-                Refresh
-              </button>
-            </div>
-
+      <div className="mx-auto max-w-5xl px-4 sm:px-6 py-8">
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between">
+            <CardTitle>Notifications</CardTitle>
+            <Button onClick={loadNotifications}>Refresh</Button>
+          </CardHeader>
+          <CardContent>
             {error && (
-              <div className="mb-4 rounded-lg bg-red-50 border border-red-200 p-3 text-sm text-red-700">
+              <div className="mb-4 rounded-2xl border border-destructive/40 bg-destructive/10 p-3 text-sm text-destructive">
                 {error}
               </div>
             )}
 
             {isLoading ? (
-              <div className="text-muted">Loading notifications...</div>
+              <div className="text-sm text-muted-foreground">
+                Loading notifications...
+              </div>
             ) : notifications.length === 0 ? (
-              <div className="text-sm text-muted">No notifications yet.</div>
+              <div className="text-sm text-muted-foreground">
+                No notifications yet.
+              </div>
             ) : (
               <div className="space-y-3">
                 {notifications.map((notification) => (
                   <div
                     key={notification.id}
-                    className={`rounded-lg border p-4 ${
+                    className={`rounded-2xl border p-4 ${
                       notification.read
-                        ? "border-neutral-100"
-                        : "border-accent-200 bg-accent-50"
+                        ? "border-border/60"
+                        : "border-primary/40 bg-primary/5"
                     }`}
                   >
                     <div className="flex items-start justify-between gap-4">
                       <div>
-                        <div className="text-sm text-neutral-900">
+                        <div className="text-sm text-foreground">
                           {notification.message}
                         </div>
-                        <div className="text-xs text-muted mt-1">
+                        <div className="mt-1 text-xs text-muted-foreground">
                           {new Date(notification.createdAt).toLocaleString()}
                         </div>
                       </div>
                       <div className="flex items-center gap-2">
                         {!notification.read && (
-                          <button
-                            className="text-xs text-accent-600"
+                          <Button
+                            size="sm"
+                            variant="ghost"
                             onClick={() => handleMarkRead(notification.id)}
                           >
                             Mark read
-                          </button>
+                          </Button>
                         )}
-                        <button
-                          className="text-xs text-red-600"
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          className="text-destructive"
                           onClick={() => handleDelete(notification.id)}
                         >
                           Delete
-                        </button>
+                        </Button>
                       </div>
                     </div>
                   </div>
                 ))}
               </div>
             )}
-          </div>
-        </div>
+          </CardContent>
+        </Card>
       </div>
     </motion.div>
   );

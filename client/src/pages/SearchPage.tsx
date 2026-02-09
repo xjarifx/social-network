@@ -4,6 +4,8 @@ import { motion } from "framer-motion";
 import { usersAPI, type User } from "../services/api";
 import { useAuth } from "../context/AuthContext";
 import { ChevronLeft } from "lucide-react";
+import { Card, CardContent } from "../components/ui/card";
+import { Button } from "../components/ui/button";
 
 export default function SearchPage() {
   const navigate = useNavigate();
@@ -54,101 +56,103 @@ export default function SearchPage() {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.2, ease: "easeOut" }}
-      className="min-h-screen bg-neutral-bg"
+      className="min-h-screen"
     >
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 py-8 flex flex-col items-center">
-        <div className="card-container space-y-6">
-          {/* Header with back button */}
+      <div className="mx-auto max-w-4xl px-4 sm:px-6 py-8">
+        <div className="space-y-6">
           <div className="flex items-center gap-4">
-            <button
+            <Button
+              variant="ghost"
+              size="icon"
               onClick={() => navigate("/")}
-              className="p-2 hover:bg-neutral-100 rounded-lg transition-colors"
               aria-label="Go back"
             >
-              <ChevronLeft size={20} className="text-neutral-600" />
-            </button>
+              <ChevronLeft size={20} />
+            </Button>
             <div>
-              <h1 className="text-brand text-xl font-bold">Search Results</h1>
+              <h1 className="text-xl font-semibold">Search results</h1>
               {query && (
-                <p className="text-sm text-muted">
-                  Results for:{" "}
-                  <span className="font-medium text-brand">{query}</span>
+                <p className="text-sm text-muted-foreground">
+                  Results for: <span className="font-medium">{query}</span>
                 </p>
               )}
             </div>
           </div>
-          <div className="card p-6">
-            {error && (
-              <div className="mb-4 rounded-lg bg-red-50 border border-red-200 p-3 text-sm text-red-700">
-                {error}
-              </div>
-            )}
 
-            {!query.trim() ? (
-              <div className="text-center py-12">
-                <p className="text-muted">Enter a search query to find users</p>
-              </div>
-            ) : isLoading && results.length === 0 ? (
-              <div className="text-muted">Searching for users...</div>
-            ) : results.length === 0 ? (
-              <div className="text-center py-12">
-                <p className="text-muted">No users found matching "{query}"</p>
-              </div>
-            ) : (
-              <>
-                <div className="space-y-3">
-                  {results.map((user) => (
-                    <motion.div
-                      key={user.id}
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ duration: 0.2 }}
-                      className="flex items-center justify-between rounded-lg border border-neutral-100 p-4 hover:border-brand-500 hover:bg-brand-50 transition-colors"
-                    >
-                      <div className="flex items-center gap-4 flex-1">
-                        <div className="w-12 h-12 rounded-full bg-gradient-to-br from-accent-500 to-accent-600 flex items-center justify-center text-white font-bold">
-                          {user.firstName[0]}
-                          {user.lastName[0]}
-                        </div>
-                        <div>
-                          <div className="text-sm font-medium text-brand">
-                            {user.firstName} {user.lastName}
-                          </div>
-                          <div className="text-xs text-muted">
-                            @{user.username}
-                          </div>
-                        </div>
-                      </div>
-                      <button
-                        onClick={() => navigate(`/users/${user.id}`)}
-                        disabled={currentUser?.id === user.id}
-                        className="btn-primary px-4 py-2 disabled:opacity-50 disabled:cursor-not-allowed"
+          <Card>
+            <CardContent className="p-6">
+              {error && (
+                <div className="mb-4 rounded-2xl border border-destructive/40 bg-destructive/10 p-3 text-sm text-destructive">
+                  {error}
+                </div>
+              )}
+
+              {!query.trim() ? (
+                <div className="py-12 text-center text-muted-foreground">
+                  Enter a search query to find users
+                </div>
+              ) : isLoading && results.length === 0 ? (
+                <div className="text-sm text-muted-foreground">
+                  Searching for users...
+                </div>
+              ) : results.length === 0 ? (
+                <div className="py-12 text-center text-muted-foreground">
+                  No users found matching "{query}"
+                </div>
+              ) : (
+                <>
+                  <div className="space-y-3">
+                    {results.map((user) => (
+                      <motion.div
+                        key={user.id}
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.2 }}
+                        className="flex items-center justify-between rounded-2xl border border-border/60 bg-muted/30 p-4"
                       >
-                        {currentUser?.id === user.id ? "You" : "View Profile"}
-                      </button>
-                    </motion.div>
-                  ))}
-                </div>
+                        <div className="flex flex-1 items-center gap-4">
+                          <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-primary/10 text-sm font-semibold text-primary">
+                            {user.firstName[0]}
+                            {user.lastName[0]}
+                          </div>
+                          <div>
+                            <div className="text-sm font-medium">
+                              {user.firstName} {user.lastName}
+                            </div>
+                            <div className="text-xs text-muted-foreground">
+                              @{user.username}
+                            </div>
+                          </div>
+                        </div>
+                        <Button
+                          onClick={() => navigate(`/users/${user.id}`)}
+                          disabled={currentUser?.id === user.id}
+                        >
+                          {currentUser?.id === user.id ? "You" : "View profile"}
+                        </Button>
+                      </motion.div>
+                    ))}
+                  </div>
 
-                {/* Show total results count and load more button */}
-                <div className="mt-6 flex items-center justify-between">
-                  <p className="text-sm text-muted">
-                    Showing {results.length} of {total} results
-                  </p>
-                  {offset + limit < total && (
-                    <button
-                      onClick={handleLoadMore}
-                      disabled={isLoading}
-                      className="btn-secondary px-4 py-2"
-                    >
-                      {isLoading ? "Loading..." : "Load More"}
-                    </button>
-                  )}
-                </div>
-              </>
-            )}
-          </div>{" "}
-        </div>{" "}
+                  <div className="mt-6 flex flex-wrap items-center justify-between gap-2">
+                    <p className="text-sm text-muted-foreground">
+                      Showing {results.length} of {total} results
+                    </p>
+                    {offset + limit < total && (
+                      <Button
+                        variant="secondary"
+                        onClick={handleLoadMore}
+                        disabled={isLoading}
+                      >
+                        {isLoading ? "Loading..." : "Load more"}
+                      </Button>
+                    )}
+                  </div>
+                </>
+              )}
+            </CardContent>
+          </Card>
+        </div>
       </div>
     </motion.div>
   );

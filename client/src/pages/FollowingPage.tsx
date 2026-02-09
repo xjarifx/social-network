@@ -4,6 +4,13 @@ import { motion } from "framer-motion";
 import { followsAPI } from "../services/api";
 import type { Follower } from "../services/api";
 import { useAuth } from "../context/AuthContext";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "../components/ui/card";
+import { Button } from "../components/ui/button";
 
 export default function FollowingPage() {
   const navigate = useNavigate();
@@ -38,23 +45,26 @@ export default function FollowingPage() {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.2, ease: "easeOut" }}
-      className="min-h-screen bg-neutral-bg"
+      className="min-h-screen"
     >
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 py-8 flex justify-center">
-        <div className="card-container space-y-6">
-          <div className="card p-6">
-            <h1 className="text-brand text-xl font-bold mb-4">Following</h1>
-
+      <div className="mx-auto max-w-4xl px-4 sm:px-6 py-8">
+        <Card>
+          <CardHeader>
+            <CardTitle>Following</CardTitle>
+          </CardHeader>
+          <CardContent>
             {error && (
-              <div className="mb-4 rounded-lg bg-red-50 border border-red-200 p-3 text-sm text-red-700">
+              <div className="mb-4 rounded-2xl border border-destructive/40 bg-destructive/10 p-3 text-sm text-destructive">
                 {error}
               </div>
             )}
 
             {isLoading ? (
-              <div className="text-muted">Loading following...</div>
+              <div className="text-sm text-muted-foreground">
+                Loading following...
+              </div>
             ) : following.length === 0 ? (
-              <div className="text-sm text-muted">
+              <div className="text-sm text-muted-foreground">
                 Not following anyone yet.
               </div>
             ) : (
@@ -62,28 +72,25 @@ export default function FollowingPage() {
                 {following.map((item) => (
                   <div
                     key={item.id}
-                    className="flex items-center justify-between rounded-lg border border-neutral-100 p-4 hover:border-brand-500 hover:bg-brand-50 transition-colors cursor-pointer"
+                    className="flex items-center justify-between rounded-2xl border border-border/60 bg-muted/30 p-4"
                   >
                     <div className="flex-1">
-                      <div className="text-sm font-medium text-brand">
+                      <div className="text-sm font-medium">
                         {item.user?.firstName} {item.user?.lastName}
                       </div>
-                      <div className="text-xs text-muted">
+                      <div className="text-xs text-muted-foreground">
                         @{item.user?.username}
                       </div>
                     </div>
-                    <button
-                      onClick={() => navigate(`/users/${item.user?.id}`)}
-                      className="btn-primary px-4 py-2"
-                    >
-                      View Profile
-                    </button>
+                    <Button onClick={() => navigate(`/users/${item.user?.id}`)}>
+                      View profile
+                    </Button>
                   </div>
                 ))}
               </div>
             )}
-          </div>
-        </div>
+          </CardContent>
+        </Card>
       </div>
     </motion.div>
   );

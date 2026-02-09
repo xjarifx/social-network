@@ -7,6 +7,13 @@ import { Feed, CommentsModal } from "../components";
 import type { PostProps } from "../components";
 import { useComments } from "../hooks";
 import { transformPost } from "../utils";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "../components/ui/card";
+import { Button } from "../components/ui/button";
 
 export default function UserProfilePage() {
   const { userId } = useParams();
@@ -195,55 +202,61 @@ export default function UserProfilePage() {
   );
 
   return (
-    <div className="min-h-screen bg-neutral-bg">
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 py-8 flex justify-center">
-        <div className="card-container">
-          <div className="card p-6">
+    <div className="min-h-screen">
+      <div className="mx-auto max-w-4xl px-4 sm:px-6 py-8">
+        <Card>
+          <CardHeader>
+            <CardTitle>User profile</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-6">
             {error && (
-              <div className="mb-4 rounded-lg bg-red-50 border border-red-200 p-3 text-sm text-red-700">
+              <div className="rounded-2xl border border-destructive/40 bg-destructive/10 p-3 text-sm text-destructive">
                 {error}
               </div>
             )}
 
             {isLoading ? (
-              <div className="text-muted">Loading user...</div>
+              <div className="text-sm text-muted-foreground">
+                Loading user...
+              </div>
             ) : (
               <div className="space-y-4">
                 <div>
-                  <div className="text-lg text-brand font-semibold">
+                  <div className="text-lg font-semibold">
                     {profile?.firstName} {profile?.lastName}
                   </div>
-                  <div className="text-sm text-muted">@{profile?.username}</div>
-                  <div className="text-sm text-muted">{profile?.email}</div>
+                  <div className="text-sm text-muted-foreground">
+                    @{profile?.username}
+                  </div>
+                  <div className="text-sm text-muted-foreground">
+                    {profile?.email}
+                  </div>
                 </div>
 
                 {canFollow && (
                   <div className="flex flex-wrap gap-2">
-                    <button
-                      className={`px-5 py-2 rounded-lg font-semibold ${
-                        isFollowing
-                          ? "bg-neutral-100 text-neutral-700"
-                          : "btn-primary"
-                      }`}
+                    <Button
+                      variant={isFollowing ? "secondary" : "default"}
                       onClick={handleFollowToggle}
                     >
                       {isFollowing ? "Unfollow" : "Follow"}
-                    </button>
-                    <button
-                      className="px-5 py-2 rounded-lg font-semibold border border-red-200 text-red-600 hover:bg-red-50"
+                    </Button>
+                    <Button
+                      variant="outline"
                       onClick={handleBlock}
                       disabled={isBlocking}
+                      className="text-destructive"
                     >
                       {isBlocking ? "Blocking..." : "Block"}
-                    </button>
+                    </Button>
                   </div>
                 )}
               </div>
             )}
 
-            <div className="mt-6 pt-2">
+            <div>
               {postsError && (
-                <div className="mb-4 rounded-lg bg-red-50 border border-red-200 p-3 text-sm text-red-700">
+                <div className="mb-4 rounded-2xl border border-destructive/40 bg-destructive/10 p-3 text-sm text-destructive">
                   {postsError}
                 </div>
               )}
@@ -256,8 +269,8 @@ export default function UserProfilePage() {
                 onFollowToggle={handleFollowTogglePost}
               />
             </div>
-          </div>
-        </div>
+          </CardContent>
+        </Card>
       </div>
 
       {comments.openCommentsPostId && selectedPost && (

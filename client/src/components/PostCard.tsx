@@ -1,4 +1,4 @@
-import { memo, useRef, useState, useEffect, useCallback } from "react";
+import { memo, useState, useEffect, useCallback } from "react";
 import {
   Heart,
   MessageCircle,
@@ -11,6 +11,15 @@ import {
 import { Link } from "react-router-dom";
 import { blocksAPI, followsAPI } from "../services/api";
 import { useAuth } from "../context/AuthContext";
+import { Card, CardContent } from "./ui/card";
+import { Button } from "./ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+} from "./ui/dropdown-menu";
 
 export interface PostProps {
   id: string;
@@ -61,35 +70,11 @@ function PostCardComponent({
   const [likeCount, setLikeCount] = useState(likes);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isActionLoading, setIsActionLoading] = useState(false);
-  const menuRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     setIsLiked(liked);
     setLikeCount(likes);
   }, [liked, likes]);
-
-  useEffect(() => {
-    if (!isMenuOpen) {
-      return;
-    }
-
-    const handleOutsideClick = (event: MouseEvent | TouchEvent) => {
-      if (!menuRef.current) {
-        return;
-      }
-      if (!menuRef.current.contains(event.target as Node)) {
-        setIsMenuOpen(false);
-      }
-    };
-
-    document.addEventListener("mousedown", handleOutsideClick);
-    document.addEventListener("touchstart", handleOutsideClick);
-
-    return () => {
-      document.removeEventListener("mousedown", handleOutsideClick);
-      document.removeEventListener("touchstart", handleOutsideClick);
-    };
-  }, [isMenuOpen]);
 
   const handleLike = useCallback(async () => {
     const previousLiked = isLiked;
@@ -178,153 +163,124 @@ function PostCardComponent({
   }, [id, content, onEdit]);
 
   return (
-    <div className="card card-hover overflow-hidden transition-all duration-200">
-      <div className="p-5 sm:p-6">
-        {/* Header */}
-        <div className="flex items-start justify-between mb-4">
-          <div className="flex items-center gap-3 min-w-0">
-            {authorId && user?.id !== authorId ? (
-              <Link
-                to={`/users/${authorId}`}
-                className="flex items-center gap-3 min-w-0"
-              >
-                <div className="min-w-0 flex-1">
-                  <div className="flex items-center gap-2 min-w-0">
-                    <h3 className="text-brand text-sm sm:text-base font-semibold leading-tight truncate hover:underline">
-                      {author.name}
-                    </h3>
-                    <span className="text-muted text-xs sm:text-sm truncate">
-                      @{author.handle}
-                    </span>
-                    <span className="text-muted text-xs sm:text-sm">·</span>
-                    <span className="text-muted text-xs sm:text-sm truncate">
-                      {timestamp}
-                    </span>
+    <Card className="overflow-hidden transition-all hover:shadow-soft">
+      <CardContent className="p-5 sm:p-6">
+        <div className="flex items-start justify-between gap-4">
+          <div className="flex min-w-0 items-center gap-3">
+            <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-primary/10 text-sm font-semibold text-primary">
+              {author.name
+                .split(" ")
+                .map((part) => part[0])
+                .slice(0, 2)
+                .join("")}
+            </div>
+            <div className="min-w-0">
+              {authorId && user?.id !== authorId ? (
+                <Link to={`/users/${authorId}`} className="block">
+                  <div className="text-sm font-semibold text-foreground hover:underline">
+                    {author.name}
                   </div>
-                </div>
-              </Link>
-            ) : (
-              <>
-                <div className="min-w-0 flex-1">
-                  <div className="flex items-center gap-2 min-w-0">
-                    <h3 className="text-brand text-sm sm:text-base font-semibold leading-tight truncate">
-                      {author.name}
-                    </h3>
-                    <span className="text-muted text-xs sm:text-sm truncate">
-                      @{author.handle}
-                    </span>
-                    <span className="text-muted text-xs sm:text-sm">·</span>
-                    <span className="text-muted text-xs sm:text-sm truncate">
-                      {timestamp}
-                    </span>
-                  </div>
-                </div>
-              </>
-            )}
-          </div>
-          {showPostMenu && (
-            <div className="relative" ref={menuRef}>
-              <button
-                className="icon-btn transition-colors duration-200"
-                onClick={() => setIsMenuOpen((prev) => !prev)}
-                aria-haspopup="menu"
-                aria-expanded={isMenuOpen}
-              >
-                <MoreHorizontal size={18} />
-              </button>
-
-              {isMenuOpen && (
-                <div className="absolute right-0 mt-2 w-40 rounded-lg border border-[#f5d580] bg-white shadow-lg z-20 overflow-hidden">
-                  {user?.id === authorId ? (
-                    <div className="flex flex-col">
-                      <button
-                        onClick={handleEdit}
-                        disabled={isActionLoading}
-                        className="flex items-center gap-2 px-3 py-2 text-sm text-[#5a412f] hover:bg-[#fce8a0] disabled:opacity-50"
-                      >
-                        <Edit size={16} />
-                        <span>Edit</span>
-                      </button>
-                      <button
-                        onClick={handleDelete}
-                        disabled={isActionLoading}
-                        className="flex items-center gap-2 px-3 py-2 text-sm text-red-600 hover:bg-red-50 disabled:opacity-50"
-                      >
-                        <Trash2 size={16} />
-                        <span>Delete</span>
-                      </button>
-                    </div>
-                  ) : canActOnUser ? (
-                    <div className="flex flex-col">
-                      <button
-                        onClick={handleFollow}
-                        disabled={isActionLoading}
-                        className="flex items-center gap-2 px-3 py-2 text-sm text-[#5a412f] hover:bg-[#fce8a0] disabled:opacity-50"
-                      >
-                        <UserPlus size={16} />
-                        <span>{isFollowing ? "Unfollow" : "Follow"}</span>
-                      </button>
-                      <button
-                        onClick={handleBlock}
-                        disabled={isActionLoading}
-                        className="flex items-center gap-2 px-3 py-2 text-sm text-red-600 hover:bg-red-50 disabled:opacity-50"
-                      >
-                        <Shield size={16} />
-                        <span>Block</span>
-                      </button>
-                    </div>
-                  ) : (
-                    <div className="px-3 py-2 text-xs text-muted">
-                      No actions available
-                    </div>
-                  )}
+                </Link>
+              ) : (
+                <div className="text-sm font-semibold text-foreground">
+                  {author.name}
                 </div>
               )}
+              <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
+                <span>@{author.handle}</span>
+                <span>·</span>
+                <span>{timestamp}</span>
+              </div>
+            </div>
+          </div>
+
+          {showPostMenu && (
+            <div>
+              <DropdownMenu open={isMenuOpen} onOpenChange={setIsMenuOpen}>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" size="icon" aria-label="Post actions">
+                    <MoreHorizontal className="h-4 w-4" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  {user?.id === authorId ? (
+                    <>
+                      <DropdownMenuItem onClick={handleEdit}>
+                        <Edit className="h-4 w-4" />
+                        Edit
+                      </DropdownMenuItem>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem
+                        onClick={handleDelete}
+                        className="text-destructive"
+                        disabled={isActionLoading}
+                      >
+                        <Trash2 className="h-4 w-4" />
+                        Delete
+                      </DropdownMenuItem>
+                    </>
+                  ) : canActOnUser ? (
+                    <>
+                      <DropdownMenuItem onClick={handleFollow}>
+                        <UserPlus className="h-4 w-4" />
+                        {isFollowing ? "Unfollow" : "Follow"}
+                      </DropdownMenuItem>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem
+                        onClick={handleBlock}
+                        className="text-destructive"
+                        disabled={isActionLoading}
+                      >
+                        <Shield className="h-4 w-4" />
+                        Block
+                      </DropdownMenuItem>
+                    </>
+                  ) : (
+                    <DropdownMenuItem disabled>No actions</DropdownMenuItem>
+                  )}
+                </DropdownMenuContent>
+              </DropdownMenu>
             </div>
           )}
         </div>
 
-        {/* Content */}
-        <div className="mb-4">
-          <p className="text-neutral-900 text-sm sm:text-base leading-relaxed">
+        <div className="mt-4 space-y-4">
+          <p className="text-sm leading-relaxed text-foreground/90">
             {content}
           </p>
+
+          {image && (
+            <div className="overflow-hidden rounded-2xl border border-border/60 bg-muted/30">
+              <img
+                src={image}
+                alt="Post"
+                className="h-auto w-full max-h-96 object-cover"
+              />
+            </div>
+          )}
         </div>
 
-        {/* Image */}
-        {image && (
-          <div className="mb-4 rounded-lg overflow-hidden bg-neutral-100">
-            <img
-              src={image}
-              alt="Post"
-              className="w-full h-auto object-cover max-h-96"
-            />
-          </div>
-        )}
-
-        {/* Action row */}
-        <div className="flex items-center gap-8 border-t border-neutral-100 -mx-5 -mb-5 px-5 py-3 sm:-mx-6 sm:px-6">
-          <button
+        <div className="mt-4 flex items-center gap-6 border-t border-border/60 pt-4">
+          <Button
             onClick={handleLike}
-            className="inline-flex items-center gap-2 text-muted hover:text-neutral-900 transition-colors duration-200"
-            style={{
-              color: isLiked ? "#f43f5e" : undefined,
-            }}
+            variant="ghost"
+            className="gap-2 text-muted-foreground hover:text-foreground"
+            style={{ color: isLiked ? "#f43f5e" : undefined }}
           >
-            <Heart size={18} />
-            <span className="text-xs sm:text-sm">{likeCount}</span>
-          </button>
-
-          <button
+            <Heart className="h-4 w-4" />
+            <span className="text-xs font-medium">{likeCount}</span>
+          </Button>
+          <Button
             onClick={() => onReply?.(id)}
-            className="inline-flex items-center gap-2 text-muted hover:text-neutral-900 transition-colors duration-200"
+            variant="ghost"
+            className="gap-2 text-muted-foreground hover:text-foreground"
           >
-            <MessageCircle size={18} />
-            <span className="text-xs sm:text-sm">{replies}</span>
-          </button>
+            <MessageCircle className="h-4 w-4" />
+            <span className="text-xs font-medium">{replies}</span>
+          </Button>
         </div>
-      </div>
-    </div>
+      </CardContent>
+    </Card>
   );
 }
 

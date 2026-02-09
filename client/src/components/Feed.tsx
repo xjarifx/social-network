@@ -1,6 +1,7 @@
 import { memo } from "react";
 import { PostCard } from "./PostCard";
 import type { PostProps } from "./PostCard";
+import { Card, CardContent } from "./ui/card";
 
 export interface FeedProps {
   posts: PostProps[];
@@ -32,7 +33,10 @@ function FeedComponent({
     return (
       <div className="space-y-4">
         {[...Array(3)].map((_, i) => (
-          <div key={i} className="card h-64 bg-neutral-100 animate-pulse" />
+          <div
+            key={i}
+            className="h-64 rounded-3xl border border-border/60 bg-muted/60 animate-pulse"
+          />
         ))}
       </div>
     );
@@ -56,15 +60,15 @@ function FeedComponent({
       ))}
 
       {posts.length === 0 && (
-        <div className="card p-12 text-center animate-fade-in">
-          <div className="text-center">
-            <div className="text-5xl mb-4">🌟</div>
-            <h3 className="text-brand text-lg mb-2">No posts yet</h3>
-            <p className="text-muted">
+        <Card className="animate-fade-in">
+          <CardContent className="p-10 text-center">
+            <div className="text-4xl mb-4">🌟</div>
+            <h3 className="text-lg font-semibold">No posts yet</h3>
+            <p className="text-sm text-muted-foreground mt-2">
               Your feed is empty. Follow people to see their posts here.
             </p>
-          </div>
-        </div>
+          </CardContent>
+        </Card>
       )}
     </div>
   );

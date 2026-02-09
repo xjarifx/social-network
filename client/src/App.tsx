@@ -2,7 +2,9 @@ import { lazy, Suspense } from "react";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { Toaster } from "sonner";
 import { AuthProvider, useAuth } from "./context/AuthContext";
-import { LeftSidebar } from "./components";
+import { LeftSidebar, MobileNav } from "./components";
+import { ThemeToggle } from "./components/ThemeToggle";
+import { useTheme } from "./components/theme/ThemeProvider";
 import { ProtectedRoute } from "./components/ProtectedRoute";
 
 // Route-level code splitting
@@ -21,17 +23,27 @@ const ComposePage = lazy(() => import("./pages/ComposePage"));
 
 function PageFallback() {
   return (
-    <div className="min-h-screen bg-[#fef5bd] flex items-center justify-center">
-      <div className="animate-spin rounded-full h-10 w-10 border-2 border-[#ff7000] border-t-transparent" />
+    <div className="min-h-screen flex items-center justify-center">
+      <div className="h-10 w-10 animate-spin rounded-full border-2 border-primary border-t-transparent" />
     </div>
   );
 }
 
 function AppLayout({ children }: { children: React.ReactNode }) {
   return (
-    <div className="flex min-h-screen bg-[#fef5bd]">
+    <div className="min-h-screen bg-background text-foreground px-4 pb-24 pt-4 lg:pl-80 lg:pr-6 lg:py-6">
       <LeftSidebar />
-      <main className="flex-1 ml-72">{children}</main>
+      <main className="mx-auto w-full max-w-6xl">
+        <div className="mb-6 flex items-center justify-between rounded-2xl border border-border/60 bg-card/80 px-4 py-3 shadow-glass backdrop-blur-xl lg:hidden">
+          <div>
+            <div className="text-sm font-semibold">Social Network</div>
+            <div className="text-xs text-muted-foreground">Your orbit</div>
+          </div>
+          <ThemeToggle />
+        </div>
+        {children}
+      </main>
+      <MobileNav />
     </div>
   );
 }
@@ -205,6 +217,8 @@ function AppRoutes() {
 }
 
 function App() {
+  const { theme } = useTheme();
+
   return (
     <BrowserRouter
       future={{ v7_startTransition: true, v7_relativeSplatPath: true }}
@@ -212,7 +226,7 @@ function App() {
       <AuthProvider>
         <AppRoutes />
       </AuthProvider>
-      <Toaster position="top-right" />
+      <Toaster position="top-right" theme={theme} />
     </BrowserRouter>
   );
 }

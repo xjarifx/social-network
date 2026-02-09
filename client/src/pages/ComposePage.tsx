@@ -3,6 +3,14 @@ import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { toast } from "sonner";
 import { postsAPI } from "../services/api";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "../components/ui/card";
+import { Textarea } from "../components/ui/textarea";
+import { Button } from "../components/ui/button";
 
 export default function ComposePage() {
   const navigate = useNavigate();
@@ -34,62 +42,44 @@ export default function ComposePage() {
       initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.2, ease: "easeOut" }}
-      className="min-h-screen bg-[#fef5bd]"
+      className="min-h-screen"
     >
-      <div className="max-w-5xl mx-auto px-4 sm:px-6 py-6 sm:py-8">
-        <div className="flex justify-center">
-          <div className="card-container">
-            <div className="card overflow-hidden">
-              <div className="flex items-center justify-between p-5 sm:p-6 border-b border-[#f5d580]">
-                <div>
-                  <h1 className="text-brand text-lg sm:text-xl font-semibold">
-                    Create Post
-                  </h1>
-                  <p className="text-muted text-xs sm:text-sm">
-                    Share an update with your network.
-                  </p>
-                </div>
+      <div className="mx-auto max-w-4xl px-4 sm:px-6 py-6 sm:py-10">
+        <Card className="overflow-hidden">
+          <CardHeader>
+            <CardTitle>Create post</CardTitle>
+            <p className="text-sm text-muted-foreground">
+              Share an update with your network.
+            </p>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <Textarea
+              value={content}
+              onChange={(event) => setContent(event.target.value)}
+              placeholder="What is on your mind?"
+              className="min-h-[180px] text-base"
+              autoFocus
+            />
+
+            {error && (
+              <div className="rounded-2xl border border-destructive/40 bg-destructive/10 px-4 py-3 text-sm text-destructive">
+                {error}
               </div>
+            )}
 
-              <div className="p-5 sm:p-6 space-y-4">
-                <textarea
-                  value={content}
-                  onChange={(event) => setContent(event.target.value)}
-                  placeholder="What's happening!?"
-                  className="input resize-none text-lg sm:text-xl placeholder:text-[#c99820] min-h-[160px] focus:border-[#ff7000]"
-                  autoFocus
-                />
-
-                {error && (
-                  <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3">
-                    <p className="text-red-700 text-sm">{error}</p>
-                  </div>
-                )}
-
-                <div className="flex items-center justify-end pt-4 border-t border-[#f5d580]">
-                  <div className="flex items-center gap-2">
-                    <button
-                      type="button"
-                      onClick={() => navigate("/")}
-                      className="px-4 py-2 text-sm font-semibold text-[#5a412f] hover:text-[#ff7000]"
-                    >
-                      Cancel
-                    </button>
-                    <motion.button
-                      whileHover={{ scale: 1.02 }}
-                      whileTap={{ scale: 0.98 }}
-                      onClick={handleSubmit}
-                      disabled={!content.trim() || isSubmitting}
-                      className="btn-primary px-6 py-2 text-sm sm:text-base disabled:opacity-50 disabled:cursor-not-allowed"
-                    >
-                      {isSubmitting ? "Posting..." : "Post"}
-                    </motion.button>
-                  </div>
-                </div>
-              </div>
+            <div className="flex flex-wrap items-center justify-end gap-2">
+              <Button variant="ghost" onClick={() => navigate("/")}>
+                Cancel
+              </Button>
+              <Button
+                onClick={handleSubmit}
+                disabled={!content.trim() || isSubmitting}
+              >
+                {isSubmitting ? "Posting..." : "Post"}
+              </Button>
             </div>
-          </div>
-        </div>
+          </CardContent>
+        </Card>
       </div>
     </motion.div>
   );

@@ -14,6 +14,14 @@ import { Feed, CommentsModal, EditPostModal } from "../components";
 import type { PostProps } from "../components";
 import { useComments } from "../hooks";
 import { transformPost } from "../utils";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "../components/ui/card";
+import { Button } from "../components/ui/button";
+import { Input } from "../components/ui/input";
 
 export default function ProfilePage() {
   const { user } = useAuth();
@@ -199,129 +207,148 @@ export default function ProfilePage() {
     : null;
 
   return (
-    <div className="min-h-screen bg-neutral-bg">
-      <div className="max-w-5xl mx-auto px-4 sm:px-6 py-8 flex justify-center">
-        <div className="card-container space-y-6">
-          <div className="card p-6">
-            <h1 className="text-brand text-xl font-bold mb-4">My Profile</h1>
+    <div className="min-h-screen">
+      <div className="mx-auto max-w-5xl px-4 sm:px-6 py-8">
+        <div className="space-y-6">
+          <Card>
+            <CardHeader>
+              <CardTitle>My profile</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {error && (
+                <div className="rounded-2xl border border-destructive/40 bg-destructive/10 p-3 text-sm text-destructive">
+                  {error}
+                </div>
+              )}
 
-            {error && (
-              <div className="mb-4 rounded-lg bg-red-50 border border-red-200 p-3 text-sm text-red-700">
-                {error}
-              </div>
-            )}
-
-            {isLoading ? (
-              <div className="text-muted">Loading profile...</div>
-            ) : (
-              <div className="space-y-4">
-                <div className="grid gap-4 sm:grid-cols-2">
-                  <div>
-                    <label className="text-xs text-muted">Username</label>
-                    <div className="input bg-neutral-50">
-                      {profile?.username}
+              {isLoading ? (
+                <div className="text-sm text-muted-foreground">
+                  Loading profile...
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  <div className="grid gap-4 sm:grid-cols-2">
+                    <div>
+                      <label className="text-xs text-muted-foreground">
+                        Username
+                      </label>
+                      <Input value={profile?.username ?? ""} disabled />
+                    </div>
+                    <div>
+                      <label className="text-xs text-muted-foreground">
+                        Email
+                      </label>
+                      <Input value={profile?.email ?? ""} disabled />
                     </div>
                   </div>
-                  <div>
-                    <label className="text-xs text-muted">Email</label>
-                    <div className="input bg-neutral-50">{profile?.email}</div>
-                  </div>
-                </div>
 
-                <div className="grid gap-4 sm:grid-cols-2">
-                  <div>
-                    <label className="text-xs text-muted">First name</label>
-                    <input
-                      className="input"
-                      value={firstName}
-                      onChange={(e) => setFirstName(e.target.value)}
-                    />
+                  <div className="grid gap-4 sm:grid-cols-2">
+                    <div>
+                      <label className="text-xs text-muted-foreground">
+                        First name
+                      </label>
+                      <Input
+                        value={firstName}
+                        onChange={(e) => setFirstName(e.target.value)}
+                      />
+                    </div>
+                    <div>
+                      <label className="text-xs text-muted-foreground">
+                        Last name
+                      </label>
+                      <Input
+                        value={lastName}
+                        onChange={(e) => setLastName(e.target.value)}
+                      />
+                    </div>
                   </div>
-                  <div>
-                    <label className="text-xs text-muted">Last name</label>
-                    <input
-                      className="input"
-                      value={lastName}
-                      onChange={(e) => setLastName(e.target.value)}
-                    />
-                  </div>
-                </div>
 
-                <button
-                  className="btn-primary px-5 py-2"
-                  onClick={handleSave}
-                  disabled={isSaving}
-                >
-                  {isSaving ? "Saving..." : "Save changes"}
-                </button>
-              </div>
-            )}
-          </div>
+                  <Button onClick={handleSave} disabled={isSaving}>
+                    {isSaving ? "Saving..." : "Save changes"}
+                  </Button>
+                </div>
+              )}
+            </CardContent>
+          </Card>
 
           <div className="grid gap-6 md:grid-cols-3">
-            <button
+            <Card
+              className="cursor-pointer transition hover:shadow-soft"
               onClick={() => navigate("/followers")}
-              className="card p-6 hover:shadow-lg hover:border-brand-500 transition-all cursor-pointer text-left"
             >
-              <h2 className="text-brand font-semibold mb-4">Followers</h2>
-              <p className="text-2xl font-bold text-brand mb-2">
-                {followers.length}
-              </p>
-              <p className="text-sm text-muted">
-                {followers.length === 0
-                  ? "No followers yet."
-                  : "Click to see all"}
-              </p>
-            </button>
+              <CardContent className="p-6">
+                <h2 className="text-sm font-semibold text-muted-foreground">
+                  Followers
+                </h2>
+                <p className="mt-3 text-3xl font-semibold">
+                  {followers.length}
+                </p>
+                <p className="mt-2 text-sm text-muted-foreground">
+                  {followers.length === 0
+                    ? "No followers yet."
+                    : "Click to see all"}
+                </p>
+              </CardContent>
+            </Card>
 
-            <button
+            <Card
+              className="cursor-pointer transition hover:shadow-soft"
               onClick={() => navigate("/following")}
-              className="card p-6 hover:shadow-lg hover:border-brand-500 transition-all cursor-pointer text-left"
             >
-              <h2 className="text-brand font-semibold mb-4">Following</h2>
-              <p className="text-2xl font-bold text-brand mb-2">
-                {following.length}
-              </p>
-              <p className="text-sm text-muted">
-                {following.length === 0
-                  ? "Not following anyone yet."
-                  : "Click to see all"}
-              </p>
-            </button>
+              <CardContent className="p-6">
+                <h2 className="text-sm font-semibold text-muted-foreground">
+                  Following
+                </h2>
+                <p className="mt-3 text-3xl font-semibold">
+                  {following.length}
+                </p>
+                <p className="mt-2 text-sm text-muted-foreground">
+                  {following.length === 0
+                    ? "Not following anyone yet."
+                    : "Click to see all"}
+                </p>
+              </CardContent>
+            </Card>
 
-            <button
+            <Card
+              className="cursor-pointer transition hover:shadow-soft"
               onClick={() => navigate("/blocks")}
-              className="card p-6 hover:shadow-lg hover:border-brand-500 transition-all cursor-pointer text-left"
             >
-              <h2 className="text-brand font-semibold mb-4">Blocked</h2>
-              <p className="text-2xl font-bold text-brand mb-2">
-                {blocked.length}
-              </p>
-              <p className="text-sm text-muted">
-                {blocked.length === 0
-                  ? "No blocked users."
-                  : "Click to see all"}
-              </p>
-            </button>
+              <CardContent className="p-6">
+                <h2 className="text-sm font-semibold text-muted-foreground">
+                  Blocked
+                </h2>
+                <p className="mt-3 text-3xl font-semibold">{blocked.length}</p>
+                <p className="mt-2 text-sm text-muted-foreground">
+                  {blocked.length === 0
+                    ? "No blocked users."
+                    : "Click to see all"}
+                </p>
+              </CardContent>
+            </Card>
           </div>
 
-          <div className="card p-6">
-            <h2 className="text-brand text-lg font-semibold mb-4">Posts</h2>
-            {postsError && (
-              <div className="mb-4 rounded-lg bg-red-50 border border-red-200 p-3 text-sm text-red-700">
-                {postsError}
-              </div>
-            )}
-            <Feed
-              posts={posts}
-              isLoading={postsLoading}
-              showPostMenu={true}
-              onLike={handleLike}
-              onReply={comments.toggleComments}
-              onEdit={handleEditPost}
-              onDelete={handleDeletePost}
-            />
-          </div>
+          <Card>
+            <CardHeader>
+              <CardTitle>Posts</CardTitle>
+            </CardHeader>
+            <CardContent>
+              {postsError && (
+                <div className="mb-4 rounded-2xl border border-destructive/40 bg-destructive/10 p-3 text-sm text-destructive">
+                  {postsError}
+                </div>
+              )}
+              <Feed
+                posts={posts}
+                isLoading={postsLoading}
+                showPostMenu={true}
+                onLike={handleLike}
+                onReply={comments.toggleComments}
+                onEdit={handleEditPost}
+                onDelete={handleDeletePost}
+              />
+            </CardContent>
+          </Card>
         </div>
       </div>
 

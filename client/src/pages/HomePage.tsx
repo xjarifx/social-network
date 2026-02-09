@@ -136,24 +136,20 @@ export default function HomePage() {
     : null;
 
   return (
-    <div className="min-h-screen bg-neutral-bg">
-      <div className="max-w-5xl mx-auto px-4 sm:px-6 py-6 sm:py-8">
-        <div className="flex justify-center">
-          <div className="card-container">
-            {error && (
-              <div className="card p-4 bg-red-50 border border-red-200 mb-6">
-                <p className="text-red-700 text-sm">{error}</p>
-              </div>
-            )}
-            <Feed
-              posts={postsWithFollowState}
-              isLoading={isLoading}
-              onLike={handleLike}
-              onReply={comments.toggleComments}
-              onFollowToggle={handleFollowToggle}
-            />
+    <div className="min-h-screen">
+      <div className="mx-auto max-w-5xl px-4 sm:px-6 py-6 sm:py-10">
+        {error && (
+          <div className="mb-6 rounded-2xl border border-destructive/40 bg-destructive/10 p-4 text-sm text-destructive">
+            {error}
           </div>
-        </div>
+        )}
+        <Feed
+          posts={postsWithFollowState}
+          isLoading={isLoading}
+          onLike={handleLike}
+          onReply={comments.toggleComments}
+          onFollowToggle={handleFollowToggle}
+        />
       </div>
 
       {comments.openCommentsPostId && selectedPost && (

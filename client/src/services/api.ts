@@ -54,15 +54,6 @@ export interface Comment {
   author?: UserSummary;
 }
 
-export interface Like {
-  id: string;
-  userId: string;
-  postId: string;
-  createdAt: string;
-  user?: UserSummary;
-  message?: string;
-}
-
 export interface Follower {
   id: string;
   followedAt: string;
@@ -352,10 +343,6 @@ export const postsAPI = {
     });
   },
 
-  getPost: async (postId: string): Promise<Post> => {
-    return apiRequest(`/posts/${postId}`);
-  },
-
   updatePost: async (postId: string, content: string): Promise<Post> => {
     return apiRequest(`/posts/${postId}`, {
       method: "PATCH",
@@ -369,10 +356,6 @@ export const postsAPI = {
 
   getFeed: async (limit = 20, offset = 0): Promise<Post[]> => {
     return apiRequest(`/posts?limit=${limit}&offset=${offset}`);
-  },
-
-  getNewsFeed: async (limit = 20, offset = 0): Promise<Post[]> => {
-    return apiRequest(`/posts/feed?limit=${limit}&offset=${offset}`);
   },
 };
 
@@ -389,17 +372,6 @@ export const likesAPI = {
 
   unlikePost: async (postId: string): Promise<void> => {
     return apiRequest(`/posts/${postId}/likes`, { method: "DELETE" });
-  },
-
-  getPostLikes: async (
-    postId: string,
-  ): Promise<{
-    likes: Like[];
-    total: number;
-    limit: number;
-    offset: number;
-  }> => {
-    return apiRequest(`/posts/${postId}/likes`);
   },
 };
 
@@ -485,10 +457,6 @@ export const followsAPI = {
 export const notificationsAPI = {
   list: async (limit = 20, offset = 0): Promise<NotificationsResponse> => {
     return apiRequest(`/notifications?limit=${limit}&offset=${offset}`);
-  },
-
-  getById: async (notificationId: string): Promise<Notification> => {
-    return apiRequest(`/notifications/${notificationId}`);
   },
 
   markRead: async (

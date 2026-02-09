@@ -10,3 +10,4 @@ export { EditPostModal } from "./EditPostModal";
 export { Sidebar } from "./Sidebar";
 export type { SidebarProps, TrendingItem } from "./Sidebar";
 export { ProtectedRoute } from "./ProtectedRoute";
+export { MobileNav } from "./MobileNav";

@@ -1,9 +1,11 @@
-import { memo } from "react";
-import { X } from "lucide-react";
 import { PostCard } from "./PostCard";
 import type { PostProps } from "./PostCard";
 import type { Comment as ApiComment } from "../services/api";
 import { useAuth } from "../context/AuthContext";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "./ui/dialog";
+import { Input } from "./ui/input";
+import { Button } from "./ui/button";
+import { Separator } from "./ui/separator";
 
 interface CommentsModalProps {
   post: PostProps;
@@ -30,7 +32,7 @@ interface CommentsModalProps {
   onCommentEditDraftChange: (commentId: string, value: string) => void;
 }
 
-function CommentsModalComponent({
+export function CommentsModal({
   post,
   comments,
   commentDraft,
@@ -54,21 +56,13 @@ function CommentsModalComponent({
   const { user } = useAuth();
 
   return (
-    <div
-      onClick={onClose}
-      className="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm flex items-center justify-center p-4"
-    >
-      <div
-        onClick={(e) => e.stopPropagation()}
-        className="card w-full max-w-3xl max-h-[85vh] overflow-hidden"
-      >
-        <div className="flex items-center justify-between p-4 sm:p-5 border-b border-neutral-100">
-          <h2 className="text-brand text-lg sm:text-xl">Post</h2>
-          <button onClick={onClose} className="icon-btn">
-            <X size={20} />
-          </button>
-        </div>
-        <div className="p-4 sm:p-5 space-y-4 overflow-y-auto max-h-[70vh]">
+    <Dialog onOpenChange={(open: boolean) => !open && onClose()} open>
+      <DialogContent className="max-w-3xl">
+        <DialogHeader>
+          <DialogTitle>Post</DialogTitle>
+        </DialogHeader>
+
+        <div className="space-y-6 px-6 pb-6">
           <PostCard
             {...post}
             showPostMenu={false}
@@ -76,129 +70,121 @@ function CommentsModalComponent({
             onFollowToggle={onFollowToggle}
           />
 
-          <div className="card p-4 sm:p-5">
-            <div className="space-y-4">
-              <div className="text-sm text-muted">Comments</div>
+          <div className="rounded-3xl border border-border/60 bg-background/70 p-4">
+            <div className="text-xs uppercase tracking-wide text-muted-foreground">
+              Comments
+            </div>
+            <Separator className="my-3" />
 
-              <div className="flex items-center gap-2">
-                <input
-                  value={commentDraft}
-                  onChange={(e) =>
-                    onCommentDraftChange(post.id, e.target.value)
-                  }
-                  placeholder="Write a comment..."
-                  className="input flex-1"
-                />
-                <button
-                  className="btn-primary px-4 py-2 text-sm"
-                  onClick={() => onAddComment(post.id)}
-                >
-                  Send
-                </button>
-              </div>
+            <div className="flex flex-wrap items-center gap-2">
+              <Input
+                value={commentDraft}
+                onChange={(e) => onCommentDraftChange(post.id, e.target.value)}
+                placeholder="Write a comment..."
+                className="flex-1"
+              />
+              <Button onClick={() => onAddComment(post.id)}>Send</Button>
+            </div>
 
+            <div className="mt-4 space-y-3">
               {isLoading ? (
-                <div className="text-sm text-muted">Loading comments...</div>
+                <div className="text-sm text-muted-foreground">
+                  Loading comments...
+                </div>
               ) : comments.length > 0 ? (
-                <div className="space-y-3">
-                  {comments.map((comment) => {
-                    const isEditing = editingCommentId === comment.id;
-                    const canManage =
-                      !!user?.id && comment.author?.id === user.id;
+                comments.map((comment) => {
+                  const isEditing = editingCommentId === comment.id;
+                  const canManage =
+                    !!user?.id && comment.author?.id === user.id;
 
-                    return (
-                      <div
-                        key={comment.id}
-                        className="rounded-lg bg-neutral-50 px-3 py-2"
-                      >
-                        <div className="flex items-start justify-between gap-3">
-                          <div className="text-xs text-muted">
-                            {comment.author
-                              ? `${comment.author.firstName} ${comment.author.lastName}`.trim() ||
-                                comment.author.username
-                              : "User"}
-                          </div>
-                          {canManage && !isEditing && (
-                            <div className="flex items-center gap-2 text-xs">
-                              <button
-                                type="button"
-                                onClick={() => onStartEdit(post.id, comment)}
-                                className="text-neutral-600 hover:text-neutral-900"
-                              >
-                                Edit
-                              </button>
-                              <button
-                                type="button"
-                                onClick={() => onDelete(post.id, comment.id)}
-                                className="text-red-600 hover:text-red-700"
-                              >
-                                Delete
-                              </button>
-                            </div>
-                          )}
+                  return (
+                    <div
+                      key={comment.id}
+                      className="rounded-2xl border border-border/50 bg-muted/40 px-3 py-2"
+                    >
+                      <div className="flex items-start justify-between gap-3">
+                        <div className="text-xs text-muted-foreground">
+                          {comment.author
+                            ? `${comment.author.firstName} ${comment.author.lastName}`.trim() ||
+                              comment.author.username
+                            : "User"}
                         </div>
-                        {isEditing ? (
-                          <div className="mt-2 space-y-2">
-                            <input
-                              value={commentEditDrafts[comment.id] || ""}
-                              onChange={(e) =>
-                                onCommentEditDraftChange(
-                                  comment.id,
-                                  e.target.value,
-                                )
-                              }
-                              className="input w-full"
-                            />
-                            <div className="flex items-center gap-2">
-                              <button
-                                type="button"
-                                onClick={() => onSaveEdit(post.id, comment.id)}
-                                className="btn-primary px-3 py-1 text-xs"
-                              >
-                                Save
-                              </button>
-                              <button
-                                type="button"
-                                onClick={() =>
-                                  onCancelEdit(post.id, comment.id)
-                                }
-                                className="text-xs text-neutral-600 hover:text-neutral-900"
-                              >
-                                Cancel
-                              </button>
-                            </div>
-                          </div>
-                        ) : (
-                          <div className="text-sm text-neutral-900">
-                            {comment.content}
+                        {canManage && !isEditing && (
+                          <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                            <button
+                              type="button"
+                              onClick={() => onStartEdit(post.id, comment)}
+                              className="hover:text-foreground"
+                            >
+                              Edit
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => onDelete(post.id, comment.id)}
+                              className="text-destructive"
+                            >
+                              Delete
+                            </button>
                           </div>
                         )}
                       </div>
-                    );
-                  })}
-                </div>
+                      {isEditing ? (
+                        <div className="mt-2 space-y-2">
+                          <Input
+                            value={commentEditDrafts[comment.id] || ""}
+                            onChange={(e) =>
+                              onCommentEditDraftChange(
+                                comment.id,
+                                e.target.value,
+                              )
+                            }
+                          />
+                          <div className="flex items-center gap-2">
+                            <Button
+                              size="sm"
+                              onClick={() => onSaveEdit(post.id, comment.id)}
+                            >
+                              Save
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              onClick={() => onCancelEdit(post.id, comment.id)}
+                            >
+                              Cancel
+                            </Button>
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="text-sm text-foreground">
+                          {comment.content}
+                        </div>
+                      )}
+                    </div>
+                  );
+                })
               ) : (
-                <div className="text-sm text-muted">No comments yet.</div>
+                <div className="text-sm text-muted-foreground">
+                  No comments yet.
+                </div>
               )}
 
               {hasMore && (
                 <div className="flex justify-center">
-                  <button
-                    type="button"
+                  <Button
+                    variant="ghost"
+                    size="sm"
                     onClick={() => onLoadMore(post.id)}
                     disabled={isMoreLoading}
-                    className="text-sm text-neutral-600 hover:text-neutral-900 disabled:opacity-60"
                   >
                     {isMoreLoading ? "Loading..." : "More comments"}
-                  </button>
+                  </Button>
                 </div>
               )}
             </div>
           </div>
         </div>
-      </div>
-    </div>
+      </DialogContent>
+    </Dialog>
   );
 }
-
-export const CommentsModal = memo(CommentsModalComponent);

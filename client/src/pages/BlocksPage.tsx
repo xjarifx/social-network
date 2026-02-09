@@ -2,6 +2,13 @@ import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { blocksAPI } from "../services/api";
 import type { BlockedUser } from "../services/api";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "../components/ui/card";
+import { Button } from "../components/ui/button";
 
 export default function BlocksPage() {
   const [blocked, setBlocked] = useState<BlockedUser[]>([]);
@@ -40,49 +47,57 @@ export default function BlocksPage() {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.2, ease: "easeOut" }}
-      className="min-h-screen bg-neutral-bg"
+      className="min-h-screen"
     >
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 py-8 flex justify-center">
-        <div className="card-container space-y-6">
-          <div className="card p-6">
-            <h1 className="text-brand text-xl font-bold mb-4">Blocked Users</h1>
+      <div className="mx-auto max-w-4xl px-4 sm:px-6 py-8">
+        <Card>
+          <CardHeader>
+            <CardTitle>Blocked users</CardTitle>
+          </CardHeader>
+          <CardContent>
             {error && (
-              <div className="mb-4 rounded-lg bg-red-50 border border-red-200 p-3 text-sm text-red-700">
+              <div className="mb-4 rounded-2xl border border-destructive/40 bg-destructive/10 p-3 text-sm text-destructive">
                 {error}
               </div>
             )}
 
             {isLoading ? (
-              <div className="text-muted">Loading blocked users...</div>
+              <div className="text-sm text-muted-foreground">
+                Loading blocked users...
+              </div>
             ) : blocked.length === 0 ? (
-              <div className="text-sm text-muted">No blocked users.</div>
+              <div className="text-sm text-muted-foreground">
+                No blocked users.
+              </div>
             ) : (
               <div className="space-y-3">
                 {blocked.map((item) => (
                   <div
                     key={item.id}
-                    className="flex items-center justify-between rounded-lg border border-neutral-100 p-3"
+                    className="flex items-center justify-between rounded-2xl border border-border/60 bg-muted/30 p-3"
                   >
                     <div>
-                      <div className="text-sm text-brand">
+                      <div className="text-sm font-medium">
                         {item.user.firstName} {item.user.lastName}
                       </div>
-                      <div className="text-xs text-muted">
+                      <div className="text-xs text-muted-foreground">
                         @{item.user.username}
                       </div>
                     </div>
-                    <button
-                      className="text-xs text-red-600"
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="text-destructive"
                       onClick={() => handleUnblock(item.user.id)}
                     >
                       Unblock
-                    </button>
+                    </Button>
                   </div>
                 ))}
               </div>
             )}
-          </div>
-        </div>
+          </CardContent>
+        </Card>
       </div>
     </motion.div>
   );

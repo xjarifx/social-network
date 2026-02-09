@@ -21,6 +21,11 @@ const Lottie = lazy(() => import("lottie-react"));
 import globeAnimation from "../../assets/Earth globe rotating with Seamless loop animation.json";
 import { useAuth } from "../context/AuthContext";
 import { usersAPI, type User as UserType } from "../services/api";
+import { Button } from "./ui/button";
+import { Input } from "./ui/input";
+import { Separator } from "./ui/separator";
+import { ThemeToggle } from "./ThemeToggle";
+import { cn } from "../lib/utils";
 
 export function LeftSidebar() {
   const { logout, user } = useAuth();
@@ -122,164 +127,145 @@ export function LeftSidebar() {
       initial={{ x: -304, opacity: 0 }}
       animate={{ x: 0, opacity: 1 }}
       transition={{ duration: 0.3, ease: "easeOut" }}
-      className="fixed left-0 top-0 h-screen w-72 bg-gradient-to-b from-[#fffef9] to-[#fef5bd] border-r border-[#f5d580] flex flex-col z-40 overflow-y-auto"
+      className="fixed left-0 top-0 hidden h-screen w-72 px-4 py-6 lg:block"
     >
-      {/* Logo/Header */}
-      <div className="p-6 border-b border-[#f5d580]">
-        <motion.div
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
-          className="cursor-pointer"
-          onClick={() => navigate("/")}
-          role="button"
-          tabIndex={0}
-          onKeyDown={(event) => {
-            if (event.key === "Enter" || event.key === " ") {
-              event.preventDefault();
-              navigate("/");
-            }
-          }}
-        >
-          <div className="w-16 mx-auto">
-            <Suspense fallback={<div className="w-16 h-16" />}>
-              <Lottie animationData={globeAnimation} loop autoplay />
-            </Suspense>
-          </div>
-        </motion.div>
-      </div>
-
-      {/* Search */}
-      <div className="p-4 border-b border-[#f5d580]">
-        <form onSubmit={handleSearchSubmit}>
-          <div className="relative" ref={searchRef}>
-            <div className="relative group">
-              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <Search
-                  size={16}
-                  className="text-[#c99820] group-focus-within:text-[#ff7000] transition-colors"
-                />
+      <div className="flex h-full flex-col rounded-[28px] border border-border/60 bg-card/80 p-4 shadow-glass backdrop-blur-xl">
+        <div className="flex items-center justify-between gap-2 px-2">
+          <motion.button
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.98 }}
+            className="flex items-center gap-3"
+            onClick={() => navigate("/")}
+            role="button"
+            tabIndex={0}
+            onKeyDown={(event) => {
+              if (event.key === "Enter" || event.key === " ") {
+                event.preventDefault();
+                navigate("/");
+              }
+            }}
+          >
+            <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-primary/10">
+              <Suspense fallback={<div className="h-8 w-8" />}>
+                <Lottie animationData={globeAnimation} loop autoplay />
+              </Suspense>
+            </div>
+            <div>
+              <div className="text-sm font-semibold text-foreground">
+                Social Network
               </div>
-              <input
+              <div className="text-xs text-muted-foreground">Your orbit</div>
+            </div>
+          </motion.button>
+          <ThemeToggle />
+        </div>
+
+        <Separator className="my-4" />
+
+        <div className="relative px-2" ref={searchRef}>
+          <form onSubmit={handleSearchSubmit}>
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+              <Input
                 type="text"
-                placeholder="Search users..."
+                placeholder="Search users"
                 value={searchQuery}
                 onChange={handleSearchChange}
                 onFocus={() =>
                   searchQuery.trim().length >= 2 && setShowSuggestions(true)
                 }
-                className="w-full pl-9 pr-3 py-2 rounded-full border border-[#edc560] bg-white text-sm text-[#5a412f] placeholder-[#c99820] focus:bg-white focus:border-[#ff7000] focus:shadow-lg focus:shadow-[#ff7000]/20 focus:outline-none transition-all duration-200"
+                className="h-11 rounded-2xl bg-background/70 pl-9"
               />
             </div>
+          </form>
 
-            {/* Suggestions dropdown */}
-            {showSuggestions && (
-              <motion.div
-                initial={{ opacity: 0, y: -12, scale: 0.95 }}
-                animate={{ opacity: 1, y: 0, scale: 1 }}
-                exit={{ opacity: 0, y: -12, scale: 0.95 }}
-                transition={{ duration: 0.2, ease: "easeOut" }}
-                className="absolute top-full left-0 right-0 mt-2 bg-white border-2 border-[#fce8a0] rounded-xl shadow-xl z-50 max-h-80 overflow-y-auto"
-              >
-                {isLoadingSuggestions ? (
-                  <div className="px-4 py-6 text-center">
-                    <motion.div
-                      animate={{ rotate: 360 }}
-                      transition={{
-                        duration: 1,
-                        repeat: Infinity,
-                        ease: "linear",
-                      }}
-                      className="w-5 h-5 border-2 border-[#ff7000] border-t-transparent rounded-full mx-auto"
-                    />
-                    <p className="text-sm text-[#a87d1a] mt-2">Searching...</p>
-                  </div>
-                ) : suggestions.length === 0 ? (
-                  <div className="px-4 py-8 text-center">
-                    <div className="w-12 h-12 rounded-full bg-[#fce8a0] flex items-center justify-center mx-auto mb-2">
-                      <Search size={20} className="text-[#a87d1a]" />
-                    </div>
-                    <p className="text-sm font-medium text-[#5a412f]">
-                      No users found
-                    </p>
-                  </div>
-                ) : (
-                  <div className="py-2">
-                    {suggestions.map((foundUser, index) => (
-                      <motion.button
-                        key={foundUser.id}
-                        type="button"
-                        initial={{ opacity: 0, x: -8 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        transition={{ duration: 0.15, delay: index * 0.03 }}
-                        whileHover={{ backgroundColor: "#fef5bd" }}
-                        onClick={() => handleSuggestionClick(foundUser.id)}
-                        className="w-full flex items-center gap-3 px-4 py-3 text-left transition-colors hover:bg-[#fef5bd]"
-                      >
-                        <motion.div
-                          className="w-10 h-10 rounded-full bg-gradient-to-br from-[#ff7000] to-[#ff8e3a] flex items-center justify-center text-white text-sm font-bold flex-shrink-0 shadow-md"
-                          whileHover={{ scale: 1.1 }}
-                        >
-                          {foundUser.firstName[0]}
-                          {foundUser.lastName[0]}
-                        </motion.div>
-                        <div className="flex-1 min-w-0">
-                          <div className="text-sm font-semibold text-[#5a412f] truncate">
-                            {foundUser.firstName} {foundUser.lastName}
-                          </div>
-                          <div className="text-xs text-[#a87d1a] truncate">
-                            @{foundUser.username}
-                          </div>
-                        </div>
-                      </motion.button>
-                    ))}
-                  </div>
-                )}
-              </motion.div>
-            )}
-          </div>
-        </form>
-      </div>
-
-      {/* Navigation items */}
-      <nav className="flex-1 p-4 space-y-2">
-        {navItems.map((item) => {
-          const isActive = location.pathname === item.to;
-          return (
-            <motion.button
-              key={item.label}
-              whileTap={{ scale: 0.97 }}
-              onClick={() => navigate(item.to)}
-              className={`w-full flex items-center gap-4 px-4 py-3 rounded-lg transition-colors duration-150 ${
-                isActive
-                  ? "bg-[#ff8e3a] text-white font-semibold border-l-4 border-[#ff7000] shadow-md"
-                  : "text-[#5a412f] hover:bg-[#fce8a0] hover:text-[#3d2b1f]"
-              }`}
+          {showSuggestions && (
+            <motion.div
+              initial={{ opacity: 0, y: -12, scale: 0.98 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: -12, scale: 0.98 }}
+              transition={{ duration: 0.2, ease: "easeOut" }}
+              className="absolute left-6 right-6 z-50 mt-3 rounded-2xl border border-border/60 bg-popover/90 p-2 shadow-glass backdrop-blur-xl"
             >
-              <item.icon size={20} />
-              <span className="text-base font-medium">{item.label}</span>
-            </motion.button>
-          );
-        })}
-      </nav>
+              {isLoadingSuggestions ? (
+                <div className="px-4 py-5 text-center text-sm text-muted-foreground">
+                  Searching...
+                </div>
+              ) : suggestions.length === 0 ? (
+                <div className="px-4 py-6 text-center text-sm text-muted-foreground">
+                  No users found
+                </div>
+              ) : (
+                <div className="space-y-1">
+                  {suggestions.map((foundUser) => (
+                    <button
+                      key={foundUser.id}
+                      type="button"
+                      onClick={() => handleSuggestionClick(foundUser.id)}
+                      className="flex w-full items-center gap-3 rounded-xl px-3 py-2 text-left transition hover:bg-muted/60"
+                    >
+                      <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary/10 text-xs font-semibold text-primary">
+                        {foundUser.firstName[0]}
+                        {foundUser.lastName[0]}
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <div className="truncate text-sm font-medium text-foreground">
+                          {foundUser.firstName} {foundUser.lastName}
+                        </div>
+                        <div className="truncate text-xs text-muted-foreground">
+                          @{foundUser.username}
+                        </div>
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              )}
+            </motion.div>
+          )}
+        </div>
 
-      {/* User section */}
-      <div className="border-t border-[#f5d580] p-4 space-y-2">
-        {user && (
-          <div className="px-4 py-3 rounded-lg bg-[#fce8a0] mb-2">
-            <p className="text-sm font-bold text-[#5a412f] truncate">
-              {user.firstName} {user.lastName}
-            </p>
-            <p className="text-xs text-[#a87d1a] truncate">@{user.username}</p>
-          </div>
-        )}
-        <motion.button
-          whileTap={{ scale: 0.97 }}
-          onClick={() => logout()}
-          className="w-full flex items-center gap-4 px-4 py-3 rounded-lg text-[#5a412f] hover:bg-[#ff7000] hover:text-white transition-colors duration-150"
-        >
-          <LogOut size={20} />
-          <span className="text-base font-medium">Logout</span>
-        </motion.button>
+        <nav className="mt-6 flex-1 space-y-2 px-2">
+          {navItems.map((item) => {
+            const isActive = location.pathname === item.to;
+            return (
+              <Button
+                key={item.label}
+                variant={isActive ? "default" : "ghost"}
+                className={cn(
+                  "w-full justify-start rounded-2xl px-4 py-3 text-sm",
+                  !isActive && "text-muted-foreground",
+                )}
+                onClick={() => navigate(item.to)}
+              >
+                <item.icon className="h-4 w-4" />
+                <span>{item.label}</span>
+              </Button>
+            );
+          })}
+        </nav>
+
+        <Separator className="my-4" />
+
+        <div className="space-y-3 px-2">
+          {user && (
+            <div className="rounded-2xl border border-border/60 bg-background/60 px-4 py-3">
+              <p className="text-sm font-semibold text-foreground truncate">
+                {user.firstName} {user.lastName}
+              </p>
+              <p className="text-xs text-muted-foreground truncate">
+                @{user.username}
+              </p>
+            </div>
+          )}
+          <Button
+            variant="outline"
+            className="w-full justify-start rounded-2xl"
+            onClick={() => logout()}
+          >
+            <LogOut className="h-4 w-4" />
+            Logout
+          </Button>
+        </div>
       </div>
     </motion.aside>
   );
