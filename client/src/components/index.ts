@@ -7,7 +7,5 @@ export { ComposeModal } from "./ComposeModal";
 export type { ComposeModalProps } from "./ComposeModal";
 export { CommentsModal } from "./CommentsModal";
 export { EditPostModal } from "./EditPostModal";
-export { Sidebar } from "./Sidebar";
-export type { SidebarProps, TrendingItem } from "./Sidebar";
 export { ProtectedRoute } from "./ProtectedRoute";
 export { MobileNav } from "./MobileNav";

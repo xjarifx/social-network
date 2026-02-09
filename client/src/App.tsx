@@ -4,7 +4,6 @@ import { Toaster } from "sonner";
 import { AuthProvider, useAuth } from "./context/AuthContext";
 import { TopNav } from "./components/TopNav";
 import { MobileNav } from "./components";
-import { Sidebar } from "./components/Sidebar";
 import { ProtectedRoute } from "./components/ProtectedRoute";
 import { useFaviconAnimation } from "./hooks";
 
