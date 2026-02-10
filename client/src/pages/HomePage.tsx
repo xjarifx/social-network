@@ -353,30 +353,10 @@ export default function HomePage() {
       {comments.openCommentsPostId && selectedPost && (
         <CommentsModal
           post={selectedPost}
-          comments={comments.commentsByPost[selectedPost.id] || []}
-          commentDraft={comments.commentDrafts[selectedPost.id] || ""}
-          isLoading={comments.commentsLoading[selectedPost.id] || false}
-          isMoreLoading={comments.commentsMoreLoading[selectedPost.id] || false}
-          hasMore={
-            !!comments.commentMetaByPost[selectedPost.id] &&
-            (comments.commentsByPost[selectedPost.id]?.length ?? 0) <
-              comments.commentMetaByPost[selectedPost.id].total
-          }
-          editingCommentId={
-            comments.editingCommentByPost[selectedPost.id] ?? null
-          }
-          commentEditDrafts={comments.commentEditDrafts}
+          commentsApi={comments}
           onClose={comments.handleCloseComments}
           onLike={handleLike}
           onFollowToggle={handleFollowToggle}
-          onAddComment={comments.handleAddComment}
-          onCommentDraftChange={comments.setCommentDraft}
-          onStartEdit={comments.handleStartEditComment}
-          onCancelEdit={comments.handleCancelEditComment}
-          onSaveEdit={comments.handleSaveEditComment}
-          onDelete={comments.handleDeleteComment}
-          onLoadMore={comments.handleLoadMoreComments}
-          onCommentEditDraftChange={comments.setCommentEditDraft}
         />
       )}
     </div>

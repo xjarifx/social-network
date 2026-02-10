@@ -22,8 +22,7 @@ import {
   DialogTitle,
 } from "./ui/dialog";
 import { Button } from "./ui/button";
-import Lottie from "lottie-react";
-import earthAnimation from "../../assets/Earth globe rotating with Seamless loop animation.json";
+import logo from "../../assets/cloud.png";
 
 export function TopNav() {
   const { logout } = useAuth();
@@ -140,13 +139,7 @@ export function TopNav() {
               onClick={() => navigate("/")}
               className="flex items-center gap-2.5 px-2 shrink-0 cursor-pointer"
             >
-              <div className="h-9 w-9">
-                <Lottie
-                  animationData={earthAnimation}
-                  loop={true}
-                  autoplay={true}
-                />
-              </div>
+              <img src={logo} alt="Social Network logo" className="h-9 w-9" />
               <span className="text-[18px] font-medium text-[#202124]">
                 Social Network
               </span>
@@ -278,13 +271,7 @@ export function TopNav() {
               onClick={() => navigate("/")}
               className="flex items-center gap-2 shrink-0 cursor-pointer"
             >
-              <div className="h-8 w-8">
-                <Lottie
-                  animationData={earthAnimation}
-                  loop={true}
-                  autoplay={true}
-                />
-              </div>
+              <img src={logo} alt="Social Network logo" className="h-8 w-8" />
               <span className="text-[16px] font-medium text-[#202124]">
                 Social Network
               </span>

@@ -59,10 +59,14 @@ export const getTimeline = async (
     const offset = req.query.offset
       ? parseInt(req.query.offset as string, 10)
       : undefined;
-    const timelineData = await getUserTimeline(req.params, {
-      limit: limit as unknown as number,
-      offset: offset as unknown as number,
-    });
+    const timelineData = await getUserTimeline(
+      req.params,
+      {
+        limit: limit as unknown as number,
+        offset: offset as unknown as number,
+      },
+      req.userId as string | undefined,
+    );
     res.status(200).json(timelineData);
   } catch (error: unknown) {
     const err = error as { status?: number; error?: unknown };

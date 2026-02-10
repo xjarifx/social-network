@@ -4,6 +4,9 @@ import {
   getComments,
   updateComment,
   deleteComment,
+  likeComment,
+  unlikeComment,
+  getCommentLikes,
 } from "./comments.service";
 
 export const createCommentHandler = async (
@@ -103,5 +106,71 @@ export const deleteCommentHandler = async (
     }
     console.error("Delete comment error:", error);
     res.status(500).json({ error: "Unable to delete comment" });
+  }
+};
+
+export const likeCommentHandler = async (
+  req: Request,
+  res: Response,
+): Promise<void> => {
+  try {
+    const result = await likeComment(req.userId, req.params);
+    res.status(201).json(result);
+  } catch (error: unknown) {
+    const err = error as { status?: number; error?: unknown };
+    if (err.status === 400) {
+      res.status(400).json({ error: err.error });
+      return;
+    }
+    if (err.status === 404) {
+      res.status(404).json({ error: err.error });
+      return;
+    }
+    console.error("Like comment error:", error);
+    res.status(500).json({ error: "Unable to like comment" });
+  }
+};
+
+export const unlikeCommentHandler = async (
+  req: Request,
+  res: Response,
+): Promise<void> => {
+  try {
+    const result = await unlikeComment(req.userId, req.params);
+    res.status(200).json(result);
+  } catch (error: unknown) {
+    const err = error as { status?: number; error?: unknown };
+    if (err.status === 400) {
+      res.status(400).json({ error: err.error });
+      return;
+    }
+    if (err.status === 404) {
+      res.status(404).json({ error: err.error });
+      return;
+    }
+    console.error("Unlike comment error:", error);
+    res.status(500).json({ error: "Unable to unlike comment" });
+  }
+};
+
+export const getCommentLikesHandler = async (
+  req: Request,
+  res: Response,
+): Promise<void> => {
+  try {
+    const result = await getCommentLikes(req.params, req.query);
+    res.status(200).json(result);
+  } catch (error: unknown) {
+    const err = error as { status?: number; error?: unknown };
+    if (err.status === 400) {
+      res.status(400).json({ error: err.error });
+      return;
+    }
+    if (err.status === 404) {
+      res.status(404).json({ error: err.error });
+      return;
+    }
+    console.error("Get comment likes error:", error);
+    res.status(500).json({ error: "Unable to fetch comment likes" });
   }
 };

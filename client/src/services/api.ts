@@ -39,6 +39,7 @@ export interface Post {
   authorId?: string;
   content: string;
   imageUrl?: string | null;
+  visibility?: "PUBLIC" | "PRIVATE";
   likesCount: number;
   commentsCount: number;
   createdAt: string;
@@ -51,7 +52,10 @@ export interface Post {
 export interface Comment {
   id: string;
   postId?: string;
+  parentId?: string | null;
   content: string;
+  likesCount: number;
+  repliesCount: number;
   createdAt: string;
   author?: UserSummary;
 }
@@ -349,7 +353,11 @@ export const usersAPI = {
 // ============================================================================
 
 export const postsAPI = {
-  create: async (content: string, image?: File | null): Promise<Post> => {
+  create: async (
+    content: string,
+    image?: File | null,
+    visibility?: "PUBLIC" | "PRIVATE",
+  ): Promise<Post> => {
     const body = new FormData();
     const trimmedContent = content.trim();
     if (trimmedContent) {
@@ -358,16 +366,23 @@ export const postsAPI = {
     if (image) {
       body.append("image", image);
     }
+    if (visibility) {
+      body.append("visibility", visibility);
+    }
     return apiRequest("/posts", {
       method: "POST",
       body,
     });
   },
 
-  updatePost: async (postId: string, content: string): Promise<Post> => {
+  updatePost: async (
+    postId: string,
+    content: string,
+    visibility?: "PUBLIC" | "PRIVATE",
+  ): Promise<Post> => {
     return apiRequest(`/posts/${postId}`, {
       method: "PATCH",
-      body: JSON.stringify({ content }),
+      body: JSON.stringify({ content, visibility }),
     });
   },
 
@@ -413,16 +428,20 @@ export const likesAPI = {
 // ============================================================================
 
 export const commentsAPI = {
-  createComment: async (postId: string, content: string): Promise<Comment> => {
+  createComment: async (
+    postId: string,
+    content: string,
+    parentId?: string | null,
+  ): Promise<Comment> => {
     return apiRequest(`/posts/${postId}/comments`, {
       method: "POST",
-      body: JSON.stringify({ content }),
+      body: JSON.stringify({ content, parentId }),
     });
   },
 
   getPostComments: async (
     postId: string,
-    options?: { limit?: number; offset?: number },
+    options?: { limit?: number; offset?: number; parentId?: string | null },
   ): Promise<CommentsResponse> => {
     const params = new URLSearchParams();
     if (options?.limit !== undefined) {
@@ -430,6 +449,9 @@ export const commentsAPI = {
     }
     if (options?.offset !== undefined) {
       params.set("offset", String(options.offset));
+    }
+    if (options?.parentId) {
+      params.set("parentId", options.parentId);
     }
     const query = params.toString();
     return apiRequest(`/posts/${postId}/comments${query ? `?${query}` : ""}`);
@@ -446,8 +468,30 @@ export const commentsAPI = {
     });
   },
 
-  deleteComment: async (postId: string, commentId: string): Promise<void> => {
+  deleteComment: async (
+    postId: string,
+    commentId: string,
+  ): Promise<{ message: string; deletedCount: number }> => {
     return apiRequest(`/posts/${postId}/comments/${commentId}`, {
+      method: "DELETE",
+    });
+  },
+  likeComment: async (
+    postId: string,
+    commentId: string,
+  ): Promise<{
+    id: string;
+    userId: string;
+    commentId: string;
+    createdAt: string;
+    message: string;
+  }> => {
+    return apiRequest(`/posts/${postId}/comments/${commentId}/likes`, {
+      method: "POST",
+    });
+  },
+  unlikeComment: async (postId: string, commentId: string): Promise<void> => {
+    return apiRequest(`/posts/${postId}/comments/${commentId}/likes`, {
       method: "DELETE",
     });
   },

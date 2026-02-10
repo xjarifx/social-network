@@ -5,7 +5,6 @@ import { AuthProvider, useAuth } from "./context/AuthContext";
 import { TopNav } from "./components/TopNav";
 import { MobileNav } from "./components";
 import { ProtectedRoute } from "./components/ProtectedRoute";
-import { useFaviconAnimation } from "./hooks";
 
 // Route-level code splitting
 const LoginPage = lazy(() => import("./pages/LoginPage"));
@@ -242,8 +241,6 @@ function AppRoutes() {
 }
 
 function App() {
-  useFaviconAnimation();
-
   return (
     <BrowserRouter
       future={{ v7_startTransition: true, v7_relativeSplatPath: true }}

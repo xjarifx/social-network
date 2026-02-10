@@ -3,8 +3,11 @@ import path from "path";
 import { fileURLToPath } from "url";
 import bcrypt from "bcryptjs";
 import crypto from "node:crypto";
-import { NotificationType, Plan } from "../src/generated/prisma/index.js";
-import { prisma } from "../src/lib/prisma.js";
+import {
+  NotificationType,
+  Plan,
+  PostVisibility,
+} from "../src/generated/prisma/index.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -269,11 +272,17 @@ const commentTemplates = [
   "Keep it up!",
 ];
 
-function generateUsername(
+const getRandomItem = <T>(list: T[]): T =>
+  list[Math.floor(Math.random() * list.length)];
+
+const getRandomInt = (min: number, max: number): number =>
+  Math.floor(Math.random() * (max - min + 1)) + min;
+
+const generateUsername = (
   firstName: string,
   lastName: string,
   index: number,
-): string {
+) => {
   const variations = [
     `${firstName.toLowerCase()}${lastName.toLowerCase()}`,
     `${firstName.toLowerCase()}_${lastName.toLowerCase()}`,
@@ -283,11 +292,16 @@ function generateUsername(
     `${lastName.toLowerCase()}${index}`,
   ];
   return variations[index % variations.length];
-}
+};
+
+let prismaClient: typeof import("../src/lib/prisma.js").prisma | null = null;
 
 async function main() {
+  const { prisma } = await import("../src/lib/prisma.js");
+  prismaClient = prisma;
   console.log("🗑️  Cleaning up existing data...");
   await prisma.notification.deleteMany();
+  await prisma.commentLike.deleteMany();
   await prisma.like.deleteMany();
   await prisma.comment.deleteMany();
   await prisma.follower.deleteMany();
@@ -300,7 +314,16 @@ async function main() {
   const TARGET_USERS = 100;
 
   console.log(`👥 Creating ${TARGET_USERS} users...`);
-  const usersData = [];
+  const usersData = [] as Array<{
+    username: string;
+    email: string;
+    firstName: string;
+    lastName: string;
+    password: string;
+    plan?: Plan;
+    planStatus?: string;
+    planStartedAt?: Date;
+  }>;
 
   for (let i = 0; i < TARGET_USERS; i++) {
     const firstName = firstNames[i % firstNames.length];
@@ -308,15 +331,14 @@ async function main() {
       lastNames[Math.floor(i / firstNames.length) % lastNames.length];
     const username = generateUsername(firstName, lastName, i);
 
-    const userData: any = {
+    const userData = {
       username,
       email: `${username}@example.com`,
       firstName,
       lastName,
       password: passwordHash,
-    };
+    } as (typeof usersData)[number];
 
-    // Make about 5% of users PRO members
     if (i % 20 === 0) {
       userData.plan = Plan.PRO;
       userData.planStatus = "active";
@@ -328,7 +350,6 @@ async function main() {
     usersData.push(userData);
   }
 
-  // Insert users in batches for better performance
   const BATCH_SIZE = 100;
   for (let i = 0; i < usersData.length; i += BATCH_SIZE) {
     await prisma.user.createMany({
@@ -339,18 +360,24 @@ async function main() {
   const users = await prisma.user.findMany();
   console.log(`✅ Created ${users.length} users`);
 
-  // Create posts - all users create posts
   console.log("📝 Creating posts...");
-  const postsData = [];
-  for (let i = 0; i < users.length; i++) {
-    const numPosts = Math.floor(Math.random() * 7) + 2; // 2-8 posts per user
+  const postsData = [] as Array<{
+    authorId: string;
+    content: string;
+    visibility: PostVisibility;
+    createdAt: Date;
+  }>;
+  for (const user of users) {
+    const numPosts = getRandomInt(2, 8);
     for (let j = 0; j < numPosts; j++) {
       postsData.push({
-        authorId: users[i].id,
-        content: postContents[Math.floor(Math.random() * postContents.length)],
+        authorId: user.id,
+        content: getRandomItem(postContents),
+        visibility:
+          Math.random() < 0.2 ? PostVisibility.PRIVATE : PostVisibility.PUBLIC,
         createdAt: new Date(
           Date.now() - Math.random() * 60 * 24 * 60 * 60 * 1000,
-        ), // Random date within last 60 days
+        ),
       });
     }
   }
@@ -364,11 +391,11 @@ async function main() {
   const posts = await prisma.post.findMany();
   console.log(`✅ Created ${posts.length} posts`);
 
-  // Create likes - all users engage with likes
   console.log("❤️  Creating likes...");
-  const likesData = [];
+  const likesData = [] as Array<{ userId: string; postId: string }>;
+  const postLikeCounts = new Map<string, number>();
   for (const post of posts) {
-    const numLikes = Math.floor(Math.random() * 26) + 5; // 5-30 likes per post
+    const numLikes = getRandomInt(5, 30);
     const likerIndices = new Set<number>();
 
     while (likerIndices.size < Math.min(numLikes, users.length - 1)) {
@@ -376,11 +403,10 @@ async function main() {
     }
 
     for (const index of likerIndices) {
-      if (users[index].id !== post.authorId) {
-        likesData.push({
-          userId: users[index].id,
-          postId: post.id,
-        });
+      const likerId = users[index].id;
+      if (likerId !== post.authorId) {
+        likesData.push({ userId: likerId, postId: post.id });
+        postLikeCounts.set(post.id, (postLikeCounts.get(post.id) || 0) + 1);
       }
     }
   }
@@ -393,42 +419,142 @@ async function main() {
   }
   console.log(`✅ Created ${likesData.length} likes`);
 
-  // Create comments - all users comment on posts
-  console.log("💬 Creating comments...");
-  const commentsData = [];
-  for (const post of posts) {
-    const numComments = Math.floor(Math.random() * 14) + 2; // 2-15 comments per post
+  console.log("💬 Creating comments with replies...");
+  const allComments = [] as Array<{
+    id: string;
+    postId: string;
+    authorId: string;
+  }>;
+  const postCommentCounts = new Map<string, number>();
 
-    for (let i = 0; i < numComments; i++) {
-      const commenterIndex = Math.floor(Math.random() * users.length);
-      if (users[commenterIndex].id !== post.authorId) {
-        commentsData.push({
-          authorId: users[commenterIndex].id,
+  for (const post of posts) {
+    const topLevelCount = getRandomInt(2, 8);
+    const topLevel = [] as typeof allComments;
+
+    for (let i = 0; i < topLevelCount; i++) {
+      const author = getRandomItem(users);
+      if (author.id === post.authorId) continue;
+      const createdAt = new Date(
+        post.createdAt.getTime() + Math.random() * 48 * 60 * 60 * 1000,
+      );
+      const comment = await prisma.comment.create({
+        data: {
+          authorId: author.id,
           postId: post.id,
-          content:
-            commentTemplates[
-              Math.floor(Math.random() * commentTemplates.length)
-            ],
-          createdAt: new Date(
-            post.createdAt.getTime() + Math.random() * 48 * 60 * 60 * 1000,
-          ),
+          content: getRandomItem(commentTemplates),
+          createdAt,
+        },
+      });
+      topLevel.push({
+        id: comment.id,
+        postId: comment.postId,
+        authorId: comment.authorId,
+      });
+      allComments.push({
+        id: comment.id,
+        postId: comment.postId,
+        authorId: comment.authorId,
+      });
+      postCommentCounts.set(post.id, (postCommentCounts.get(post.id) || 0) + 1);
+    }
+
+    for (const parent of topLevel) {
+      const replyCount = getRandomInt(0, 4);
+      for (let j = 0; j < replyCount; j++) {
+        const author = getRandomItem(users);
+        if (author.id === parent.authorId) continue;
+        const createdAt = new Date(
+          post.createdAt.getTime() + Math.random() * 72 * 60 * 60 * 1000,
+        );
+        const reply = await prisma.comment.create({
+          data: {
+            authorId: author.id,
+            postId: post.id,
+            parentId: parent.id,
+            content: getRandomItem(commentTemplates),
+            createdAt,
+          },
         });
+        allComments.push({
+          id: reply.id,
+          postId: reply.postId,
+          authorId: reply.authorId,
+        });
+        postCommentCounts.set(
+          post.id,
+          (postCommentCounts.get(post.id) || 0) + 1,
+        );
+
+        if (Math.random() < 0.35) {
+          const subAuthor = getRandomItem(users);
+          if (subAuthor.id !== reply.authorId) {
+            const subReply = await prisma.comment.create({
+              data: {
+                authorId: subAuthor.id,
+                postId: post.id,
+                parentId: reply.id,
+                content: getRandomItem(commentTemplates),
+                createdAt: new Date(
+                  post.createdAt.getTime() +
+                    Math.random() * 96 * 60 * 60 * 1000,
+                ),
+              },
+            });
+            allComments.push({
+              id: subReply.id,
+              postId: subReply.postId,
+              authorId: subReply.authorId,
+            });
+            postCommentCounts.set(
+              post.id,
+              (postCommentCounts.get(post.id) || 0) + 1,
+            );
+          }
+        }
       }
     }
   }
 
-  for (let i = 0; i < commentsData.length; i += BATCH_SIZE) {
-    await prisma.comment.createMany({
-      data: commentsData.slice(i, i + BATCH_SIZE),
+  console.log(`✅ Created ${allComments.length} comments`);
+
+  console.log("💗 Creating comment likes...");
+  const commentLikesData = [] as Array<{ userId: string; commentId: string }>;
+  const commentLikeCounts = new Map<string, number>();
+  for (const comment of allComments) {
+    const numLikes = getRandomInt(0, 12);
+    const likerIndices = new Set<number>();
+
+    while (likerIndices.size < Math.min(numLikes, users.length - 1)) {
+      likerIndices.add(Math.floor(Math.random() * users.length));
+    }
+
+    for (const index of likerIndices) {
+      const likerId = users[index].id;
+      if (likerId !== comment.authorId) {
+        commentLikesData.push({ userId: likerId, commentId: comment.id });
+        commentLikeCounts.set(
+          comment.id,
+          (commentLikeCounts.get(comment.id) || 0) + 1,
+        );
+      }
+    }
+  }
+
+  for (let i = 0; i < commentLikesData.length; i += BATCH_SIZE) {
+    await prisma.commentLike.createMany({
+      data: commentLikesData.slice(i, i + BATCH_SIZE),
+      skipDuplicates: true,
     });
   }
-  console.log(`✅ Created ${commentsData.length} comments`);
+  console.log(`✅ Created ${commentLikesData.length} comment likes`);
 
-  // Create follower relationships - each user follows others
   console.log("🤝 Creating follower relationships...");
-  const followerPairs = [];
+  const followerPairs = [] as Array<{
+    followerId: string;
+    followingId: string;
+  }>;
   for (let i = 0; i < users.length; i++) {
-    const numFollowing = Math.floor(Math.random() * 31) + 10; // 10-40 follows per user
+    const numFollowing = getRandomInt(10, 40);
     const followingIndices = new Set<number>();
 
     while (followingIndices.size < Math.min(numFollowing, users.length - 1)) {
@@ -454,11 +580,10 @@ async function main() {
   }
   console.log(`✅ Created ${followerPairs.length} follower relationships`);
 
-  // Create blocks - each user blocks a few others
   console.log("🚫 Creating blocks...");
-  const blockPairs = [];
+  const blockPairs = [] as Array<{ blockerId: string; blockedId: string }>;
   for (let i = 0; i < users.length; i++) {
-    const numBlocks = Math.floor(Math.random() * 9) + 2; // 2-10 blocks per user
+    const numBlocks = getRandomInt(2, 10);
     const blockedIndices = new Set<number>();
 
     while (blockedIndices.size < Math.min(numBlocks, users.length - 1)) {
@@ -484,12 +609,14 @@ async function main() {
   }
   console.log(`✅ Created ${blockPairs.length} blocks`);
 
-  // Create refresh tokens for about 30% of users (active sessions)
   console.log("🔑 Creating refresh tokens...");
-  const refreshTokensData = [];
+  const refreshTokensData = [] as Array<{
+    userId: string;
+    token: string;
+    expiresAt: Date;
+  }>;
   for (let i = 0; i < users.length; i++) {
     if (i % 3 === 0) {
-      // 33% of users
       refreshTokensData.push({
         userId: users[i].id,
         token: crypto.randomBytes(32).toString("hex"),
@@ -505,11 +632,16 @@ async function main() {
   }
   console.log(`✅ Created ${refreshTokensData.length} refresh tokens`);
 
-  // Create notifications - recent activity notifications
   console.log("🔔 Creating notifications...");
-  const notificationsData = [];
+  const notificationsData = [] as Array<{
+    userId: string;
+    type: NotificationType;
+    relatedUserId: string;
+    relatedPostId?: string;
+    message: string;
+    createdAt: Date;
+  }>;
 
-  // Sample recent likes for notifications
   const recentLikes = await prisma.like.findMany({
     take: 500,
     orderBy: { createdAt: "desc" },
@@ -529,7 +661,6 @@ async function main() {
     }
   }
 
-  // Sample recent comments for notifications
   const recentComments = await prisma.comment.findMany({
     take: 500,
     orderBy: { createdAt: "desc" },
@@ -549,7 +680,6 @@ async function main() {
     }
   }
 
-  // Sample recent follows for notifications
   const recentFollows = await prisma.follower.findMany({
     take: 500,
     orderBy: { createdAt: "desc" },
@@ -572,23 +702,22 @@ async function main() {
   }
   console.log(`✅ Created ${notificationsData.length} notifications`);
 
-  // Update post counts
-  console.log("📊 Updating post counts...");
-  const postIds = posts.map((p) => p.id);
-  for (let i = 0; i < postIds.length; i += BATCH_SIZE) {
-    const batchIds = postIds.slice(i, i + BATCH_SIZE);
+  console.log("📊 Updating counts...");
+  for (const post of posts) {
+    await prisma.post.update({
+      where: { id: post.id },
+      data: {
+        likesCount: postLikeCounts.get(post.id) || 0,
+        commentsCount: postCommentCounts.get(post.id) || 0,
+      },
+    });
+  }
 
-    for (const postId of batchIds) {
-      const [likesCount, commentsCount] = await Promise.all([
-        prisma.like.count({ where: { postId } }),
-        prisma.comment.count({ where: { postId } }),
-      ]);
-
-      await prisma.post.update({
-        where: { id: postId },
-        data: { likesCount, commentsCount },
-      });
-    }
+  for (const comment of allComments) {
+    await prisma.comment.update({
+      where: { id: comment.id },
+      data: { likesCount: commentLikeCounts.get(comment.id) || 0 },
+    });
   }
 
   console.log("✅ All counts updated");
@@ -596,7 +725,8 @@ async function main() {
   console.log(`📊 Summary:
   - Users: ${users.length}
   - Posts: ${posts.length}
-  - Comments: ${commentsData.length}
+  - Comments: ${allComments.length}
+  - Comment Likes: ${commentLikesData.length}
   - Likes: ${likesData.length}
   - Follows: ${followerPairs.length}
   - Blocks: ${blockPairs.length}
@@ -610,5 +740,7 @@ main()
     process.exit(1);
   })
   .finally(async () => {
-    await prisma.$disconnect();
+    if (prismaClient) {
+      await prismaClient.$disconnect();
+    }
   });

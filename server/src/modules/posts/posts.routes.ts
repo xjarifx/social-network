@@ -8,7 +8,10 @@ import {
   getPostsFeed,
   getForYouPostsFeed,
 } from "./posts.controller";
-import { authenticate } from "../../middleware/authenticate.middleware";
+import {
+  authenticate,
+  authenticateOptional,
+} from "../../middleware/authenticate.middleware";
 import likeRouter from "../likes/likes.routes";
 import commentsRouter from "../comments/comments.routes";
 
@@ -52,6 +55,9 @@ const upload = multer({
  *               content:
  *                 type: string
  *                 maxLength: 100
+ *               visibility:
+ *                 type: string
+ *                 enum: [PUBLIC, PRIVATE]
  *               image:
  *                 type: string
  *                 format: binary
@@ -161,7 +167,7 @@ router.get("/", authenticate, getPostsFeed);
  *       404:
  *         description: Post not found
  */
-router.get("/:postId", getPost);
+router.get("/:postId", authenticateOptional, getPost);
 /**
  * @openapi
  * /api/v1/posts/{postId}:
@@ -191,6 +197,9 @@ router.get("/:postId", getPost);
  *                 type: string
  *                 minLength: 1
  *                 maxLength: 100
+ *               visibility:
+ *                 type: string
+ *                 enum: [PUBLIC, PRIVATE]
  *           examples:
  *             UpdatePostExample:
  *               value:

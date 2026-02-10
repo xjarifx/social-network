@@ -26,6 +26,7 @@ export function transformPost(post: Post, currentUserId?: string): PostProps {
     },
     content: post.content,
     image: imageUrl,
+    visibility: post.visibility,
     timestamp: formatPostTime(post.createdAt),
     likes: post.likesCount,
     replies: post.commentsCount,

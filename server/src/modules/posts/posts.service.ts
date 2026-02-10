@@ -53,6 +53,7 @@ export const getFeed = async (
       authorId: {
         not: userId,
       },
+      visibility: "PUBLIC",
       author: {
         followers: {
           some: {
@@ -88,6 +89,7 @@ export const getFeed = async (
     id: post.id,
     content: post.content,
     imageUrl: post.imageUrl,
+    visibility: post.visibility,
     author: post.author,
     likesCount: post.likesCount,
     commentsCount: post.commentsCount,
@@ -140,6 +142,7 @@ export const getForYouFeed = async (
       authorId: {
         in: secondDegreeIds,
       },
+      visibility: "PUBLIC",
     },
     include: {
       author: {
@@ -168,6 +171,7 @@ export const getForYouFeed = async (
     id: post.id,
     content: post.content,
     imageUrl: post.imageUrl,
+    visibility: post.visibility,
     author: post.author,
     likesCount: post.likesCount,
     commentsCount: post.commentsCount,
@@ -212,7 +216,7 @@ export const createPost = async (
     };
   }
 
-  const { content } = validationResult.data.body;
+  const { content, visibility } = validationResult.data.body;
   const authorId = ensureString(userId);
   const normalizedContent = (content ?? "").trim();
 
@@ -244,6 +248,7 @@ export const createPost = async (
       content: normalizedContent,
       authorId,
       imageUrl,
+      ...(visibility && { visibility }),
     },
     include: {
       author: {
@@ -262,6 +267,7 @@ export const createPost = async (
     id: post.id,
     content: post.content,
     imageUrl: post.imageUrl,
+    visibility: post.visibility,
     author: post.author,
     likesCount: post.likesCount,
     commentsCount: post.commentsCount,
@@ -270,7 +276,10 @@ export const createPost = async (
   };
 };
 
-export const getPostById = async (params: Record<string, unknown>) => {
+export const getPostById = async (
+  params: Record<string, unknown>,
+  userId?: unknown,
+) => {
   const paramValidation = postIdParamSchema.safeParse({ params });
   if (!paramValidation.success) {
     throw {
@@ -304,7 +313,17 @@ export const getPostById = async (params: Record<string, unknown>) => {
               lastName: true,
             },
           },
+          parentId: true,
+          likesCount: true,
+          _count: {
+            select: {
+              replies: true,
+            },
+          },
           createdAt: true,
+        },
+        where: {
+          parentId: null,
         },
         orderBy: {
           createdAt: "desc",
@@ -323,15 +342,32 @@ export const getPostById = async (params: Record<string, unknown>) => {
     throw { status: 404, error: "Post not found" };
   }
 
+  if (post.visibility === "PRIVATE") {
+    const requesterId = ensureString(userId);
+    if (!requesterId || requesterId !== post.authorId) {
+      throw { status: 403, error: "Post is private" };
+    }
+  }
+
   return {
     id: post.id,
     content: post.content,
     imageUrl: post.imageUrl,
+    visibility: post.visibility,
     author: post.author,
     likesCount: post.likesCount,
     commentsCount: post.commentsCount,
     likes: post.likes.map((like) => like.userId),
-    comments: post.comments,
+    comments: post.comments.map((comment) => ({
+      id: comment.id,
+      content: comment.content,
+      author: comment.author,
+      postId: post.id,
+      parentId: comment.parentId,
+      likesCount: comment.likesCount,
+      repliesCount: comment._count.replies,
+      createdAt: comment.createdAt,
+    })),
     createdAt: post.createdAt,
     updatedAt: post.updatedAt,
   };
@@ -375,7 +411,7 @@ export const updatePost = async (
     throw { status: 403, error: "Cannot update other user's post" };
   }
 
-  const { content } = validationResult.data.body;
+  const { content, visibility } = validationResult.data.body;
 
   await enforcePostLimitForUser(authorId, content);
 
@@ -384,6 +420,7 @@ export const updatePost = async (
     where: { id: postId },
     data: {
       content,
+      ...(visibility && { visibility }),
     },
     include: {
       author: {
@@ -402,6 +439,7 @@ export const updatePost = async (
     id: updatedPost.id,
     content: updatedPost.content,
     imageUrl: updatedPost.imageUrl,
+    visibility: updatedPost.visibility,
     author: updatedPost.author,
     likesCount: updatedPost.likesCount,
     commentsCount: updatedPost.commentsCount,

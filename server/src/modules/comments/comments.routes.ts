@@ -8,6 +8,9 @@ import {
   getCommentsHandler,
   updateCommentHandler,
   deleteCommentHandler,
+  likeCommentHandler,
+  unlikeCommentHandler,
+  getCommentLikesHandler,
 } from "./comments.controller";
 
 const router = Router({ mergeParams: true });
@@ -43,6 +46,9 @@ const router = Router({ mergeParams: true });
  *                 type: string
  *                 minLength: 1
  *                 maxLength: 2000
+ *               parentId:
+ *                 type: string
+ *                 format: uuid
  *           examples:
  *             CreateCommentExample:
  *               value:
@@ -58,7 +64,7 @@ router.post("/", authenticate, createCommentHandler);
  * @openapi
  * /api/v1/posts/{postId}/comments:
  *   get:
- *     summary: Get all comments on the post
+ *     summary: Get comments on the post
  *     tags:
  *       - Comments
  *     parameters:
@@ -73,6 +79,11 @@ router.post("/", authenticate, createCommentHandler);
  *         schema:
  *           type: integer
  *           default: 10
+ *       - in: query
+ *         name: parentId
+ *         schema:
+ *           type: string
+ *           format: uuid
  *       - in: query
  *         name: offset
  *         schema:
@@ -177,5 +188,97 @@ router.get("/", authenticateOptional, getCommentsHandler);
 router.get("/:commentId", getCommentsHandler);
 router.patch("/:commentId", authenticate, updateCommentHandler);
 router.delete("/:commentId", authenticate, deleteCommentHandler);
+
+/**
+ * @openapi
+ * /api/v1/posts/{postId}/comments/{commentId}/likes:
+ *   post:
+ *     summary: Like a comment
+ *     tags:
+ *       - Comments
+ *     security:
+ *       - BearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: postId
+ *         required: true
+ *         schema:
+ *           type: string
+ *           format: uuid
+ *       - in: path
+ *         name: commentId
+ *         required: true
+ *         schema:
+ *           type: string
+ *           format: uuid
+ *     responses:
+ *       201:
+ *         description: Comment liked successfully
+ */
+router.post("/:commentId/likes", authenticate, likeCommentHandler);
+/**
+ * @openapi
+ * /api/v1/posts/{postId}/comments/{commentId}/likes:
+ *   delete:
+ *     summary: Unlike a comment
+ *     tags:
+ *       - Comments
+ *     security:
+ *       - BearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: postId
+ *         required: true
+ *         schema:
+ *           type: string
+ *           format: uuid
+ *       - in: path
+ *         name: commentId
+ *         required: true
+ *         schema:
+ *           type: string
+ *           format: uuid
+ *     responses:
+ *       200:
+ *         description: Comment unliked successfully
+ */
+router.delete("/:commentId/likes", authenticate, unlikeCommentHandler);
+/**
+ * @openapi
+ * /api/v1/posts/{postId}/comments/{commentId}/likes:
+ *   get:
+ *     summary: Get users who liked the comment
+ *     tags:
+ *       - Comments
+ *     security:
+ *       - BearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: postId
+ *         required: true
+ *         schema:
+ *           type: string
+ *           format: uuid
+ *       - in: path
+ *         name: commentId
+ *         required: true
+ *         schema:
+ *           type: string
+ *           format: uuid
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           default: 20
+ *       - in: query
+ *         name: offset
+ *         schema:
+ *           type: integer
+ *           default: 0
+ *     responses:
+ *       200:
+ *         description: Comment likes retrieved successfully
+ */
+router.get("/:commentId/likes", authenticate, getCommentLikesHandler);
 
 export default router;

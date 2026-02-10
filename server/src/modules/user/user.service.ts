@@ -58,6 +58,7 @@ export const getUserProfile = async (params: Record<string, unknown>) => {
 export const getUserTimeline = async (
   params: Record<string, unknown>,
   query: Record<string, unknown>,
+  viewerId?: string,
 ) => {
   const paramValidation = userIdParamSchema.safeParse({ params });
   if (!paramValidation.success) {
@@ -79,7 +80,10 @@ export const getUserTimeline = async (
 
   // Get user's posts with pagination
   const posts = await prisma.post.findMany({
-    where: { authorId: userId },
+    where: {
+      authorId: userId,
+      ...(viewerId && viewerId === userId ? {} : { visibility: "PUBLIC" }),
+    },
     include: {
       author: {
         select: {
@@ -104,7 +108,10 @@ export const getUserTimeline = async (
   });
 
   const total = await prisma.post.count({
-    where: { authorId: userId },
+    where: {
+      authorId: userId,
+      ...(viewerId && viewerId === userId ? {} : { visibility: "PUBLIC" }),
+    },
   });
 
   return {
@@ -112,6 +119,7 @@ export const getUserTimeline = async (
       id: post.id,
       content: post.content,
       imageUrl: post.imageUrl,
+      visibility: post.visibility,
       author: post.author,
       likesCount: post.likesCount,
       commentsCount: post.commentsCount,

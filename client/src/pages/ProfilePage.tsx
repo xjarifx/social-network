@@ -34,6 +34,9 @@ export default function ProfilePage() {
   const [postsError, setPostsError] = useState<string | null>(null);
   const [editingPostId, setEditingPostId] = useState<string | null>(null);
   const [editingContent, setEditingContent] = useState("");
+  const [editingVisibility, setEditingVisibility] = useState<
+    "PUBLIC" | "PRIVATE"
+  >("PUBLIC");
   const [isSavingEdit, setIsSavingEdit] = useState(false);
 
   const comments = useComments();
@@ -156,10 +159,15 @@ export default function ProfilePage() {
     [posts, user?.id],
   );
 
-  const handleEditPost = useCallback((postId: string, content: string) => {
-    setEditingPostId(postId);
-    setEditingContent(content);
-  }, []);
+  const handleEditPost = useCallback(
+    (postId: string, content: string) => {
+      const post = posts.find((item) => item.id === postId);
+      setEditingPostId(postId);
+      setEditingContent(content);
+      setEditingVisibility(post?.visibility || "PUBLIC");
+    },
+    [posts],
+  );
 
   const handleSaveEditPost = async () => {
     if (!editingPostId || !editingContent.trim()) {
@@ -168,14 +176,25 @@ export default function ProfilePage() {
 
     try {
       setIsSavingEdit(true);
-      await postsAPI.updatePost(editingPostId, editingContent.trim());
+      await postsAPI.updatePost(
+        editingPostId,
+        editingContent.trim(),
+        editingVisibility,
+      );
       setPosts((prev) =>
         prev.map((p) =>
-          p.id === editingPostId ? { ...p, content: editingContent.trim() } : p,
+          p.id === editingPostId
+            ? {
+                ...p,
+                content: editingContent.trim(),
+                visibility: editingVisibility,
+              }
+            : p,
         ),
       );
       setEditingPostId(null);
       setEditingContent("");
+      setEditingVisibility("PUBLIC");
       toast.success("Post updated successfully!");
     } catch (err) {
       console.error("Failed to update post:", err);
@@ -349,42 +368,25 @@ export default function ProfilePage() {
       {editingPostId && (
         <EditPostModal
           editingContent={editingContent}
+          visibility={editingVisibility}
           isSaving={isSavingEdit}
           onClose={() => {
             setEditingPostId(null);
             setEditingContent("");
+            setEditingVisibility("PUBLIC");
           }}
           onSave={handleSaveEditPost}
           onContentChange={setEditingContent}
+          onVisibilityChange={setEditingVisibility}
         />
       )}
 
       {comments.openCommentsPostId && selectedPost && (
         <CommentsModal
           post={selectedPost}
-          comments={comments.commentsByPost[selectedPost.id] || []}
-          commentDraft={comments.commentDrafts[selectedPost.id] || ""}
-          isLoading={comments.commentsLoading[selectedPost.id] || false}
-          isMoreLoading={comments.commentsMoreLoading[selectedPost.id] || false}
-          hasMore={
-            !!comments.commentMetaByPost[selectedPost.id] &&
-            (comments.commentsByPost[selectedPost.id]?.length ?? 0) <
-              comments.commentMetaByPost[selectedPost.id].total
-          }
-          editingCommentId={
-            comments.editingCommentByPost[selectedPost.id] ?? null
-          }
-          commentEditDrafts={comments.commentEditDrafts}
+          commentsApi={comments}
           onClose={comments.handleCloseComments}
           onLike={handleLike}
-          onAddComment={comments.handleAddComment}
-          onCommentDraftChange={comments.setCommentDraft}
-          onStartEdit={comments.handleStartEditComment}
-          onCancelEdit={comments.handleCancelEditComment}
-          onSaveEdit={comments.handleSaveEditComment}
-          onDelete={comments.handleDeleteComment}
-          onLoadMore={comments.handleLoadMoreComments}
-          onCommentEditDraftChange={comments.setCommentEditDraft}
         />
       )}
     </div>

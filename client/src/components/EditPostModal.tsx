@@ -11,18 +11,22 @@ import { Textarea } from "./ui/textarea";
 
 interface EditPostModalProps {
   editingContent: string;
+  visibility: "PUBLIC" | "PRIVATE";
   isSaving: boolean;
   onClose: () => void;
   onSave: (content: string) => void;
   onContentChange: (content: string) => void;
+  onVisibilityChange: (visibility: "PUBLIC" | "PRIVATE") => void;
 }
 
 export function EditPostModal({
   editingContent,
+  visibility,
   isSaving,
   onClose,
   onSave,
   onContentChange,
+  onVisibilityChange,
 }: EditPostModalProps) {
   const [error, setError] = useState<string | null>(null);
 
@@ -50,6 +54,27 @@ export function EditPostModal({
             className="min-h-[140px]"
             autoFocus
           />
+
+          <div className="flex flex-wrap items-center gap-3">
+            <label className="text-[12px] font-medium text-[#5f6368]">
+              Visibility
+            </label>
+            <select
+              value={visibility}
+              onChange={(event) =>
+                onVisibilityChange(event.target.value as "PUBLIC" | "PRIVATE")
+              }
+              className="h-9 rounded-xl border border-[#e8eaed] bg-white px-3 text-[13px] text-[#202124] focus:outline-none focus:ring-1 focus:ring-[#1a73e8]"
+            >
+              <option value="PUBLIC">Public</option>
+              <option value="PRIVATE">Private</option>
+            </select>
+            {visibility === "PRIVATE" && (
+              <span className="text-[12px] text-[#5f6368]">
+                Only you can see this post
+              </span>
+            )}
+          </div>
 
           {error && (
             <div className="rounded-xl bg-[#fce8e6] px-4 py-3 text-[13px] text-[#c5221f]">

@@ -5,58 +5,207 @@ import { useAuth } from "../context/AuthContext";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "./ui/dialog";
 import { Input } from "./ui/input";
 import { Button } from "./ui/button";
+import type { UseCommentsReturn } from "../hooks/useComments";
+import { Heart, MessageCircle } from "lucide-react";
 
 interface CommentsModalProps {
   post: PostProps;
-  comments: ApiComment[];
-  commentDraft: string;
-  isLoading: boolean;
-  isMoreLoading: boolean;
-  hasMore: boolean;
-  editingCommentId: string | null;
-  commentEditDrafts: Record<string, string>;
+  commentsApi: UseCommentsReturn;
   onClose: () => void;
   onLike: (postId: string) => void | Promise<void>;
   onFollowToggle?: (
     authorId: string,
     isFollowing: boolean,
   ) => void | Promise<void>;
-  onAddComment: (postId: string) => void;
-  onCommentDraftChange: (postId: string, value: string) => void;
-  onStartEdit: (postId: string, comment: ApiComment) => void;
-  onCancelEdit: (postId: string, commentId: string) => void;
-  onSaveEdit: (postId: string, commentId: string) => void;
-  onDelete: (postId: string, commentId: string) => void;
-  onLoadMore: (postId: string) => void;
-  onCommentEditDraftChange: (commentId: string, value: string) => void;
 }
 
 export function CommentsModal({
   post,
-  comments,
-  commentDraft,
-  isLoading,
-  isMoreLoading,
-  hasMore,
-  editingCommentId,
-  commentEditDrafts,
+  commentsApi,
   onClose,
   onLike,
   onFollowToggle,
-  onAddComment,
-  onCommentDraftChange,
-  onStartEdit,
-  onCancelEdit,
-  onSaveEdit,
-  onDelete,
-  onLoadMore,
-  onCommentEditDraftChange,
 }: CommentsModalProps) {
   const { user } = useAuth();
+  const comments = commentsApi.commentsByPost[post.id] || [];
+  const commentDraft = commentsApi.commentDrafts[post.id] || "";
+  const isLoading = commentsApi.commentsLoading[post.id] || false;
+  const isMoreLoading = commentsApi.commentsMoreLoading[post.id] || false;
+  const hasMore =
+    !!commentsApi.commentMetaByPost[post.id] &&
+    (commentsApi.commentsByPost[post.id]?.length ?? 0) <
+      commentsApi.commentMetaByPost[post.id].total;
+  const editingCommentId = commentsApi.editingCommentByPost[post.id] ?? null;
+  const commentEditDrafts = commentsApi.commentEditDrafts;
+
+  const renderComment = (comment: ApiComment, depth = 0) => {
+    const isEditing = editingCommentId === comment.id;
+    const canManage = !!user?.id && comment.author?.id === user.id;
+    const replies = commentsApi.repliesByComment[comment.id] || [];
+    const repliesExpanded = commentsApi.repliesExpanded[comment.id] || false;
+    const replyDraft = commentsApi.replyDrafts[comment.id] || "";
+    const repliesLoading = commentsApi.repliesLoading[comment.id] || false;
+    const repliesMoreLoading =
+      commentsApi.repliesMoreLoading[comment.id] || false;
+    const replyMeta = commentsApi.replyMetaByComment[comment.id];
+    const repliesHasMore =
+      !!replyMeta && replies.length < (replyMeta.total || 0);
+    const likeState = commentsApi.commentLikeState[comment.id];
+    const likeCount = likeState?.count ?? comment.likesCount;
+    const isLiked = likeState?.liked ?? false;
+    const repliesCount = comment.repliesCount || 0;
+
+    return (
+      <div key={comment.id} className="space-y-2">
+        <div
+          className="rounded-xl bg-white px-4 py-3 shadow-sm"
+          style={{ marginLeft: depth * 16 }}
+        >
+          <div className="flex items-start justify-between gap-3">
+            <p className="text-[12px] font-medium text-[#5f6368]">
+              {comment.author
+                ? `${comment.author.firstName} ${comment.author.lastName}`.trim() ||
+                  comment.author.username
+                : "User"}
+            </p>
+            {canManage && !isEditing && (
+              <div className="flex items-center gap-3 text-[12px]">
+                <button
+                  type="button"
+                  onClick={() =>
+                    commentsApi.handleStartEditComment(post.id, comment)
+                  }
+                  className="text-[#1a73e8] hover:underline cursor-pointer"
+                >
+                  Edit
+                </button>
+                <button
+                  type="button"
+                  onClick={() =>
+                    commentsApi.handleDeleteComment(post.id, comment.id)
+                  }
+                  className="text-[#ea4335] hover:underline cursor-pointer"
+                >
+                  Delete
+                </button>
+              </div>
+            )}
+          </div>
+          {isEditing ? (
+            <div className="mt-2 space-y-2">
+              <Input
+                value={commentEditDrafts[comment.id] || ""}
+                onChange={(e) =>
+                  commentsApi.setCommentEditDraft(comment.id, e.target.value)
+                }
+              />
+              <div className="flex items-center gap-2">
+                <Button
+                  size="sm"
+                  onClick={() =>
+                    commentsApi.handleSaveEditComment(post.id, comment.id)
+                  }
+                >
+                  Save
+                </Button>
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  onClick={() =>
+                    commentsApi.handleCancelEditComment(post.id, comment.id)
+                  }
+                >
+                  Cancel
+                </Button>
+              </div>
+            </div>
+          ) : (
+            <p className="mt-0.5 text-[14px] text-[#202124]">
+              {comment.content}
+            </p>
+          )}
+
+          {!isEditing && (
+            <div className="mt-2 flex flex-wrap items-center gap-2">
+              <button
+                onClick={() =>
+                  commentsApi.handleToggleCommentLike(post.id, comment.id)
+                }
+                className={`inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1 text-[12px] font-medium transition cursor-pointer ${
+                  isLiked
+                    ? "text-[#ea4335] bg-red-50"
+                    : "text-[#5f6368] hover:bg-[#f1f3f4]"
+                }`}
+              >
+                <Heart
+                  className={`h-3.5 w-3.5 ${isLiked ? "fill-current" : ""}`}
+                />
+                <span>{likeCount}</span>
+              </button>
+              <button
+                onClick={() => commentsApi.toggleReplies(post.id, comment.id)}
+                className="inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1 text-[12px] font-medium text-[#5f6368] transition hover:bg-[#f1f3f4] cursor-pointer"
+              >
+                <MessageCircle className="h-3.5 w-3.5" />
+                <span>
+                  {repliesCount > 0 ? `${repliesCount} replies` : "Reply"}
+                </span>
+              </button>
+            </div>
+          )}
+        </div>
+
+        {repliesExpanded && (
+          <div className="space-y-2">
+            <div className="ml-4 flex flex-wrap items-center gap-2">
+              <Input
+                value={replyDraft}
+                onChange={(e) =>
+                  commentsApi.setReplyDraft(comment.id, e.target.value)
+                }
+                placeholder="Write a reply..."
+                className="flex-1"
+              />
+              <Button
+                onClick={() => commentsApi.handleAddReply(post.id, comment.id)}
+                size="sm"
+              >
+                Reply
+              </Button>
+            </div>
+
+            {repliesLoading ? (
+              <p className="ml-4 text-[12px] text-[#5f6368]">
+                Loading replies...
+              </p>
+            ) : replies.length > 0 ? (
+              replies.map((reply) => renderComment(reply, depth + 1))
+            ) : (
+              <p className="ml-4 text-[12px] text-[#5f6368]">No replies yet.</p>
+            )}
+
+            {repliesHasMore && (
+              <div className="ml-4 flex justify-start">
+                <button
+                  onClick={() =>
+                    commentsApi.handleLoadMoreReplies(post.id, comment.id)
+                  }
+                  disabled={repliesMoreLoading}
+                  className="text-[12px] font-medium text-[#1a73e8] hover:underline disabled:opacity-50 cursor-pointer"
+                >
+                  {repliesMoreLoading ? "Loading..." : "Show more replies"}
+                </button>
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+    );
+  };
 
   return (
     <Dialog onOpenChange={(open: boolean) => !open && onClose()} open>
-      <DialogContent className="max-w-2xl">
+      <DialogContent className="max-h-[90vh] max-w-2xl overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Post</DialogTitle>
         </DialogHeader>
@@ -78,11 +227,16 @@ export function CommentsModal({
             <div className="flex flex-wrap items-center gap-2">
               <Input
                 value={commentDraft}
-                onChange={(e) => onCommentDraftChange(post.id, e.target.value)}
+                onChange={(e) =>
+                  commentsApi.setCommentDraft(post.id, e.target.value)
+                }
                 placeholder="Write a comment..."
                 className="flex-1"
               />
-              <Button onClick={() => onAddComment(post.id)} size="sm">
+              <Button
+                onClick={() => commentsApi.handleAddComment(post.id)}
+                size="sm"
+              >
                 Send
               </Button>
             </div>
@@ -93,77 +247,7 @@ export function CommentsModal({
                   Loading comments...
                 </p>
               ) : comments.length > 0 ? (
-                comments.map((comment) => {
-                  const isEditing = editingCommentId === comment.id;
-                  const canManage =
-                    !!user?.id && comment.author?.id === user.id;
-
-                  return (
-                    <div
-                      key={comment.id}
-                      className="rounded-xl bg-white px-4 py-3 shadow-sm"
-                    >
-                      <div className="flex items-start justify-between gap-3">
-                        <p className="text-[12px] font-medium text-[#5f6368]">
-                          {comment.author
-                            ? `${comment.author.firstName} ${comment.author.lastName}`.trim() ||
-                              comment.author.username
-                            : "User"}
-                        </p>
-                        {canManage && !isEditing && (
-                          <div className="flex items-center gap-3 text-[12px]">
-                            <button
-                              type="button"
-                              onClick={() => onStartEdit(post.id, comment)}
-                              className="text-[#1a73e8] hover:underline cursor-pointer"
-                            >
-                              Edit
-                            </button>
-                            <button
-                              type="button"
-                              onClick={() => onDelete(post.id, comment.id)}
-                              className="text-[#ea4335] hover:underline cursor-pointer"
-                            >
-                              Delete
-                            </button>
-                          </div>
-                        )}
-                      </div>
-                      {isEditing ? (
-                        <div className="mt-2 space-y-2">
-                          <Input
-                            value={commentEditDrafts[comment.id] || ""}
-                            onChange={(e) =>
-                              onCommentEditDraftChange(
-                                comment.id,
-                                e.target.value,
-                              )
-                            }
-                          />
-                          <div className="flex items-center gap-2">
-                            <Button
-                              size="sm"
-                              onClick={() => onSaveEdit(post.id, comment.id)}
-                            >
-                              Save
-                            </Button>
-                            <Button
-                              size="sm"
-                              variant="ghost"
-                              onClick={() => onCancelEdit(post.id, comment.id)}
-                            >
-                              Cancel
-                            </Button>
-                          </div>
-                        </div>
-                      ) : (
-                        <p className="mt-0.5 text-[14px] text-[#202124]">
-                          {comment.content}
-                        </p>
-                      )}
-                    </div>
-                  );
-                })
+                comments.map((comment) => renderComment(comment))
               ) : (
                 <p className="text-[13px] text-[#5f6368]">No comments yet.</p>
               )}
@@ -171,7 +255,7 @@ export function CommentsModal({
               {hasMore && (
                 <div className="flex justify-center pt-1">
                   <button
-                    onClick={() => onLoadMore(post.id)}
+                    onClick={() => commentsApi.handleLoadMoreComments(post.id)}
                     disabled={isMoreLoading}
                     className="text-[13px] font-medium text-[#1a73e8] hover:underline disabled:opacity-50 cursor-pointer"
                   >

@@ -72,13 +72,17 @@ export const createNewPost = async (
 
 export const getPost = async (req: Request, res: Response): Promise<void> => {
   try {
-    const post = await getPostById(req.params);
+    const post = await getPostById(req.params, req.userId);
 
     res.status(200).json(post);
   } catch (error: unknown) {
     const err = error as { status?: number; error?: unknown };
     if (err.status === 400) {
       res.status(400).json({ error: err.error });
+      return;
+    }
+    if (err.status === 403) {
+      res.status(403).json({ error: err.error });
       return;
     }
     if (err.status === 404) {

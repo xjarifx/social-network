@@ -13,6 +13,7 @@ export default function ComposePage() {
   const [content, setContent] = useState("");
   const [mediaFile, setMediaFile] = useState<File | null>(null);
   const [mediaPreviewUrl, setMediaPreviewUrl] = useState<string | null>(null);
+  const [visibility, setVisibility] = useState<"PUBLIC" | "PRIVATE">("PUBLIC");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
@@ -56,7 +57,7 @@ export default function ComposePage() {
     try {
       setIsSubmitting(true);
       setError(null);
-      await postsAPI.create(content.trim(), mediaFile);
+      await postsAPI.create(content.trim(), mediaFile, visibility);
       toast.success("Post created successfully!");
       setContent("");
       setMediaFile(null);
@@ -131,6 +132,26 @@ export default function ComposePage() {
         />
 
         <div className="mt-4 space-y-3">
+          <div className="flex flex-wrap items-center gap-3">
+            <label className="text-[12px] font-medium text-[#5f6368]">
+              Visibility
+            </label>
+            <select
+              value={visibility}
+              onChange={(event) =>
+                setVisibility(event.target.value as "PUBLIC" | "PRIVATE")
+              }
+              className="h-9 rounded-xl border border-[#e8eaed] bg-white px-3 text-[13px] text-[#202124] focus:outline-none focus:ring-1 focus:ring-[#1a73e8]"
+            >
+              <option value="PUBLIC">Public</option>
+              <option value="PRIVATE">Private</option>
+            </select>
+            {visibility === "PRIVATE" && (
+              <span className="text-[12px] text-[#5f6368]">
+                Only you can see this post
+              </span>
+            )}
+          </div>
           <Input
             type="file"
             accept="image/*,video/*"

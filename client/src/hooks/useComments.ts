@@ -8,10 +8,17 @@ interface CommentMeta {
   offset: number;
 }
 
-interface UseCommentsReturn {
+export interface UseCommentsReturn {
   openCommentsPostId: string | null;
   commentsByPost: Record<string, ApiComment[]>;
   commentMetaByPost: Record<string, CommentMeta>;
+  repliesByComment: Record<string, ApiComment[]>;
+  replyMetaByComment: Record<string, CommentMeta>;
+  repliesExpanded: Record<string, boolean>;
+  replyDrafts: Record<string, string>;
+  repliesLoading: Record<string, boolean>;
+  repliesMoreLoading: Record<string, boolean>;
+  commentLikeState: Record<string, { liked: boolean; count: number }>;
   editingCommentByPost: Record<string, string | null>;
   commentEditDrafts: Record<string, string>;
   commentDrafts: Record<string, string>;
@@ -19,6 +26,11 @@ interface UseCommentsReturn {
   commentsMoreLoading: Record<string, boolean>;
   toggleComments: (postId: string) => Promise<void>;
   handleAddComment: (postId: string) => Promise<void>;
+  handleAddReply: (postId: string, parentId: string) => Promise<void>;
+  toggleReplies: (postId: string, commentId: string) => Promise<void>;
+  handleLoadMoreReplies: (postId: string, commentId: string) => Promise<void>;
+  setReplyDraft: (commentId: string, value: string) => void;
+  handleToggleCommentLike: (postId: string, commentId: string) => Promise<void>;
   handleStartEditComment: (postId: string, comment: ApiComment) => void;
   handleCancelEditComment: (postId: string, commentId: string) => void;
   handleSaveEditComment: (postId: string, commentId: string) => Promise<void>;
@@ -44,6 +56,25 @@ export function useComments(): UseCommentsReturn {
   const [commentMetaByPost, setCommentMetaByPost] = useState<
     Record<string, CommentMeta>
   >({});
+  const [repliesByComment, setRepliesByComment] = useState<
+    Record<string, ApiComment[]>
+  >({});
+  const [replyMetaByComment, setReplyMetaByComment] = useState<
+    Record<string, CommentMeta>
+  >({});
+  const [repliesExpanded, setRepliesExpanded] = useState<
+    Record<string, boolean>
+  >({});
+  const [replyDrafts, setReplyDrafts] = useState<Record<string, string>>({});
+  const [repliesLoading, setRepliesLoading] = useState<Record<string, boolean>>(
+    {},
+  );
+  const [repliesMoreLoading, setRepliesMoreLoading] = useState<
+    Record<string, boolean>
+  >({});
+  const [commentLikeState, setCommentLikeState] = useState<
+    Record<string, { liked: boolean; count: number }>
+  >({});
   const [editingCommentByPost, setEditingCommentByPost] = useState<
     Record<string, string | null>
   >({});
@@ -63,6 +94,56 @@ export function useComments(): UseCommentsReturn {
     ((postId: string, delta: number) => void) | null
   >(null);
 
+  const seedLikeState = useCallback((items: ApiComment[]) => {
+    setCommentLikeState((prev) => {
+      const next = { ...prev };
+      for (const item of items) {
+        next[item.id] = {
+          liked: next[item.id]?.liked ?? false,
+          count: item.likesCount,
+        };
+      }
+      return next;
+    });
+  }, []);
+
+  const updateCommentInCollections = useCallback(
+    (commentId: string, updater: (comment: ApiComment) => ApiComment) => {
+      setCommentsByPost((prev) => {
+        let updated = false;
+        const next = { ...prev };
+        Object.keys(next).forEach((postId) => {
+          const list = next[postId];
+          const index = list.findIndex((item) => item.id === commentId);
+          if (index >= 0) {
+            const updatedList = [...list];
+            updatedList[index] = updater(updatedList[index]);
+            next[postId] = updatedList;
+            updated = true;
+          }
+        });
+        return updated ? next : prev;
+      });
+
+      setRepliesByComment((prev) => {
+        let updated = false;
+        const next = { ...prev };
+        Object.keys(next).forEach((parentId) => {
+          const list = next[parentId];
+          const index = list.findIndex((item) => item.id === commentId);
+          if (index >= 0) {
+            const updatedList = [...list];
+            updatedList[index] = updater(updatedList[index]);
+            next[parentId] = updatedList;
+            updated = true;
+          }
+        });
+        return updated ? next : prev;
+      });
+    },
+    [],
+  );
+
   const toggleComments = useCallback(
     async (postId: string) => {
       const nextOpen = openCommentsPostId === postId ? null : postId;
@@ -74,11 +155,13 @@ export function useComments(): UseCommentsReturn {
           const response = await commentsAPI.getPostComments(postId, {
             limit: PAGE_SIZE,
             offset: 0,
+            parentId: null,
           });
           setCommentsByPost((prev) => ({
             ...prev,
             [postId]: response.comments,
           }));
+          seedLikeState(response.comments);
           setCommentMetaByPost((prev) => ({
             ...prev,
             [postId]: {
@@ -94,7 +177,7 @@ export function useComments(): UseCommentsReturn {
         }
       }
     },
-    [openCommentsPostId, commentsByPost],
+    [openCommentsPostId, commentsByPost, seedLikeState],
   );
 
   const handleAddComment = useCallback(
@@ -108,6 +191,7 @@ export function useComments(): UseCommentsReturn {
           ...prev,
           [postId]: [newComment, ...(prev[postId] || [])],
         }));
+        seedLikeState([newComment]);
         setCommentMetaByPost((prev) => {
           const current = prev[postId];
           if (!current) {
@@ -131,7 +215,53 @@ export function useComments(): UseCommentsReturn {
         console.error("Failed to create comment:", err);
       }
     },
-    [commentDrafts, replyCountCb],
+    [commentDrafts, replyCountCb, seedLikeState],
+  );
+
+  const handleAddReply = useCallback(
+    async (postId: string, parentId: string) => {
+      const content = (replyDrafts[parentId] || "").trim();
+      if (!content) return;
+
+      try {
+        const newComment = await commentsAPI.createComment(
+          postId,
+          content,
+          parentId,
+        );
+        setRepliesByComment((prev) => ({
+          ...prev,
+          [parentId]: [newComment, ...(prev[parentId] || [])],
+        }));
+        seedLikeState([newComment]);
+        setReplyMetaByComment((prev) => {
+          const current = prev[parentId];
+          if (!current) {
+            return {
+              ...prev,
+              [parentId]: { total: 1, limit: PAGE_SIZE, offset: 1 },
+            };
+          }
+          return {
+            ...prev,
+            [parentId]: {
+              ...current,
+              total: current.total + 1,
+              offset: current.offset + 1,
+            },
+          };
+        });
+        setReplyDrafts((prev) => ({ ...prev, [parentId]: "" }));
+        updateCommentInCollections(parentId, (comment) => ({
+          ...comment,
+          repliesCount: comment.repliesCount + 1,
+        }));
+        replyCountCb?.(postId, 1);
+      } catch (err) {
+        console.error("Failed to create reply:", err);
+      }
+    },
+    [replyDrafts, replyCountCb, seedLikeState, updateCommentInCollections],
   );
 
   const handleStartEditComment = useCallback(
@@ -168,46 +298,84 @@ export function useComments(): UseCommentsReturn {
           commentId,
           content,
         );
-        setCommentsByPost((prev) => ({
-          ...prev,
-          [postId]: (prev[postId] || []).map((c) =>
-            c.id === commentId ? { ...c, content: updated.content } : c,
-          ),
+        updateCommentInCollections(commentId, (comment) => ({
+          ...comment,
+          content: updated.content,
         }));
         handleCancelEditComment(postId, commentId);
       } catch (err) {
         console.error("Failed to update comment:", err);
       }
     },
-    [commentEditDrafts, handleCancelEditComment],
+    [commentEditDrafts, handleCancelEditComment, updateCommentInCollections],
   );
 
   const handleDeleteComment = useCallback(
     async (postId: string, commentId: string) => {
       try {
-        await commentsAPI.deleteComment(postId, commentId);
-        setCommentsByPost((prev) => ({
-          ...prev,
-          [postId]: (prev[postId] || []).filter((c) => c.id !== commentId),
-        }));
+        const result = await commentsAPI.deleteComment(postId, commentId);
+        let deletedParentId: string | null | undefined;
+        setCommentsByPost((prev) => {
+          const list = prev[postId] || [];
+          const target = list.find((c) => c.id === commentId);
+          deletedParentId = target?.parentId;
+          return {
+            ...prev,
+            [postId]: list.filter((c) => c.id !== commentId),
+          };
+        });
+        setRepliesByComment((prev) => {
+          const next = { ...prev };
+          Object.keys(next).forEach((parentId) => {
+            const list = next[parentId];
+            const target = list.find((c) => c.id === commentId);
+            if (target) {
+              deletedParentId = target.parentId;
+            }
+            next[parentId] = list.filter((c) => c.id !== commentId);
+          });
+          delete next[commentId];
+          return next;
+        });
+        const deletedCount = result?.deletedCount ?? 1;
         setCommentMetaByPost((prev) => {
+          if (deletedParentId !== null) return prev;
           const current = prev[postId];
           if (!current) return prev;
           return {
             ...prev,
             [postId]: {
               ...current,
-              total: Math.max(0, current.total - 1),
-              offset: Math.max(0, current.offset - 1),
+              total: Math.max(0, current.total - deletedCount),
+              offset: Math.max(0, current.offset - deletedCount),
             },
           };
         });
-        replyCountCb?.(postId, -1);
+        setReplyMetaByComment((prev) => {
+          if (!deletedParentId) return prev;
+          const current = prev[deletedParentId];
+          if (!current) return prev;
+          return {
+            ...prev,
+            [deletedParentId]: {
+              ...current,
+              total: Math.max(0, current.total - deletedCount),
+              offset: Math.max(0, current.offset - deletedCount),
+            },
+          };
+        });
+        if (deletedParentId) {
+          updateCommentInCollections(deletedParentId, (comment) => ({
+            ...comment,
+            repliesCount: Math.max(0, comment.repliesCount - deletedCount),
+          }));
+        }
+        replyCountCb?.(postId, -deletedCount);
       } catch (err) {
         console.error("Failed to delete comment:", err);
       }
     },
-    [replyCountCb],
+    [replyCountCb, updateCommentInCollections],
   );
 
   const handleLoadMoreComments = useCallback(
@@ -224,11 +392,13 @@ export function useComments(): UseCommentsReturn {
         const response = await commentsAPI.getPostComments(postId, {
           limit,
           offset: nextOffset,
+          parentId: null,
         });
         setCommentsByPost((prev) => ({
           ...prev,
           [postId]: [...(prev[postId] || []), ...response.comments],
         }));
+        seedLikeState(response.comments);
         setCommentMetaByPost((prev) => ({
           ...prev,
           [postId]: {
@@ -243,7 +413,118 @@ export function useComments(): UseCommentsReturn {
         setCommentsMoreLoading((prev) => ({ ...prev, [postId]: false }));
       }
     },
-    [commentsByPost, commentMetaByPost],
+    [commentsByPost, commentMetaByPost, seedLikeState],
+  );
+
+  const toggleReplies = useCallback(
+    async (postId: string, commentId: string) => {
+      setRepliesExpanded((prev) => ({
+        ...prev,
+        [commentId]: !prev[commentId],
+      }));
+
+      if (repliesByComment[commentId]) return;
+
+      try {
+        setRepliesLoading((prev) => ({ ...prev, [commentId]: true }));
+        const response = await commentsAPI.getPostComments(postId, {
+          limit: PAGE_SIZE,
+          offset: 0,
+          parentId: commentId,
+        });
+        setRepliesByComment((prev) => ({
+          ...prev,
+          [commentId]: response.comments,
+        }));
+        seedLikeState(response.comments);
+        setReplyMetaByComment((prev) => ({
+          ...prev,
+          [commentId]: {
+            total: response.total,
+            limit: response.limit,
+            offset: response.comments.length,
+          },
+        }));
+      } catch (err) {
+        console.error("Failed to load replies:", err);
+      } finally {
+        setRepliesLoading((prev) => ({ ...prev, [commentId]: false }));
+      }
+    },
+    [repliesByComment, seedLikeState],
+  );
+
+  const handleLoadMoreReplies = useCallback(
+    async (postId: string, commentId: string) => {
+      const currentReplies = repliesByComment[commentId] || [];
+      const meta = replyMetaByComment[commentId];
+      const nextOffset = currentReplies.length;
+      const limit = meta?.limit ?? PAGE_SIZE;
+
+      if (meta && currentReplies.length >= meta.total) return;
+
+      try {
+        setRepliesMoreLoading((prev) => ({ ...prev, [commentId]: true }));
+        const response = await commentsAPI.getPostComments(postId, {
+          limit,
+          offset: nextOffset,
+          parentId: commentId,
+        });
+        setRepliesByComment((prev) => ({
+          ...prev,
+          [commentId]: [...currentReplies, ...response.comments],
+        }));
+        seedLikeState(response.comments);
+        setReplyMetaByComment((prev) => ({
+          ...prev,
+          [commentId]: {
+            total: response.total,
+            limit: response.limit,
+            offset: nextOffset + response.comments.length,
+          },
+        }));
+      } catch (err) {
+        console.error("Failed to load more replies:", err);
+      } finally {
+        setRepliesMoreLoading((prev) => ({ ...prev, [commentId]: false }));
+      }
+    },
+    [repliesByComment, replyMetaByComment, seedLikeState],
+  );
+
+  const setReplyDraft = useCallback((commentId: string, value: string) => {
+    setReplyDrafts((prev) => ({ ...prev, [commentId]: value }));
+  }, []);
+
+  const handleToggleCommentLike = useCallback(
+    async (postId: string, commentId: string) => {
+      const current = commentLikeState[commentId];
+      const liked = current?.liked ?? false;
+      const count = current?.count ?? 0;
+
+      setCommentLikeState((prev) => ({
+        ...prev,
+        [commentId]: {
+          liked: !liked,
+          count: liked ? Math.max(0, count - 1) : count + 1,
+        },
+      }));
+
+      try {
+        if (liked) {
+          await commentsAPI.unlikeComment(postId, commentId);
+        } else {
+          await commentsAPI.likeComment(postId, commentId);
+        }
+      } catch (err) {
+        setCommentLikeState((prev) => ({
+          ...prev,
+          [commentId]: { liked, count },
+        }));
+        console.error("Failed to toggle comment like:", err);
+      }
+    },
+    [commentLikeState],
   );
 
   const handleCloseComments = useCallback(
@@ -273,6 +554,13 @@ export function useComments(): UseCommentsReturn {
     openCommentsPostId,
     commentsByPost,
     commentMetaByPost,
+    repliesByComment,
+    replyMetaByComment,
+    repliesExpanded,
+    replyDrafts,
+    repliesLoading,
+    repliesMoreLoading,
+    commentLikeState,
     editingCommentByPost,
     commentEditDrafts,
     commentDrafts,
@@ -280,6 +568,11 @@ export function useComments(): UseCommentsReturn {
     commentsMoreLoading,
     toggleComments,
     handleAddComment,
+    handleAddReply,
+    toggleReplies,
+    handleLoadMoreReplies,
+    setReplyDraft,
+    handleToggleCommentLike,
     handleStartEditComment,
     handleCancelEditComment,
     handleSaveEditComment,

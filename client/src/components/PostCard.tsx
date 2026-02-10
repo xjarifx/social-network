@@ -7,6 +7,7 @@ import {
   UserPlus,
   Edit,
   Trash2,
+  Lock,
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { blocksAPI, followsAPI } from "../services/api";
@@ -30,6 +31,7 @@ export interface PostProps {
   };
   content: string;
   image?: string;
+  visibility?: "PUBLIC" | "PRIVATE";
   timestamp: string;
   likes: number;
   replies: number;
@@ -52,6 +54,7 @@ function PostCardComponent({
   author,
   content,
   image,
+  visibility = "PUBLIC",
   timestamp,
   likes,
   replies,
@@ -155,6 +158,8 @@ function PostCardComponent({
     (/\.(mp4|webm|ogg)(\?|#|$)/i.test(image) ||
       image.includes("/video/upload/"));
 
+  const showPrivateBadge = visibility === "PRIVATE" && user?.id === authorId;
+
   return (
     <article className="group relative rounded-2xl bg-white transition-shadow hover:shadow-[0_1px_3px_0_rgba(60,64,67,.3),0_4px_8px_3px_rgba(60,64,67,.15)] overflow-hidden">
       {/* Top colored accent bar */}
@@ -240,6 +245,12 @@ function PostCardComponent({
               </span>
               <span className="text-[12px] text-[#80868b]">&middot;</span>
               <span className="text-[12px] text-[#80868b]">{timestamp}</span>
+              {showPrivateBadge && (
+                <span className="inline-flex items-center gap-1 rounded-full bg-[#f1f3f4] px-2 py-0.5 text-[11px] font-medium text-[#5f6368]">
+                  <Lock className="h-3 w-3" />
+                  Private
+                </span>
+              )}
             </div>
 
             {/* Content — directly under name, indented with avatar */}

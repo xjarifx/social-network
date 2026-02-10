@@ -4,8 +4,7 @@ import { useAuth } from "../context/AuthContext";
 import { Eye, EyeOff, ArrowRight } from "lucide-react";
 import { Input } from "../components/ui/input";
 import { Button } from "../components/ui/button";
-import Lottie from "lottie-react";
-import earthAnimation from "../../assets/Earth globe rotating with Seamless loop animation.json";
+import logo from "../../assets/cloud.png";
 
 export default function LoginPage() {
   const navigate = useNavigate();
@@ -61,13 +60,11 @@ export default function LoginPage() {
       {/* Left Panel — Brand / Illustration */}
       <div className="hidden lg:flex lg:w-[480px] xl:w-[560px] shrink-0 flex-col items-center justify-center bg-[#e8f0fe] px-12">
         <div className="max-w-[340px] text-center">
-          <div className="mx-auto mb-6 h-20 w-20">
-            <Lottie
-              animationData={earthAnimation}
-              loop={true}
-              autoplay={true}
-            />
-          </div>
+          <img
+            src={logo}
+            alt="Social Network logo"
+            className="mx-auto mb-6 h-20 w-20"
+          />
           <h2 className="text-[28px] font-normal text-[#202124]">
             Welcome to Social Network
           </h2>
@@ -101,13 +98,11 @@ export default function LoginPage() {
         <div className="w-full max-w-[400px]">
           {/* Mobile logo */}
           <div className="mb-8 text-center lg:hidden">
-            <div className="mx-auto mb-4 h-14 w-14">
-              <Lottie
-                animationData={earthAnimation}
-                loop={true}
-                autoplay={true}
-              />
-            </div>
+            <img
+              src={logo}
+              alt="Social Network logo"
+              className="mx-auto mb-4 h-14 w-14"
+            />
           </div>
 
           <h1 className="text-[28px] font-normal text-[#202124]">Sign in</h1>
