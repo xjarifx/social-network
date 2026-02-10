@@ -6,7 +6,7 @@ import {
   updatePostSchema,
 } from "./posts.validation";
 
-export const ensureString = (val: unknown): string =>
+const ensureString = (val: unknown): string =>
   typeof val === "string" ? val : Array.isArray(val) ? val[0] : "";
 
 const parseNonNegativeInt = (val: unknown, fallback: number): number => {

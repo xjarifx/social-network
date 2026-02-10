@@ -7,7 +7,6 @@ import {
   search,
 } from "./user.controller";
 import { authenticate } from "../../middleware/authenticate.middleware";
-import postRouter from "../posts/posts.routes";
 import followRouter from "../follows/follow.routes";
 import {
   getUserFollowers,
@@ -151,22 +150,6 @@ router.get("/:userId/posts", authenticate, getTimeline);
  *         description: Invalid input
  */
 router.patch("/me", authenticate, updateProfile);
-/**
- * @openapi
- * /api/v1/users/{userId}/posts:
- *   patch:
- *     summary: Update user posts
- *     tags:
- *       - Users
- *     parameters:
- *       - in: path
- *         name: userId
- *         required: true
- *         schema:
- *           type: string
- *           format: uuid
- */
-router.patch("/:userId/posts", postRouter);
 
 // FOLLOW
 

@@ -5,9 +5,6 @@ import {
   searchUsersSchema,
 } from "./user.validation";
 
-export const ensureString = (val: unknown): string =>
-  typeof val === "string" ? val : Array.isArray(val) ? val[0] : "";
-
 export const getCurrentUserProfile = async (userId: string) => {
   // Fetch user by ID
   const user = await prisma.user.findUnique({

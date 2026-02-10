@@ -1,11 +1,6 @@
 import { Router } from "express";
 import { authenticate } from "../../middleware/authenticate.middleware";
-import {
-  follow,
-  getUserFollowers,
-  getUserFollowing,
-  unfollow,
-} from "./follow.controller";
+import { follow, unfollow } from "./follow.controller";
 
 const router = Router();
 

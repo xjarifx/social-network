@@ -2,7 +2,7 @@ import { prisma } from "../../lib/prisma";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import { randomBytes } from "crypto";
-import { registerSchema, loginSchema } from "./auth.validation";
+import { registerSchema } from "./auth.validation";
 
 const SALT_ROUNDS = 10;
 const JWT_SECRET: string = process.env.JWT_SECRET || "";

@@ -288,7 +288,6 @@ export function useComments(): UseCommentsReturn {
     handleCloseComments,
     setCommentDraft,
     setCommentEditDraft,
-    onReplyCountChange: replyCountCb,
     setOnReplyCountChange,
   };
 }

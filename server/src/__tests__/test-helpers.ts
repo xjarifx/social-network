@@ -1,5 +1,5 @@
 import jwt from "jsonwebtoken";
-import type { Request, Response, NextFunction } from "express";
+import type { Request, Response } from "express";
 import type { SignOptions } from "jsonwebtoken";
 
 /**
@@ -19,7 +19,8 @@ export const generateTestToken = (userId: string): string => {
 export const generateTestRefreshToken = (userId: string): string => {
   const secret =
     process.env.REFRESH_TOKEN_SECRET || "test-refresh-token-secret-for-testing";
-  const expiresIn: string | number = process.env.REFRESH_TOKEN_EXPIRES_IN || "7d";
+  const expiresIn: string | number =
+    process.env.REFRESH_TOKEN_EXPIRES_IN || "7d";
   const options: SignOptions = { expiresIn };
 
   return jwt.sign({ userId }, secret, options);
@@ -69,13 +70,6 @@ export const createMockResponse = (): Partial<Response> & {
     _getStatusCode: () => statusCode,
     _getJSONData: () => jsonData,
   };
-};
-
-/**
- * Mock Next function
- */
-export const createMockNext = (): NextFunction => {
-  return jest.fn();
 };
 
 /**
@@ -138,12 +132,4 @@ export const testLike = {
   postId: testPost.id,
   createdAt: new Date(),
   deletedAt: null,
-};
-
-/**
- * Extract JWT payload safely
- */
-export const decodeToken = (token: string): any => {
-  const secret = process.env.JWT_SECRET || "test-jwt-secret-key-for-testing";
-  return jwt.verify(token, secret);
 };

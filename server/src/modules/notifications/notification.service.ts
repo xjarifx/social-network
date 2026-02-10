@@ -5,7 +5,7 @@ import {
   updateNotificationBodySchema,
 } from "./notification.validation";
 
-export const ensureString = (val: unknown): string =>
+const ensureString = (val: unknown): string =>
   typeof val === "string" ? val : Array.isArray(val) ? val[0] : "";
 
 export const getNotifications = async (

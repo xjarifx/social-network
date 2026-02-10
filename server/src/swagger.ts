@@ -2,7 +2,7 @@ import swaggerJSDoc from "swagger-jsdoc";
 import swaggerUi from "swagger-ui-express";
 import { Router } from "express";
 
-export const swaggerSpec = swaggerJSDoc({
+const swaggerSpec = swaggerJSDoc({
   definition: {
     openapi: "3.0.0",
     info: {

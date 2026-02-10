@@ -303,13 +303,6 @@ export const authAPI = {
       clearTokens();
     }
   },
-
-  refresh: async (refreshToken: string): Promise<AuthResponse> => {
-    return apiRequest("/auth/refresh", {
-      method: "POST",
-      body: JSON.stringify({ refreshToken }),
-    });
-  },
 };
 
 // ============================================================================
@@ -396,7 +389,15 @@ export const postsAPI = {
 // ============================================================================
 
 export const likesAPI = {
-  likePost: async (postId: string): Promise<Like> => {
+  likePost: async (
+    postId: string,
+  ): Promise<{
+    id: string;
+    userId: string;
+    postId: string;
+    createdAt: string;
+    message: string;
+  }> => {
     return apiRequest(`/posts/${postId}/likes`, {
       method: "POST",
     });
@@ -558,4 +559,4 @@ export const billingAPI = {
 // Export for convenience
 // ============================================================================
 
-export { getAccessToken, getRefreshToken, setTokens, clearTokens };
+export { getAccessToken, setTokens, clearTokens };

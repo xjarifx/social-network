@@ -122,14 +122,6 @@ export default function HomePage() {
     }));
   }, [forYouPosts, followingIds]);
 
-  const activePosts = useMemo(
-    () =>
-      activeTab === "following"
-        ? followingPostsWithFollowState
-        : forYouPostsWithFollowState,
-    [activeTab, followingPostsWithFollowState, forYouPostsWithFollowState],
-  );
-
   const combinedPosts = useMemo(
     () => [...forYouPosts, ...followingPosts],
     [forYouPosts, followingPosts],

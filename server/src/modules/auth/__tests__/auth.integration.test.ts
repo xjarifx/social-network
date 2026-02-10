@@ -1,7 +1,7 @@
 import request from "supertest";
 import express, { Express } from "express";
 import authRouter from "../auth.routes";
-import { generateTestToken, testUser } from "../../../__tests__/test-helpers";
+import { testUser } from "../../../__tests__/test-helpers";
 import * as authService from "../auth.service";
 
 jest.mock("../auth.service");
