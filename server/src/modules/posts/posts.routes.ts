@@ -5,6 +5,7 @@ import {
   updatePostContent,
   deletePostContent,
   getPostsFeed,
+  getForYouPostsFeed,
 } from "./posts.controller";
 import { authenticate } from "../../middleware/authenticate.middleware";
 import likeRouter from "../likes/likes.routes";
@@ -72,6 +73,31 @@ router.post("/", authenticate, createNewPost);
  *         description: Feed posts retrieved successfully
  */
 router.get("/feed", authenticate, getPostsFeed);
+/**
+ * @openapi
+ * /api/v1/posts/for-you:
+ *   get:
+ *     summary: Get for you feed
+ *     tags:
+ *       - Posts
+ *     security:
+ *       - BearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           default: 20
+ *       - in: query
+ *         name: offset
+ *         schema:
+ *           type: integer
+ *           default: 0
+ *     responses:
+ *       200:
+ *         description: For you feed posts retrieved successfully
+ */
+router.get("/for-you", authenticate, getForYouPostsFeed);
 /**
  * @openapi
  * /api/v1/posts:

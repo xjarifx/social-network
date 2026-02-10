@@ -10,6 +10,14 @@ const prisma = new PrismaClient();
 export const ensureString = (val: unknown): string =>
   typeof val === "string" ? val : Array.isArray(val) ? val[0] : "";
 
+const parseNonNegativeInt = (val: unknown, fallback: number): number => {
+  if (typeof val !== "string") {
+    return fallback;
+  }
+  const parsed = parseInt(val, 10);
+  return Number.isFinite(parsed) && parsed >= 0 ? parsed : fallback;
+};
+
 const getPlanPostLimit = (plan: string | null | undefined): number =>
   plan === "PRO" ? 100 : 20;
 
@@ -37,8 +45,8 @@ export const getFeed = async (
   userId: string,
   query: Record<string, unknown>,
 ) => {
-  const limit = query.limit ? parseInt(query.limit as string) : 20;
-  const offset = query.offset ? parseInt(query.offset as string) : 0;
+  const limit = parseNonNegativeInt(query.limit, 20);
+  const offset = parseNonNegativeInt(query.offset, 0);
 
   // Get posts from users that the current user follows, excluding their own posts
   const posts = await prisma.post.findMany({
@@ -52,6 +60,85 @@ export const getFeed = async (
             followerId: userId,
           },
         },
+      },
+    },
+    include: {
+      author: {
+        select: {
+          id: true,
+          username: true,
+          email: true,
+          firstName: true,
+          lastName: true,
+        },
+      },
+      likes: {
+        select: {
+          userId: true,
+        },
+      },
+    },
+    orderBy: {
+      createdAt: "desc",
+    },
+    take: limit,
+    skip: offset,
+  });
+
+  return posts.map((post) => ({
+    id: post.id,
+    content: post.content,
+    author: post.author,
+    likesCount: post.likesCount,
+    commentsCount: post.commentsCount,
+    likes: post.likes.map((like) => like.userId),
+    createdAt: post.createdAt,
+    updatedAt: post.updatedAt,
+  }));
+};
+
+export const getForYouFeed = async (
+  userId: string,
+  query: Record<string, unknown>,
+) => {
+  const limit = parseNonNegativeInt(query.limit, 20);
+  const offset = parseNonNegativeInt(query.offset, 0);
+
+  const directFollowing = await prisma.follower.findMany({
+    where: { followerId: userId },
+    select: { followingId: true },
+  });
+
+  if (directFollowing.length === 0) {
+    return [];
+  }
+
+  const directFollowingIds = directFollowing.map(
+    (follow) => follow.followingId,
+  );
+  const directFollowingSet = new Set(directFollowingIds);
+
+  const secondDegree = await prisma.follower.findMany({
+    where: {
+      followerId: {
+        in: directFollowingIds,
+      },
+    },
+    select: { followingId: true },
+  });
+
+  const secondDegreeIds = Array.from(
+    new Set(secondDegree.map((follow) => follow.followingId)),
+  ).filter((id) => id !== userId && !directFollowingSet.has(id));
+
+  if (secondDegreeIds.length === 0) {
+    return [];
+  }
+
+  const posts = await prisma.post.findMany({
+    where: {
+      authorId: {
+        in: secondDegreeIds,
       },
     },
     include: {

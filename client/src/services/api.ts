@@ -371,6 +371,10 @@ export const postsAPI = {
   getFeed: async (limit = 20, offset = 0): Promise<Post[]> => {
     return apiRequest(`/posts?limit=${limit}&offset=${offset}`);
   },
+
+  getForYouFeed: async (limit = 20, offset = 0): Promise<Post[]> => {
+    return apiRequest(`/posts/for-you?limit=${limit}&offset=${offset}`);
+  },
 };
 
 // ============================================================================

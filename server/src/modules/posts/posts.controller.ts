@@ -5,6 +5,7 @@ import {
   updatePost,
   deletePost,
   getFeed,
+  getForYouFeed,
 } from "./posts.service";
 
 export const getPostsFeed = async (
@@ -18,6 +19,20 @@ export const getPostsFeed = async (
   } catch (error: unknown) {
     console.error("Get feed error:", error);
     res.status(500).json({ error: "Unable to fetch feed" });
+  }
+};
+
+export const getForYouPostsFeed = async (
+  req: Request,
+  res: Response,
+): Promise<void> => {
+  try {
+    const userId = req.userId as string;
+    const posts = await getForYouFeed(userId, req.query);
+    res.status(200).json(posts);
+  } catch (error: unknown) {
+    console.error("Get for you feed error:", error);
+    res.status(500).json({ error: "Unable to fetch for you feed" });
   }
 };
 

@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo, useCallback } from "react";
+import { useState, useEffect, useMemo, useCallback, useRef } from "react";
 import { postsAPI, likesAPI, followsAPI } from "../services/api";
 import { Feed, CommentsModal } from "../components";
 import type { PostProps } from "../components";
@@ -10,24 +10,36 @@ type FeedTab = "following" | "forYou";
 
 export default function HomePage() {
   const { user } = useAuth();
-  const [posts, setPosts] = useState<PostProps[]>([]);
+  const pageSize = 20;
+  const [followingPosts, setFollowingPosts] = useState<PostProps[]>([]);
+  const [forYouPosts, setForYouPosts] = useState<PostProps[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [followingIds, setFollowingIds] = useState<string[]>([]);
   const [activeTab, setActiveTab] = useState<FeedTab>("forYou");
+  const [followingOffset, setFollowingOffset] = useState(0);
+  const [forYouOffset, setForYouOffset] = useState(0);
+  const [hasMoreFollowing, setHasMoreFollowing] = useState(true);
+  const [hasMoreForYou, setHasMoreForYou] = useState(true);
+  const scrollPositions = useRef<Record<FeedTab, number>>({
+    following: 0,
+    forYou: 0,
+  });
 
   const comments = useComments();
 
   // Wire up reply count changes to posts state
   useEffect(() => {
     comments.setOnReplyCountChange((postId: string, delta: number) => {
-      setPosts((prev) =>
+      const applyReplyDelta = (prev: PostProps[]) =>
         prev.map((p) =>
           p.id === postId
             ? { ...p, replies: Math.max(0, p.replies + delta) }
             : p,
-        ),
-      );
+        );
+      setFollowingPosts(applyReplyDelta);
+      setForYouPosts(applyReplyDelta);
     });
   }, []);
 
@@ -41,14 +53,37 @@ export default function HomePage() {
     };
   }, [comments.openCommentsPostId]);
 
+  useEffect(() => {
+    const handleScroll = () => {
+      scrollPositions.current[activeTab] = window.scrollY;
+    };
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, [activeTab]);
+
+  useEffect(() => {
+    const position = scrollPositions.current[activeTab] ?? 0;
+    requestAnimationFrame(() => window.scrollTo({ top: position }));
+  }, [activeTab]);
+
   // Load posts
   useEffect(() => {
     const loadPosts = async () => {
       try {
         setIsLoading(true);
         setError(null);
-        const apiPosts = await postsAPI.getFeed(20, 0);
-        setPosts(apiPosts.map((p) => transformPost(p, user?.id)));
+        const [followingResponse, forYouResponse] = await Promise.all([
+          postsAPI.getFeed(pageSize, 0),
+          postsAPI.getForYouFeed(pageSize, 0),
+        ]);
+        setFollowingPosts(
+          followingResponse.map((p) => transformPost(p, user?.id)),
+        );
+        setForYouPosts(forYouResponse.map((p) => transformPost(p, user?.id)));
+        setFollowingOffset(followingResponse.length);
+        setForYouOffset(forYouResponse.length);
+        setHasMoreFollowing(followingResponse.length === pageSize);
+        setHasMoreForYou(forYouResponse.length === pageSize);
       } catch (err) {
         setError(err instanceof Error ? err.message : "Failed to load posts");
       } finally {
@@ -73,24 +108,47 @@ export default function HomePage() {
       .catch((err) => console.error("Failed to load following:", err));
   }, [user?.id]);
 
-  const postsWithFollowState = useMemo(() => {
+  const followingPostsWithFollowState = useMemo(() => {
     const followingSet = new Set(followingIds);
-    return posts.map((post) => ({
+    return followingPosts.map((post) => ({
       ...post,
       isFollowing: post.authorId ? followingSet.has(post.authorId) : false,
     }));
-  }, [posts, followingIds]);
+  }, [followingPosts, followingIds]);
 
-  const filteredPosts = useMemo(() => {
-    if (activeTab === "following") {
-      const followingSet = new Set(followingIds);
-      return postsWithFollowState.filter(
-        (post) => post.authorId && followingSet.has(post.authorId),
-      );
-    }
-    // "forYou" tab - empty for now
-    return [];
-  }, [postsWithFollowState, followingIds, activeTab]);
+  const forYouPostsWithFollowState = useMemo(() => {
+    const followingSet = new Set(followingIds);
+    return forYouPosts.map((post) => ({
+      ...post,
+      isFollowing: post.authorId ? followingSet.has(post.authorId) : false,
+    }));
+  }, [forYouPosts, followingIds]);
+
+  const activePosts = useMemo(
+    () =>
+      activeTab === "following"
+        ? followingPostsWithFollowState
+        : forYouPostsWithFollowState,
+    [activeTab, followingPostsWithFollowState, forYouPostsWithFollowState],
+  );
+
+  const combinedPosts = useMemo(
+    () => [...forYouPosts, ...followingPosts],
+    [forYouPosts, followingPosts],
+  );
+
+  const combinedPostsWithFollowState = useMemo(
+    () => [...forYouPostsWithFollowState, ...followingPostsWithFollowState],
+    [forYouPostsWithFollowState, followingPostsWithFollowState],
+  );
+
+  const activeHasMore =
+    activeTab === "following" ? hasMoreFollowing : hasMoreForYou;
+
+  const handleTabChange = (tab: FeedTab) => {
+    scrollPositions.current[activeTab] = window.scrollY;
+    setActiveTab(tab);
+  };
 
   const handleFollowToggle = useCallback(
     async (authorId: string, isFollowing: boolean) => {
@@ -117,36 +175,76 @@ export default function HomePage() {
   const handleLike = useCallback(
     async (postId: string) => {
       if (!user?.id) return;
-      const post = posts.find((p) => p.id === postId);
+      const post = combinedPosts.find((p) => p.id === postId);
       if (!post) return;
+
+      const updatePostsById = (updater: (post: PostProps) => PostProps) => {
+        setFollowingPosts((prev) =>
+          prev.map((p) => (p.id === postId ? updater(p) : p)),
+        );
+        setForYouPosts((prev) =>
+          prev.map((p) => (p.id === postId ? updater(p) : p)),
+        );
+      };
       try {
         if (post.liked) {
           await likesAPI.unlikePost(postId);
-          setPosts((prev) =>
-            prev.map((p) =>
-              p.id === postId
-                ? { ...p, liked: false, likes: Math.max(0, p.likes - 1) }
-                : p,
-            ),
-          );
+          updatePostsById((p) => ({
+            ...p,
+            liked: false,
+            likes: Math.max(0, p.likes - 1),
+          }));
         } else {
           await likesAPI.likePost(postId);
-          setPosts((prev) =>
-            prev.map((p) =>
-              p.id === postId ? { ...p, liked: true, likes: p.likes + 1 } : p,
-            ),
-          );
+          updatePostsById((p) => ({ ...p, liked: true, likes: p.likes + 1 }));
         }
       } catch (err) {
         console.error("Failed to toggle like:", err);
       }
     },
-    [posts, user?.id],
+    [combinedPosts, user?.id],
   );
 
+  const handleLoadMore = useCallback(async () => {
+    if (isLoadingMore || !activeHasMore) return;
+    setIsLoadingMore(true);
+    try {
+      if (activeTab === "following") {
+        const response = await postsAPI.getFeed(pageSize, followingOffset);
+        setFollowingPosts((prev) => [
+          ...prev,
+          ...response.map((p) => transformPost(p, user?.id)),
+        ]);
+        setFollowingOffset((prev) => prev + response.length);
+        setHasMoreFollowing(response.length === pageSize);
+      } else {
+        const response = await postsAPI.getForYouFeed(pageSize, forYouOffset);
+        setForYouPosts((prev) => [
+          ...prev,
+          ...response.map((p) => transformPost(p, user?.id)),
+        ]);
+        setForYouOffset((prev) => prev + response.length);
+        setHasMoreForYou(response.length === pageSize);
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to load posts");
+    } finally {
+      setIsLoadingMore(false);
+    }
+  }, [
+    activeHasMore,
+    activeTab,
+    forYouOffset,
+    followingOffset,
+    isLoadingMore,
+    pageSize,
+    user?.id,
+  ]);
+
   const selectedPost = comments.openCommentsPostId
-    ? (postsWithFollowState.find((p) => p.id === comments.openCommentsPostId) ??
-      null)
+    ? (combinedPostsWithFollowState.find(
+        (p) => p.id === comments.openCommentsPostId,
+      ) ?? null)
     : null;
 
   return (
@@ -155,7 +253,7 @@ export default function HomePage() {
       <div className="sticky top-[60px] z-10 border-b border-[#ececec] bg-white/80 backdrop-blur-sm">
         <div className="flex">
           <button
-            onClick={() => setActiveTab("forYou")}
+            onClick={() => handleTabChange("forYou")}
             className={`flex-1 px-4 py-3 text-center font-medium transition-colors ${
               activeTab === "forYou"
                 ? "text-[#1a73e8]"
@@ -165,7 +263,7 @@ export default function HomePage() {
             For you
           </button>
           <button
-            onClick={() => setActiveTab("following")}
+            onClick={() => handleTabChange("following")}
             className={`flex-1 px-4 py-3 text-center font-medium transition-colors ${
               activeTab === "following"
                 ? "text-[#1a73e8]"
@@ -192,12 +290,32 @@ export default function HomePage() {
           </div>
         )}
         <Feed
-          posts={filteredPosts}
+          posts={activePosts}
           isLoading={isLoading}
           onLike={handleLike}
           onReply={comments.toggleComments}
           onFollowToggle={handleFollowToggle}
         />
+        {activePosts.length > 0 && (
+          <div className="mt-4 flex justify-center">
+            <button
+              type="button"
+              onClick={handleLoadMore}
+              disabled={isLoadingMore || !activeHasMore}
+              className={`rounded-full border px-5 py-2 text-[13px] font-medium transition-colors ${
+                isLoadingMore || !activeHasMore
+                  ? "cursor-not-allowed border-[#dadce0] text-[#9aa0a6]"
+                  : "border-[#1a73e8] text-[#1a73e8] hover:bg-[#e8f0fe]"
+              }`}
+            >
+              {isLoadingMore
+                ? "Loading..."
+                : activeHasMore
+                  ? "Load more"
+                  : "No more posts"}
+            </button>
+          </div>
+        )}
       </div>
 
       {comments.openCommentsPostId && selectedPost && (
