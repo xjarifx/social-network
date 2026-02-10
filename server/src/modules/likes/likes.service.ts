@@ -1,5 +1,6 @@
 import { NotificationType } from "../../generated/prisma/index";
 import { prisma } from "../../lib/prisma";
+import { invalidateTags } from "../../lib/cache";
 import { likePostParamsSchema } from "./likes.validation";
 
 const ensureString = (val: unknown): string =>
@@ -104,6 +105,14 @@ export const likePost = async (
     return like;
   });
 
+  await invalidateTags([
+    `post:${postId}`,
+    "feed",
+    "for-you",
+    `timeline:user:${post.authorId}`,
+    `notifications:user:${post.authorId}`,
+  ]);
+
   return {
     id: result.id,
     userId: result.userId,
@@ -170,6 +179,13 @@ export const unlikePost = async (
       },
     });
   });
+
+  await invalidateTags([
+    `post:${postId}`,
+    "feed",
+    "for-you",
+    `timeline:user:${post.authorId}`,
+  ]);
 
   return {
     message: "Post unliked successfully",

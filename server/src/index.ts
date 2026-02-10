@@ -13,6 +13,7 @@ async function main() {
   const express = (await import("express")).default;
   const cors = (await import("cors")).default;
   const { prisma } = await import("./lib/prisma.js");
+  const { initRedis } = await import("./lib/cache.js");
   const authRouter = (await import("./modules/auth/auth.routes.js")).default;
   const userRouter = (await import("./modules/user/user.routes.js")).default;
   const postsRouter = (await import("./modules/posts/posts.routes.js")).default;
@@ -70,6 +71,8 @@ async function main() {
   const startServer = async () => {
     await prisma.$connect();
     console.log("✅ Database connected");
+
+    await initRedis();
 
     app.listen(PORT, () => {
       console.log(`✅ Server is running on http://localhost:${PORT}`);

@@ -1,5 +1,11 @@
 import { prisma } from "../../lib/prisma";
 import {
+  buildCacheKey,
+  cacheGet,
+  cacheSet,
+  invalidateTags,
+} from "../../lib/cache";
+import {
   getNotificationsQuerySchema,
   notificationIdParamSchema,
   updateNotificationBodySchema,
@@ -7,6 +13,8 @@ import {
 
 const ensureString = (val: unknown): string =>
   typeof val === "string" ? val : Array.isArray(val) ? val[0] : "";
+
+const NOTIFICATIONS_TTL_SECONDS = 20;
 
 export const getNotifications = async (
   userId: unknown,
@@ -23,6 +31,38 @@ export const getNotifications = async (
   }
 
   const { limit, offset, read } = validation.data.query;
+  const cacheKey = buildCacheKey(
+    "notifications",
+    ownerId,
+    read === undefined ? "all" : read,
+    limit,
+    offset,
+  );
+  const cached = await cacheGet<{
+    notifications: Array<{
+      id: string;
+      type: string;
+      message: string;
+      read: boolean;
+      createdAt: Date;
+      relatedUser: {
+        id: string;
+        username: string;
+        firstName: string | null;
+        lastName: string | null;
+      } | null;
+      relatedPost: {
+        id: string;
+        content: string | null;
+      } | null;
+    }>;
+    total: number;
+    limit: number;
+    offset: number;
+  }>(cacheKey);
+  if (cached) {
+    return cached;
+  }
   const where = {
     userId: ownerId,
     ...(read !== undefined ? { read } : {}),
@@ -53,7 +93,7 @@ export const getNotifications = async (
 
   const total = await prisma.notification.count({ where });
 
-  return {
+  const response = {
     notifications: notifications.map((notification) => ({
       id: notification.id,
       type: notification.type,
@@ -67,6 +107,13 @@ export const getNotifications = async (
     limit,
     offset,
   };
+
+  await cacheSet(cacheKey, response, {
+    ttlSeconds: NOTIFICATIONS_TTL_SECONDS,
+    tags: [`notifications:user:${ownerId}`],
+  });
+
+  return response;
 };
 
 export const getNotificationById = async (
@@ -84,6 +131,32 @@ export const getNotificationById = async (
   }
 
   const { notificationId } = validation.data.params;
+  const cacheKey = buildCacheKey(
+    "notification",
+    notificationId,
+    "user",
+    ownerId,
+  );
+  const cached = await cacheGet<{
+    id: string;
+    type: string;
+    message: string;
+    read: boolean;
+    createdAt: Date;
+    relatedUser: {
+      id: string;
+      username: string;
+      firstName: string | null;
+      lastName: string | null;
+    } | null;
+    relatedPost: {
+      id: string;
+      content: string | null;
+    } | null;
+  }>(cacheKey);
+  if (cached) {
+    return cached;
+  }
   const notification = await prisma.notification.findFirst({
     where: { id: notificationId, userId: ownerId },
     include: {
@@ -100,7 +173,7 @@ export const getNotificationById = async (
     throw { status: 404, error: "Notification not found" };
   }
 
-  return {
+  const response = {
     id: notification.id,
     type: notification.type,
     message: notification.message,
@@ -109,6 +182,13 @@ export const getNotificationById = async (
     relatedUser: notification.relatedUser,
     relatedPost: notification.relatedPost,
   };
+
+  await cacheSet(cacheKey, response, {
+    ttlSeconds: NOTIFICATIONS_TTL_SECONDS,
+    tags: [`notification:${notificationId}`, `notifications:user:${ownerId}`],
+  });
+
+  return response;
 };
 
 export const updateNotificationRead = async (
@@ -143,6 +223,11 @@ export const updateNotificationRead = async (
     throw { status: 404, error: "Notification not found" };
   }
 
+  await invalidateTags([
+    `notification:${notificationId}`,
+    `notifications:user:${ownerId}`,
+  ]);
+
   return getNotificationById(ownerId, params);
 };
 
@@ -168,6 +253,11 @@ export const deleteNotification = async (
   if (count === 0) {
     throw { status: 404, error: "Notification not found" };
   }
+
+  await invalidateTags([
+    `notification:${notificationId}`,
+    `notifications:user:${ownerId}`,
+  ]);
 
   return true;
 };

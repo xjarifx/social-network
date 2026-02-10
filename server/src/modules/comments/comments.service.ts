@@ -1,6 +1,12 @@
 import { NotificationType } from "../../generated/prisma/index";
 import { prisma } from "../../lib/prisma";
 import {
+  buildCacheKey,
+  cacheGet,
+  cacheSet,
+  invalidateTags,
+} from "../../lib/cache";
+import {
   commentLikeParamsSchema,
   commentIdParamSchema,
   createCommentSchema,
@@ -48,6 +54,8 @@ const countCommentSubtree = async (commentId: string): Promise<number> => {
 
   return 1 + visited.size;
 };
+
+const COMMENTS_TTL_SECONDS = 30;
 
 export const createComment = async (
   userId: unknown,
@@ -140,7 +148,7 @@ export const createComment = async (
     return comment;
   });
 
-  return {
+  const response = {
     id: result.id,
     content: result.content,
     author: result.author,
@@ -150,6 +158,17 @@ export const createComment = async (
     repliesCount: result._count.replies,
     createdAt: result.createdAt,
   };
+
+  await invalidateTags([
+    `comments:post:${postId}`,
+    `post:${postId}`,
+    "feed",
+    "for-you",
+    `timeline:user:${post.authorId}`,
+    `notifications:user:${post.authorId}`,
+  ]);
+
+  return response;
 };
 
 export const getComments = async (
@@ -177,6 +196,38 @@ export const getComments = async (
 
   if (!post) {
     throw { status: 404, error: "Post not found" };
+  }
+
+  const cacheKey = buildCacheKey(
+    "comments",
+    postId,
+    parentId ?? "root",
+    limit,
+    offset,
+    ensureString(userId) || "anon",
+  );
+  const cached = await cacheGet<{
+    comments: Array<{
+      id: string;
+      content: string;
+      author: {
+        id: string;
+        username: string;
+        firstName: string | null;
+        lastName: string | null;
+      } | null;
+      postId: string;
+      parentId: string | null;
+      likesCount: number;
+      repliesCount: number;
+      createdAt: Date;
+    }>;
+    total: number;
+    limit: number;
+    offset: number;
+  }>(cacheKey);
+  if (cached) {
+    return cached;
   }
 
   const total = await prisma.comment.count({
@@ -276,7 +327,7 @@ export const getComments = async (
     }
   }
 
-  return {
+  const response = {
     comments: comments.map((comment) => ({
       id: comment.id,
       content: comment.content,
@@ -291,6 +342,13 @@ export const getComments = async (
     limit,
     offset,
   };
+
+  await cacheSet(cacheKey, response, {
+    ttlSeconds: COMMENTS_TTL_SECONDS,
+    tags: [`comments:post:${postId}`],
+  });
+
+  return response;
 };
 
 export const updateComment = async (
@@ -349,7 +407,7 @@ export const updateComment = async (
     },
   });
 
-  return {
+  const response = {
     id: updatedComment.id,
     content: updatedComment.content,
     author: updatedComment.author,
@@ -359,6 +417,15 @@ export const updateComment = async (
     repliesCount: updatedComment._count.replies,
     createdAt: updatedComment.createdAt,
   };
+
+  await invalidateTags([
+    `comments:post:${updatedComment.postId}`,
+    `post:${updatedComment.postId}`,
+    "feed",
+    "for-you",
+  ]);
+
+  return response;
 };
 
 export const deleteComment = async (
@@ -404,6 +471,13 @@ export const deleteComment = async (
       },
     });
   });
+
+  await invalidateTags([
+    `comments:post:${comment.postId}`,
+    `post:${comment.postId}`,
+    "feed",
+    "for-you",
+  ]);
 
   return {
     message: "Comment deleted successfully",
@@ -463,6 +537,8 @@ export const likeComment = async (
 
     return like;
   });
+
+  await invalidateTags([`comments:post:${postId}`, `post:${postId}`]);
 
   return {
     id: result.id,
@@ -525,6 +601,8 @@ export const unlikeComment = async (
       },
     });
   });
+
+  await invalidateTags([`comments:post:${postId}`, `post:${postId}`]);
 
   return { message: "Comment unliked successfully" };
 };

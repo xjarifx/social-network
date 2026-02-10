@@ -1,6 +1,12 @@
 import { prisma } from "../../lib/prisma";
 import { uploadMedia } from "../../lib/cloudinary";
 import {
+  buildCacheKey,
+  cacheGet,
+  cacheSet,
+  invalidateTags,
+} from "../../lib/cache";
+import {
   createPostSchema,
   postIdParamSchema,
   updatePostSchema,
@@ -40,12 +46,20 @@ const getValidationErrorMessage = (error: {
   return "Validation failed";
 };
 
+const FEED_TTL_SECONDS = 30;
+const POST_TTL_SECONDS = 60;
+
 export const getFeed = async (
   userId: string,
   query: Record<string, unknown>,
 ) => {
   const limit = parseNonNegativeInt(query.limit, 20);
   const offset = parseNonNegativeInt(query.offset, 0);
+  const cacheKey = buildCacheKey("feed", userId, limit, offset);
+  const cached = await cacheGet<ReturnType<typeof mapPostFeed>[]>(cacheKey);
+  if (cached) {
+    return cached;
+  }
 
   // Get posts from users that the current user follows, excluding their own posts
   const posts = await prisma.post.findMany({
@@ -85,18 +99,12 @@ export const getFeed = async (
     skip: offset,
   });
 
-  return posts.map((post) => ({
-    id: post.id,
-    content: post.content,
-    imageUrl: post.imageUrl,
-    visibility: post.visibility,
-    author: post.author,
-    likesCount: post.likesCount,
-    commentsCount: post.commentsCount,
-    likes: post.likes.map((like) => like.userId),
-    createdAt: post.createdAt,
-    updatedAt: post.updatedAt,
-  }));
+  const response = posts.map(mapPostFeed);
+  await cacheSet(cacheKey, response, {
+    ttlSeconds: FEED_TTL_SECONDS,
+    tags: ["feed", `feed:user:${userId}`],
+  });
+  return response;
 };
 
 export const getForYouFeed = async (
@@ -105,6 +113,11 @@ export const getForYouFeed = async (
 ) => {
   const limit = parseNonNegativeInt(query.limit, 20);
   const offset = parseNonNegativeInt(query.offset, 0);
+  const cacheKey = buildCacheKey("for-you", userId, limit, offset);
+  const cached = await cacheGet<ReturnType<typeof mapPostFeed>[]>(cacheKey);
+  if (cached) {
+    return cached;
+  }
 
   const directFollowing = await prisma.follower.findMany({
     where: { followerId: userId },
@@ -167,19 +180,43 @@ export const getForYouFeed = async (
     skip: offset,
   });
 
-  return posts.map((post) => ({
-    id: post.id,
-    content: post.content,
-    imageUrl: post.imageUrl,
-    visibility: post.visibility,
-    author: post.author,
-    likesCount: post.likesCount,
-    commentsCount: post.commentsCount,
-    likes: post.likes.map((like) => like.userId),
-    createdAt: post.createdAt,
-    updatedAt: post.updatedAt,
-  }));
+  const response = posts.map(mapPostFeed);
+  await cacheSet(cacheKey, response, {
+    ttlSeconds: FEED_TTL_SECONDS,
+    tags: ["for-you", `for-you:user:${userId}`],
+  });
+  return response;
 };
+
+const mapPostFeed = (post: {
+  id: string;
+  content: string | null;
+  imageUrl: string | null;
+  visibility: string;
+  author: {
+    id: string;
+    username: string;
+    email: string;
+    firstName: string | null;
+    lastName: string | null;
+  };
+  likesCount: number;
+  commentsCount: number;
+  likes: Array<{ userId: string }>;
+  createdAt: Date;
+  updatedAt: Date;
+}) => ({
+  id: post.id,
+  content: post.content,
+  imageUrl: post.imageUrl,
+  visibility: post.visibility,
+  author: post.author,
+  likesCount: post.likesCount,
+  commentsCount: post.commentsCount,
+  likes: post.likes.map((like) => like.userId),
+  createdAt: post.createdAt,
+  updatedAt: post.updatedAt,
+});
 
 const enforcePostLimitForUser = async (authorId: string, content: string) => {
   const user = await prisma.user.findUnique({
@@ -263,7 +300,7 @@ export const createPost = async (
     },
   });
 
-  return {
+  const response = {
     id: post.id,
     content: post.content,
     imageUrl: post.imageUrl,
@@ -274,6 +311,10 @@ export const createPost = async (
     createdAt: post.createdAt,
     updatedAt: post.updatedAt,
   };
+
+  await invalidateTags(["feed", "for-you", `timeline:user:${authorId}`]);
+
+  return response;
 };
 
 export const getPostById = async (
@@ -289,6 +330,12 @@ export const getPostById = async (
   }
 
   const { postId } = paramValidation.data.params;
+  const requesterId = ensureString(userId) || "anon";
+  const cacheKey = buildCacheKey("post", postId, "viewer", requesterId);
+  const cached = await cacheGet<ReturnType<typeof mapPostDetail>>(cacheKey);
+  if (cached) {
+    return cached;
+  }
   const post = await prisma.post.findUnique({
     where: { id: postId },
     include: {
@@ -343,35 +390,73 @@ export const getPostById = async (
   }
 
   if (post.visibility === "PRIVATE") {
-    const requesterId = ensureString(userId);
-    if (!requesterId || requesterId !== post.authorId) {
+    if (requesterId === "anon" || requesterId !== post.authorId) {
       throw { status: 403, error: "Post is private" };
     }
   }
 
-  return {
-    id: post.id,
-    content: post.content,
-    imageUrl: post.imageUrl,
-    visibility: post.visibility,
-    author: post.author,
-    likesCount: post.likesCount,
-    commentsCount: post.commentsCount,
-    likes: post.likes.map((like) => like.userId),
-    comments: post.comments.map((comment) => ({
-      id: comment.id,
-      content: comment.content,
-      author: comment.author,
-      postId: post.id,
-      parentId: comment.parentId,
-      likesCount: comment.likesCount,
-      repliesCount: comment._count.replies,
-      createdAt: comment.createdAt,
-    })),
-    createdAt: post.createdAt,
-    updatedAt: post.updatedAt,
-  };
+  const response = mapPostDetail(post);
+  await cacheSet(cacheKey, response, {
+    ttlSeconds: POST_TTL_SECONDS,
+    tags: [`post:${postId}`],
+  });
+
+  return response;
 };
+
+const mapPostDetail = (post: {
+  id: string;
+  content: string | null;
+  imageUrl: string | null;
+  visibility: string;
+  author: {
+    id: string;
+    username: string;
+    email: string;
+    firstName: string | null;
+    lastName: string | null;
+  };
+  likesCount: number;
+  commentsCount: number;
+  likes: Array<{ userId: string }>;
+  comments: Array<{
+    id: string;
+    content: string;
+    author: {
+      id: string;
+      username: string;
+      firstName: string | null;
+      lastName: string | null;
+    } | null;
+    parentId: string | null;
+    likesCount: number;
+    _count: { replies: number };
+    createdAt: Date;
+  }>;
+  createdAt: Date;
+  updatedAt: Date;
+}) => ({
+  id: post.id,
+  content: post.content,
+  imageUrl: post.imageUrl,
+  visibility: post.visibility,
+  author: post.author,
+  likesCount: post.likesCount,
+  commentsCount: post.commentsCount,
+  likes: post.likes.map((like) => like.userId),
+  comments: post.comments.map((comment) => ({
+    id: comment.id,
+    content: comment.content,
+    author: comment.author,
+    postId: post.id,
+    parentId: comment.parentId,
+    likesCount: comment.likesCount,
+    repliesCount: comment._count.replies,
+    createdAt: comment.createdAt,
+  })),
+  createdAt: post.createdAt,
+  updatedAt: post.updatedAt,
+});
 
 export const updatePost = async (
   userId: unknown,
@@ -435,7 +520,7 @@ export const updatePost = async (
     },
   });
 
-  return {
+  const response = {
     id: updatedPost.id,
     content: updatedPost.content,
     imageUrl: updatedPost.imageUrl,
@@ -446,6 +531,15 @@ export const updatePost = async (
     createdAt: updatedPost.createdAt,
     updatedAt: updatedPost.updatedAt,
   };
+
+  await invalidateTags([
+    `post:${postId}`,
+    "feed",
+    "for-you",
+    `timeline:user:${authorId}`,
+  ]);
+
+  return response;
 };
 
 export const deletePost = async (
@@ -481,6 +575,14 @@ export const deletePost = async (
   await prisma.post.delete({
     where: { id: postId },
   });
+
+  await invalidateTags([
+    `post:${postId}`,
+    `comments:post:${postId}`,
+    "feed",
+    "for-you",
+    `timeline:user:${authorId}`,
+  ]);
 
   return { message: "Post deleted successfully" };
 };

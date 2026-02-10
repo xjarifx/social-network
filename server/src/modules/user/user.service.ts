@@ -1,11 +1,34 @@
 import { prisma } from "../../lib/prisma";
 import {
+  buildCacheKey,
+  cacheGet,
+  cacheSet,
+  invalidateTags,
+} from "../../lib/cache";
+import {
   updateProfileSchema,
   userIdParamSchema,
   searchUsersSchema,
 } from "./user.validation";
 
+const PROFILE_TTL_SECONDS = 120;
+const TIMELINE_TTL_SECONDS = 30;
+
 export const getCurrentUserProfile = async (userId: string) => {
+  const cacheKey = buildCacheKey("user", "current", userId);
+  const cached = await cacheGet<{
+    id: string;
+    username: string;
+    email: string;
+    firstName: string | null;
+    lastName: string | null;
+    createdAt: Date;
+    plan: string | null;
+  }>(cacheKey);
+  if (cached) {
+    return cached;
+  }
+
   // Fetch user by ID
   const user = await prisma.user.findUnique({
     where: { id: userId },
@@ -24,6 +47,11 @@ export const getCurrentUserProfile = async (userId: string) => {
     throw { status: 404, error: "User not found" };
   }
 
+  await cacheSet(cacheKey, user, {
+    ttlSeconds: PROFILE_TTL_SECONDS,
+    tags: [`user:${userId}`],
+  });
+
   return user;
 };
 
@@ -34,6 +62,18 @@ export const getUserProfile = async (params: Record<string, unknown>) => {
   }
 
   const userId = validation.data.params.userId;
+  const cacheKey = buildCacheKey("user", "public", userId);
+  const cached = await cacheGet<{
+    id: string;
+    username: string;
+    email: string;
+    firstName: string | null;
+    lastName: string | null;
+    createdAt: Date;
+  }>(cacheKey);
+  if (cached) {
+    return cached;
+  }
 
   // Fetch user by ID
   const user = await prisma.user.findUnique({
@@ -52,6 +92,11 @@ export const getUserProfile = async (params: Record<string, unknown>) => {
     throw { status: 404, error: "User not found" };
   }
 
+  await cacheSet(cacheKey, user, {
+    ttlSeconds: PROFILE_TTL_SECONDS,
+    tags: [`user:${userId}`],
+  });
+
   return user;
 };
 
@@ -68,6 +113,39 @@ export const getUserTimeline = async (
   const userId = paramValidation.data.params.userId;
   const limit = query.limit ? parseInt(query.limit as string) : 10;
   const offset = query.offset ? parseInt(query.offset as string) : 0;
+  const cacheKey = buildCacheKey(
+    "timeline",
+    userId,
+    viewerId || "anon",
+    limit,
+    offset,
+  );
+  const cached = await cacheGet<{
+    posts: Array<{
+      id: string;
+      content: string | null;
+      imageUrl: string | null;
+      visibility: string;
+      author: {
+        id: string;
+        username: string;
+        email: string;
+        firstName: string | null;
+        lastName: string | null;
+      };
+      likesCount: number;
+      commentsCount: number;
+      likes: string[];
+      createdAt: Date;
+      updatedAt: Date;
+    }>;
+    total: number;
+    limit: number;
+    offset: number;
+  }>(cacheKey);
+  if (cached) {
+    return cached;
+  }
 
   // Check if user exists
   const user = await prisma.user.findUnique({
@@ -114,7 +192,7 @@ export const getUserTimeline = async (
     },
   });
 
-  return {
+  const response = {
     posts: posts.map((post) => ({
       id: post.id,
       content: post.content,
@@ -131,6 +209,13 @@ export const getUserTimeline = async (
     limit,
     offset,
   };
+
+  await cacheSet(cacheKey, response, {
+    ttlSeconds: TIMELINE_TTL_SECONDS,
+    tags: [`timeline:user:${userId}`],
+  });
+
+  return response;
 };
 
 export const updateUserProfile = async (
@@ -183,6 +268,8 @@ export const updateUserProfile = async (
       createdAt: true,
     },
   });
+
+  await invalidateTags([`user:${userId}`, `timeline:user:${userId}`]);
 
   return updatedUser;
 };
