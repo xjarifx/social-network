@@ -35,6 +35,7 @@ const getStripe = (): Stripe => {
 
 const PRO_CURRENCY = process.env.STRIPE_PRO_CURRENCY || "usd";
 const PRO_PRICE_CENTS = Number(process.env.STRIPE_PRO_PRICE_CENTS || 999);
+const PRO_PRICE_ID = process.env.STRIPE_PRO_PRICE_ID || "";
 const SUCCESS_URL =
   process.env.STRIPE_SUCCESS_URL ||
   (FRONTEND_URL
@@ -56,6 +57,19 @@ const requireEnv = (value: string, name: string) => {
 };
 
 const getOrCreateProPrice = async (): Promise<string> => {
+  // If a price ID is configured, try to use it
+  if (PRO_PRICE_ID) {
+    try {
+      await getStripe().prices.retrieve(PRO_PRICE_ID);
+      return PRO_PRICE_ID;
+    } catch (error) {
+      console.warn(
+        `⚠️ Configured price ${PRO_PRICE_ID} not found, creating new one...`,
+      );
+    }
+  }
+
+  // Create a new product and price
   const product = await getStripe().products.create({
     name: "Pro Plan",
     description: "Monthly Pro subscription",
@@ -68,6 +82,7 @@ const getOrCreateProPrice = async (): Promise<string> => {
     recurring: { interval: "month" },
   });
 
+  console.log(`✅ Created new Stripe price: ${price.id}`);
   return price.id;
 };
 
@@ -166,6 +181,7 @@ export const createCheckoutSession = async (userId: unknown) => {
       client_reference_id: user.id,
       metadata: { userId: user.id },
       subscription_data: subscriptionData,
+      payment_method_collection: "always",
     });
 
     return { url: session.url };

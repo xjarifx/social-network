@@ -21,9 +21,8 @@ export default function BillingSuccessPage() {
           throw new Error("Missing session ID");
         }
 
-        // This endpoint confirms the session on the backend
-        // The backend will sync the subscription status
-        await billingAPI.getStatus();
+        // Confirm the session on the backend; it syncs subscription status.
+        await billingAPI.confirmCheckoutSuccess(sessionId);
         setSessionSucceeded(true);
       } catch (err) {
         const message =

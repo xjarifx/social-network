@@ -523,6 +523,10 @@ export const billingAPI = {
   createCheckoutSession: async (): Promise<{ url: string }> => {
     return apiRequest("/billing/checkout-session", { method: "POST" });
   },
+
+  confirmCheckoutSuccess: async (sessionId: string): Promise<void> => {
+    await apiRequest(`/billing/success?session_id=${sessionId}`);
+  },
 };
 
 // ============================================================================
