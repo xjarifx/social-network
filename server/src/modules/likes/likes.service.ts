@@ -1,8 +1,21 @@
+import { NotificationType } from "../../generated/prisma/index";
 import { prisma } from "../../lib/prisma";
 import { likePostParamsSchema } from "./likes.validation";
 
 const ensureString = (val: unknown): string =>
   typeof val === "string" ? val : Array.isArray(val) ? val[0] : "";
+
+const formatUserLabel = (user?: {
+  username?: string | null;
+  firstName?: string | null;
+  lastName?: string | null;
+}): string => {
+  if (!user) {
+    return "Someone";
+  }
+  const fullName = [user.firstName, user.lastName].filter(Boolean).join(" ");
+  return fullName || user.username || "Someone";
+};
 
 export const likePost = async (
   userId: unknown,
@@ -19,6 +32,7 @@ export const likePost = async (
   // Check if post exists
   const post = await prisma.post.findUnique({
     where: { id: postId },
+    select: { id: true, authorId: true },
   });
 
   if (!post) {
@@ -74,6 +88,18 @@ export const likePost = async (
         },
       },
     });
+
+    if (post.authorId !== likerId) {
+      await tx.notification.create({
+        data: {
+          userId: post.authorId,
+          type: NotificationType.LIKE,
+          relatedUserId: likerId,
+          relatedPostId: postId,
+          message: `${formatUserLabel(like.user)} liked your post`,
+        },
+      });
+    }
 
     return like;
   });

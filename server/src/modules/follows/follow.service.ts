@@ -1,5 +1,18 @@
+import { NotificationType } from "../../generated/prisma/index";
 import { prisma } from "../../lib/prisma";
 import { followUserSchema, unfollowParamSchema } from "./follow.validation";
+
+const formatUserLabel = (user?: {
+  username?: string | null;
+  firstName?: string | null;
+  lastName?: string | null;
+}): string => {
+  if (!user) {
+    return "Someone";
+  }
+  const fullName = [user.firstName, user.lastName].filter(Boolean).join(" ");
+  return fullName || user.username || "Someone";
+};
 
 export const followUser = async (
   followerId: string,
@@ -34,12 +47,28 @@ export const followUser = async (
     throw { status: 409, error: "Already following this user" };
   }
 
-  return await prisma.follower.create({
+  const follow = await prisma.follower.create({
     data: {
       followerId,
       followingId,
     },
   });
+
+  const follower = await prisma.user.findUnique({
+    where: { id: followerId },
+    select: { username: true, firstName: true, lastName: true },
+  });
+
+  await prisma.notification.create({
+    data: {
+      userId: followingId,
+      type: NotificationType.NEW_FOLLOWER,
+      relatedUserId: followerId,
+      message: `${formatUserLabel(follower)} started following you`,
+    },
+  });
+
+  return follow;
 };
 
 export const getFollowers = async (userId: string) => {

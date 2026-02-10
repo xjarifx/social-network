@@ -1,3 +1,4 @@
+import { NotificationType } from "../../generated/prisma/index";
 import { prisma } from "../../lib/prisma";
 import {
   commentLikeParamsSchema,
@@ -11,6 +12,18 @@ import {
 
 const ensureString = (val: unknown): string =>
   typeof val === "string" ? val : Array.isArray(val) ? val[0] : "";
+
+const formatUserLabel = (user?: {
+  username?: string | null;
+  firstName?: string | null;
+  lastName?: string | null;
+}): string => {
+  if (!user) {
+    return "Someone";
+  }
+  const fullName = [user.firstName, user.lastName].filter(Boolean).join(" ");
+  return fullName || user.username || "Someone";
+};
 
 const countCommentSubtree = async (commentId: string): Promise<number> => {
   const visited = new Set<string>();
@@ -58,6 +71,7 @@ export const createComment = async (
   // Check if post exists
   const post = await prisma.post.findUnique({
     where: { id: postId },
+    select: { id: true, authorId: true },
   });
 
   if (!post) {
@@ -110,6 +124,18 @@ export const createComment = async (
         },
       },
     });
+
+    if (post.authorId !== authorId) {
+      await tx.notification.create({
+        data: {
+          userId: post.authorId,
+          type: NotificationType.COMMENT,
+          relatedUserId: authorId,
+          relatedPostId: postId,
+          message: `${formatUserLabel(comment.author)} commented on your post`,
+        },
+      });
+    }
 
     return comment;
   });

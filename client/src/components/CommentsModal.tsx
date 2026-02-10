@@ -39,6 +39,8 @@ export function CommentsModal({
   const commentEditDrafts = commentsApi.commentEditDrafts;
 
   const renderComment = (comment: ApiComment, depth = 0) => {
+    const depthOffset = Math.min(depth, 4) * 20;
+    const isRoot = depth === 0;
     const isEditing = editingCommentId === comment.id;
     const canManage = !!user?.id && comment.author?.id === user.id;
     const replies = commentsApi.repliesByComment[comment.id] || [];
@@ -54,138 +56,174 @@ export function CommentsModal({
     const likeCount = likeState?.count ?? comment.likesCount;
     const isLiked = likeState?.liked ?? false;
     const repliesCount = comment.repliesCount || 0;
+    const authorName = comment.author
+      ? `${comment.author.firstName} ${comment.author.lastName}`.trim() ||
+        comment.author.username
+      : "User";
+    const actionIconSize = isRoot ? "h-4 w-4" : "h-3.5 w-3.5";
+    const initials = authorName
+      .split(" ")
+      .map((part) => part[0])
+      .slice(0, 2)
+      .join("")
+      .toUpperCase();
 
     return (
-      <div key={comment.id} className="space-y-2">
-        <div
-          className="rounded-xl bg-white px-4 py-3 shadow-sm"
-          style={{ marginLeft: depth * 16 }}
-        >
-          <div className="flex items-start justify-between gap-3">
-            <p className="text-[12px] font-medium text-[#5f6368]">
-              {comment.author
-                ? `${comment.author.firstName} ${comment.author.lastName}`.trim() ||
-                  comment.author.username
-                : "User"}
-            </p>
-            {canManage && !isEditing && (
-              <div className="flex items-center gap-3 text-[12px]">
-                <button
-                  type="button"
-                  onClick={() =>
-                    commentsApi.handleStartEditComment(post.id, comment)
+      <div
+        key={comment.id}
+        className="relative"
+        style={{ paddingLeft: depthOffset }}
+      >
+        <div className={`flex items-start gap-3 ${isRoot ? "py-4" : "py-3"}`}>
+          <div
+            className={`flex shrink-0 items-center justify-center rounded-full bg-[#e8f0fe] font-medium text-[#1a73e8] ${
+              isRoot ? "h-9 w-9 text-[12px]" : "h-7 w-7 text-[10px]"
+            }`}
+          >
+            {initials || "U"}
+          </div>
+          <div className="min-w-0 flex-1">
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <p
+                className={`font-semibold text-[#202124] ${
+                  isRoot ? "text-[13px]" : "text-[12px]"
+                }`}
+              >
+                {authorName}
+              </p>
+              {canManage && !isEditing && (
+                <div className="flex items-center gap-1">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="h-6 px-2 text-[11px]"
+                    onClick={() =>
+                      commentsApi.handleStartEditComment(post.id, comment)
+                    }
+                  >
+                    Edit
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="h-6 px-2 text-[11px] text-[#ea4335] hover:text-[#d93025]"
+                    onClick={() =>
+                      commentsApi.handleDeleteComment(post.id, comment.id)
+                    }
+                  >
+                    Delete
+                  </Button>
+                </div>
+              )}
+            </div>
+            {isEditing ? (
+              <div className="mt-2 space-y-2">
+                <Input
+                  value={commentEditDrafts[comment.id] || ""}
+                  onChange={(e) =>
+                    commentsApi.setCommentEditDraft(comment.id, e.target.value)
                   }
-                  className="text-[#1a73e8] hover:underline cursor-pointer"
-                >
-                  Edit
-                </button>
-                <button
-                  type="button"
+                  className={isRoot ? "h-9" : "h-8 text-[12px]"}
+                />
+                <div className="flex items-center gap-2">
+                  <Button
+                    size="sm"
+                    onClick={() =>
+                      commentsApi.handleSaveEditComment(post.id, comment.id)
+                    }
+                  >
+                    Save
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    onClick={() =>
+                      commentsApi.handleCancelEditComment(post.id, comment.id)
+                    }
+                  >
+                    Cancel
+                  </Button>
+                </div>
+              </div>
+            ) : (
+              <p
+                className={`mt-1 leading-5 text-[#202124] ${
+                  isRoot ? "text-[14px]" : "text-[13px]"
+                }`}
+              >
+                {comment.content}
+              </p>
+            )}
+
+            {!isEditing && (
+              <div className="mt-1.5 flex flex-wrap items-center gap-1 text-[#5f6368]">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className={`h-7 px-2 text-[12px] ${
+                    isLiked ? "text-[#ea4335]" : "hover:text-[#202124]"
+                  }`}
                   onClick={() =>
-                    commentsApi.handleDeleteComment(post.id, comment.id)
+                    commentsApi.handleToggleCommentLike(post.id, comment.id)
                   }
-                  className="text-[#ea4335] hover:underline cursor-pointer"
                 >
-                  Delete
-                </button>
+                  <Heart
+                    className={`${actionIconSize} ${isLiked ? "fill-current" : ""}`}
+                  />
+                  <span>{likeCount}</span>
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="h-7 px-2 text-[12px]"
+                  onClick={() => commentsApi.toggleReplies(post.id, comment.id)}
+                >
+                  <MessageCircle className={actionIconSize} />
+                  <span>
+                    {repliesCount > 0 ? `${repliesCount} replies` : "Reply"}
+                  </span>
+                </Button>
               </div>
             )}
           </div>
-          {isEditing ? (
-            <div className="mt-2 space-y-2">
-              <Input
-                value={commentEditDrafts[comment.id] || ""}
-                onChange={(e) =>
-                  commentsApi.setCommentEditDraft(comment.id, e.target.value)
-                }
-              />
-              <div className="flex items-center gap-2">
-                <Button
-                  size="sm"
-                  onClick={() =>
-                    commentsApi.handleSaveEditComment(post.id, comment.id)
-                  }
-                >
-                  Save
-                </Button>
-                <Button
-                  size="sm"
-                  variant="ghost"
-                  onClick={() =>
-                    commentsApi.handleCancelEditComment(post.id, comment.id)
-                  }
-                >
-                  Cancel
-                </Button>
-              </div>
-            </div>
-          ) : (
-            <p className="mt-0.5 text-[14px] text-[#202124]">
-              {comment.content}
-            </p>
-          )}
-
-          {!isEditing && (
-            <div className="mt-2 flex flex-wrap items-center gap-2">
-              <button
-                onClick={() =>
-                  commentsApi.handleToggleCommentLike(post.id, comment.id)
-                }
-                className={`inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1 text-[12px] font-medium transition cursor-pointer ${
-                  isLiked
-                    ? "text-[#ea4335] bg-red-50"
-                    : "text-[#5f6368] hover:bg-[#f1f3f4]"
-                }`}
-              >
-                <Heart
-                  className={`h-3.5 w-3.5 ${isLiked ? "fill-current" : ""}`}
-                />
-                <span>{likeCount}</span>
-              </button>
-              <button
-                onClick={() => commentsApi.toggleReplies(post.id, comment.id)}
-                className="inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1 text-[12px] font-medium text-[#5f6368] transition hover:bg-[#f1f3f4] cursor-pointer"
-              >
-                <MessageCircle className="h-3.5 w-3.5" />
-                <span>
-                  {repliesCount > 0 ? `${repliesCount} replies` : "Reply"}
-                </span>
-              </button>
-            </div>
-          )}
         </div>
 
         {repliesExpanded && (
-          <div className="space-y-2">
-            <div className="ml-4 flex flex-wrap items-center gap-2">
-              <Input
-                value={replyDraft}
-                onChange={(e) =>
-                  commentsApi.setReplyDraft(comment.id, e.target.value)
-                }
-                placeholder="Write a reply..."
-                className="flex-1"
-              />
-              <Button
-                onClick={() => commentsApi.handleAddReply(post.id, comment.id)}
-                size="sm"
-              >
-                Reply
-              </Button>
+          <div className="ml-10 space-y-3 border-l border-[#e8eaed] pl-4">
+            <div className="rounded-xl bg-[#f8f9fa] px-3 py-2">
+              <p className="mb-2 text-[11px] font-medium text-[#5f6368]">
+                Reply to {authorName}
+              </p>
+              <div className="flex flex-wrap items-center gap-2">
+                <Input
+                  value={replyDraft}
+                  onChange={(e) =>
+                    commentsApi.setReplyDraft(comment.id, e.target.value)
+                  }
+                  placeholder="Write a reply..."
+                  className="h-8 flex-1 text-[12px]"
+                />
+                <Button
+                  onClick={() =>
+                    commentsApi.handleAddReply(post.id, comment.id)
+                  }
+                  size="sm"
+                >
+                  Reply
+                </Button>
+              </div>
             </div>
 
             {repliesLoading ? (
-              <p className="ml-4 text-[12px] text-[#5f6368]">
-                Loading replies...
-              </p>
+              <p className="text-[12px] text-[#5f6368]">Loading replies...</p>
             ) : replies.length > 0 ? (
               replies.map((reply) => renderComment(reply, depth + 1))
             ) : (
-              <p className="ml-4 text-[12px] text-[#5f6368]">No replies yet.</p>
+              <p className="text-[12px] text-[#5f6368]">No replies yet.</p>
             )}
 
             {repliesHasMore && (
-              <div className="ml-4 flex justify-start">
+              <div className="flex justify-start">
                 <button
                   onClick={() =>
                     commentsApi.handleLoadMoreReplies(post.id, comment.id)
@@ -217,8 +255,7 @@ export function CommentsModal({
             onLike={onLike}
             onFollowToggle={onFollowToggle}
           />
-
-          <div className="rounded-2xl bg-[#f8f9fa] p-5">
+          <div className="rounded-2xl bg-[#f8f9fa] p-4">
             <p className="text-[12px] font-medium uppercase tracking-wide text-[#5f6368]">
               Comments
             </p>
@@ -231,7 +268,7 @@ export function CommentsModal({
                   commentsApi.setCommentDraft(post.id, e.target.value)
                 }
                 placeholder="Write a comment..."
-                className="flex-1"
+                className="h-10 flex-1"
               />
               <Button
                 onClick={() => commentsApi.handleAddComment(post.id)}
