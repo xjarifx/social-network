@@ -59,8 +59,8 @@ function FeedComponent({
 
   return (
     <div className="space-y-4">
-      {posts.map((post) => (
-        <div key={post.id}>
+      {posts.map((post, index) => (
+        <div key={`${post.id}-${index}`}>
           <PostCard
             {...post}
             showPostMenu={showPostMenu}
