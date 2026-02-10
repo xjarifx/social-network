@@ -1,43 +1,34 @@
 import type { Request, Response } from "express";
 import {
-  createCheckoutSession,
+  createPaymentIntent,
   getBillingStatus,
-  handleCheckoutCancel,
-  handleCheckoutSuccess,
+  confirmPayment,
   handleStripeWebhook,
 } from "./billing.service";
 
-export const createSubscriptionCheckout = async (
+// Helper to send error responses
+const sendError = (res: Response, error: unknown) => {
+  const err = error as { status?: number; error?: string };
+  const status = err.status || 500;
+  const message = err.error || "Internal server error";
+  res.status(status).json({ error: message });
+};
+
+// POST /billing/create-payment-intent
+export const createPaymentIntentHandler = async (
   req: Request,
   res: Response,
 ): Promise<void> => {
   try {
-    const session = await createCheckoutSession(req.userId);
-    res.status(200).json(session);
-  } catch (error: unknown) {
-    const err = error as { status?: number; error?: unknown };
-    if (err.status === 400) {
-      res.status(400).json({ error: err.error });
-      return;
-    }
-    if (err.status === 401) {
-      res.status(401).json({ error: err.error });
-      return;
-    }
-    if (err.status === 404) {
-      res.status(404).json({ error: err.error });
-      return;
-    }
-    if (err.status === 500) {
-      res.status(500).json({ error: err.error });
-      return;
-    }
-    const errorMessage = error instanceof Error ? error.message : String(error);
-    console.error("Create checkout session error:", errorMessage, error);
-    res.status(500).json({ error: "Unable to create checkout session" });
+    const result = await createPaymentIntent(req.userId);
+    res.status(200).json(result);
+  } catch (error) {
+    console.error("Create payment intent error:", error);
+    sendError(res, error);
   }
 };
 
+// GET /billing/me
 export const getMyBillingStatus = async (
   req: Request,
   res: Response,
@@ -45,26 +36,30 @@ export const getMyBillingStatus = async (
   try {
     const billing = await getBillingStatus(req.userId);
     res.status(200).json(billing);
-  } catch (error: unknown) {
-    const err = error as { status?: number; error?: unknown };
-    if (err.status === 401) {
-      res.status(401).json({ error: err.error });
-      return;
-    }
-    if (err.status === 404) {
-      res.status(404).json({ error: err.error });
-      return;
-    }
-    if (err.status === 500) {
-      res.status(500).json({ error: err.error });
-      return;
-    }
-    const errorMessage = error instanceof Error ? error.message : String(error);
-    console.error("Get billing status error:", errorMessage, error);
-    res.status(500).json({ error: "Unable to fetch billing status" });
+  } catch (error) {
+    console.error("Get billing status error:", error);
+    sendError(res, error);
   }
 };
 
+// GET /billing/confirm?payment_intent_id=...
+export const confirmPaymentHandler = async (
+  req: Request,
+  res: Response,
+): Promise<void> => {
+  try {
+    const result = await confirmPayment(
+      req.userId,
+      req.query.payment_intent_id,
+    );
+    res.status(200).json(result);
+  } catch (error) {
+    console.error("Confirm payment error:", error);
+    sendError(res, error);
+  }
+};
+
+// POST /billing/webhook
 export const stripeWebhook = async (
   req: Request,
   res: Response,
@@ -80,60 +75,8 @@ export const stripeWebhook = async (
 
     await handleStripeWebhook(payload, signature);
     res.status(200).json({ received: true });
-  } catch (error: unknown) {
-    const err = error as { status?: number; error?: unknown };
-    if (err.status === 400) {
-      res.status(400).json({ error: err.error });
-      return;
-    }
+  } catch (error) {
     console.error("Stripe webhook error:", error);
-    res.status(500).json({ error: "Webhook handler failed" });
-  }
-};
-
-export const billingSuccess = async (
-  req: Request,
-  res: Response,
-): Promise<void> => {
-  try {
-    const result = await handleCheckoutSuccess(
-      req.userId,
-      req.query.session_id,
-    );
-    res.status(200).json(result);
-  } catch (error: unknown) {
-    const err = error as { status?: number; error?: unknown };
-    if (err.status === 400) {
-      res.status(400).json({ error: err.error });
-      return;
-    }
-    if (err.status === 401) {
-      res.status(401).json({ error: err.error });
-      return;
-    }
-    if (err.status === 403) {
-      res.status(403).json({ error: err.error });
-      return;
-    }
-    console.error("Billing success error:", error);
-    res.status(500).json({ error: "Unable to confirm payment" });
-  }
-};
-
-export const billingCancel = async (
-  req: Request,
-  res: Response,
-): Promise<void> => {
-  try {
-    const result = await handleCheckoutCancel(req.userId);
-    res.status(200).json(result);
-  } catch (error: unknown) {
-    const err = error as { status?: number; error?: unknown };
-    if (err.status === 401) {
-      res.status(401).json({ error: err.error });
-      return;
-    }
-    console.error("Billing cancel error:", error);
-    res.status(500).json({ error: "Unable to cancel payment" });
+    sendError(res, error);
   }
 };

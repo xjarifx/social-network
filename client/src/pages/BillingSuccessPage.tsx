@@ -9,21 +9,33 @@ export default function BillingSuccessPage() {
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [sessionSucceeded, setSessionSucceeded] = useState(false);
+  const [paymentStatus, setPaymentStatus] = useState<string | null>(null);
+  const [plan, setPlan] = useState<string>("FREE");
 
   useEffect(() => {
-    const confirmPayment = async () => {
+    const checkPayment = async () => {
       try {
         setIsLoading(true);
-        const sessionId = searchParams.get("session_id");
+        const piId = searchParams.get("payment_intent_id");
 
-        if (!sessionId) {
-          throw new Error("Missing session ID");
+        if (!piId) {
+          throw new Error("Missing payment information");
         }
 
-        // Confirm the session on the backend; it syncs subscription status.
-        await billingAPI.confirmCheckoutSuccess(sessionId);
-        setSessionSucceeded(true);
+        // Just read the payment status — Pro is granted by webhook only
+        const result = await billingAPI.confirmPayment(piId);
+        setPaymentStatus(result.paymentStatus);
+        setPlan(result.plan);
+
+        // If webhook hasn't processed yet, poll a few times
+        if (result.paymentStatus === "succeeded" && result.plan !== "PRO") {
+          for (let i = 0; i < 5; i++) {
+            await new Promise((r) => setTimeout(r, 1500));
+            const retry = await billingAPI.confirmPayment(piId);
+            setPlan(retry.plan);
+            if (retry.plan === "PRO") break;
+          }
+        }
       } catch (err) {
         const message =
           err instanceof Error ? err.message : "Failed to confirm payment";
@@ -33,7 +45,7 @@ export default function BillingSuccessPage() {
       }
     };
 
-    confirmPayment();
+    checkPayment();
   }, [searchParams]);
 
   if (isLoading) {
@@ -72,7 +84,7 @@ export default function BillingSuccessPage() {
               </Button>
             </div>
           </>
-        ) : sessionSucceeded ? (
+        ) : paymentStatus === "succeeded" ? (
           <>
             <div className="mb-4 flex justify-center">
               <div className="h-16 w-16 rounded-full bg-[#e6f4ea] flex items-center justify-center">
@@ -80,10 +92,12 @@ export default function BillingSuccessPage() {
               </div>
             </div>
             <h1 className="text-[24px] font-medium text-[#202124] mb-2">
-              Welcome to Pro!
+              {plan === "PRO" ? "Welcome to Pro!" : "Payment Received!"}
             </h1>
             <p className="text-[15px] text-[#5f6368] mb-6">
-              Your subscription is now active. Enjoy all the premium features!
+              {plan === "PRO"
+                ? "Your subscription is now active. Enjoy all the premium features!"
+                : "Your payment was successful. Your account will be upgraded shortly."}
             </p>
             <Button
               onClick={() => navigate("/billing")}
@@ -92,7 +106,27 @@ export default function BillingSuccessPage() {
               View Billing Details
             </Button>
           </>
-        ) : null}
+        ) : (
+          <>
+            <div className="mb-4 flex justify-center">
+              <div className="h-16 w-16 rounded-full bg-[#fce8e6] flex items-center justify-center">
+                <span className="text-2xl">⚠️</span>
+              </div>
+            </div>
+            <h1 className="text-[24px] font-medium text-[#202124] mb-2">
+              Payment Incomplete
+            </h1>
+            <p className="text-[15px] text-[#5f6368] mb-6">
+              Your payment could not be completed. Please try again.
+            </p>
+            <Button
+              onClick={() => navigate("/billing")}
+              className="rounded-xl h-11"
+            >
+              Try Again
+            </Button>
+          </>
+        )}
       </div>
     </div>
   );

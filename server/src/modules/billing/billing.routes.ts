@@ -1,31 +1,31 @@
 import { Router } from "express";
 import {
-  createSubscriptionCheckout,
-  billingCancel,
-  billingSuccess,
+  createPaymentIntentHandler,
   getMyBillingStatus,
+  confirmPaymentHandler,
   stripeWebhook,
-} from './billing.controller';
-import { authenticate } from '../../middleware/authenticate.middleware';
+} from "./billing.controller";
+import { authenticate } from "../../middleware/authenticate.middleware";
 
 const router = Router();
 
 /**
  * @openapi
- * /api/v1/billing/checkout-session:
+ * /api/v1/billing/create-payment-intent:
  *   post:
- *     summary: Create subscription checkout session
+ *     summary: Create a PaymentIntent for Pro upgrade
  *     tags:
  *       - Billing
  *     security:
  *       - BearerAuth: []
  *     responses:
  *       200:
- *         description: Checkout session created successfully
+ *         description: PaymentIntent created — returns clientSecret
  *       400:
- *         description: Invalid request
+ *         description: Already on Pro plan
  */
-router.post("/checkout-session", authenticate, createSubscriptionCheckout);
+router.post("/create-payment-intent", authenticate, createPaymentIntentHandler);
+
 /**
  * @openapi
  * /api/v1/billing/me:
@@ -40,51 +40,39 @@ router.post("/checkout-session", authenticate, createSubscriptionCheckout);
  *         description: Billing status retrieved successfully
  */
 router.get("/me", authenticate, getMyBillingStatus);
+
+/**
+ * @openapi
+ * /api/v1/billing/confirm:
+ *   get:
+ *     summary: Confirm payment status (read-only, never grants Pro)
+ *     tags:
+ *       - Billing
+ *     security:
+ *       - BearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: payment_intent_id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Payment status returned
+ */
+router.get("/confirm", authenticate, confirmPaymentHandler);
+
 /**
  * @openapi
  * /api/v1/billing/webhook:
  *   post:
- *     summary: Stripe webhook
+ *     summary: Stripe webhook endpoint
  *     tags:
  *       - Billing
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
  *     responses:
  *       200:
- *         description: Webhook processed successfully
+ *         description: Webhook processed
  */
 router.post("/webhook", stripeWebhook);
-/**
- * @openapi
- * /api/v1/billing/success:
- *   get:
- *     summary: Billing success callback
- *     tags:
- *       - Billing
- *     security:
- *       - BearerAuth: []
- *     responses:
- *       200:
- *         description: Billing success
- */
-router.get("/success", authenticate, billingSuccess);
-/**
- * @openapi
- * /api/v1/billing/cancel:
- *   get:
- *     summary: Billing cancel callback
- *     tags:
- *       - Billing
- *     security:
- *       - BearerAuth: []
- *     responses:
- *       200:
- *         description: Billing cancelled
- */
-router.get("/cancel", authenticate, billingCancel);
 
 export default router;
