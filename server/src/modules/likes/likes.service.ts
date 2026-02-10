@@ -1,7 +1,5 @@
-import { PrismaClient } from "../../generated/prisma/index";
+import { prisma } from "../../lib/prisma";
 import { likePostParamsSchema } from "./likes.validation";
-
-const prisma = new PrismaClient();
 
 export const ensureString = (val: unknown): string =>
   typeof val === "string" ? val : Array.isArray(val) ? val[0] : "";

@@ -1,7 +1,6 @@
 import Stripe from "stripe";
-import { PrismaClient, Plan } from "../../generated/prisma/index";
-
-const prisma = new PrismaClient();
+import { Plan } from "../../generated/prisma/index";
+import { prisma } from "../../lib/prisma";
 
 // ---------------------------------------------------------------------------
 // Stripe init

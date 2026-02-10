@@ -1,11 +1,9 @@
-import { PrismaClient } from "../../generated/prisma/index";
+import { prisma } from "../../lib/prisma";
 import {
   updateProfileSchema,
   userIdParamSchema,
   searchUsersSchema,
 } from "./user.validation";
-
-const prisma = new PrismaClient();
 
 export const ensureString = (val: unknown): string =>
   typeof val === "string" ? val : Array.isArray(val) ? val[0] : "";
@@ -116,6 +114,7 @@ export const getUserTimeline = async (
     posts: posts.map((post) => ({
       id: post.id,
       content: post.content,
+      imageUrl: post.imageUrl,
       author: post.author,
       likesCount: post.likesCount,
       commentsCount: post.commentsCount,

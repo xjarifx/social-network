@@ -1,11 +1,9 @@
-import { PrismaClient } from '../../generated/prisma/index';
+import { prisma } from "../../lib/prisma";
 import {
   blockUserSchema,
   getBlockedQuerySchema,
   unblockParamSchema,
-} from './block.validation';
-
-const prisma = new PrismaClient();
+} from "./block.validation";
 
 export const ensureString = (val: unknown): string =>
   typeof val === "string" ? val : Array.isArray(val) ? val[0] : "";

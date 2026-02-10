@@ -1,10 +1,8 @@
-import { PrismaClient } from "../../generated/prisma/index";
+import { prisma } from "../../lib/prisma";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import { randomBytes } from "crypto";
 import { registerSchema, loginSchema } from "./auth.validation";
-
-const prisma = new PrismaClient();
 
 const SALT_ROUNDS = 10;
 const JWT_SECRET: string = process.env.JWT_SECRET || "";
@@ -14,7 +12,9 @@ const REFRESH_TOKEN_EXPIRES_IN: string =
   process.env.REFRESH_TOKEN_EXPIRES_IN || "";
 
 const generateToken = (userId: string): string => {
-  return jwt.sign({ userId }, JWT_SECRET as jwt.Secret, { expiresIn: JWT_EXPIRES_IN });
+  return jwt.sign({ userId }, JWT_SECRET as jwt.Secret, {
+    expiresIn: JWT_EXPIRES_IN,
+  });
 };
 
 const generateRefreshToken = (userId: string): string => {

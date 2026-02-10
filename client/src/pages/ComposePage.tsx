@@ -1,17 +1,31 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { postsAPI } from "../services/api";
 import { Textarea } from "../components/ui/textarea";
 import { Button } from "../components/ui/button";
+import { Input } from "../components/ui/input";
 import { useAuth } from "../context/AuthContext";
 
 export default function ComposePage() {
   const navigate = useNavigate();
   const { user } = useAuth();
   const [content, setContent] = useState("");
+  const [mediaFile, setMediaFile] = useState<File | null>(null);
+  const [mediaPreviewUrl, setMediaPreviewUrl] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
+
+  const maxUploadBytes = 50 * 1024 * 1024;
+
+  useEffect(() => {
+    return () => {
+      if (mediaPreviewUrl) {
+        URL.revokeObjectURL(mediaPreviewUrl);
+      }
+    };
+  }, [mediaPreviewUrl]);
 
   const initials = user
     ? `${user.firstName?.[0] || ""}${user.lastName?.[0] || ""}`
@@ -37,13 +51,16 @@ export default function ComposePage() {
   }
 
   const handleSubmit = async () => {
-    if (!content.trim() || isSubmitting || isOverLimit) return;
+    if ((!content.trim() && !mediaFile) || isSubmitting || isOverLimit) return;
 
     try {
       setIsSubmitting(true);
       setError(null);
-      await postsAPI.create(content.trim());
+      await postsAPI.create(content.trim(), mediaFile);
       toast.success("Post created successfully!");
+      setContent("");
+      setMediaFile(null);
+      setMediaPreviewUrl(null);
       navigate("/", { replace: true });
     } catch (err) {
       console.error("Failed to create post:", err);
@@ -52,6 +69,38 @@ export default function ComposePage() {
       setIsSubmitting(false);
     }
   };
+
+  const handleMediaChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0] || null;
+    if (!file) {
+      setMediaFile(null);
+      setMediaPreviewUrl(null);
+      return;
+    }
+    if (!file.type.startsWith("image/") && !file.type.startsWith("video/")) {
+      setError("Please select an image or video file");
+      event.target.value = "";
+      return;
+    }
+    if (file.size > maxUploadBytes) {
+      setError("File size exceeds 50 MB limit");
+      event.target.value = "";
+      return;
+    }
+    setError(null);
+    setMediaFile(file);
+    setMediaPreviewUrl(URL.createObjectURL(file));
+  };
+
+  const handleRemoveMedia = () => {
+    setMediaFile(null);
+    setMediaPreviewUrl(null);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
+  };
+
+  const canSubmit = Boolean(content.trim() || mediaFile);
 
   return (
     <div className="space-y-5">
@@ -80,6 +129,43 @@ export default function ComposePage() {
           className={`min-h-[160px] border-none bg-[#f8f9fa] rounded-xl text-[15px] shadow-none focus-visible:ring-1 ${isOverLimit ? "focus-visible:ring-[#d33b27]" : "focus-visible:ring-[#1a73e8]"} resize-none`}
           autoFocus
         />
+
+        <div className="mt-4 space-y-3">
+          <Input
+            type="file"
+            accept="image/*,video/*"
+            onChange={handleMediaChange}
+            ref={fileInputRef}
+            className="h-auto cursor-pointer"
+          />
+          {mediaPreviewUrl && (
+            <div className="rounded-xl border border-[#e8eaed] bg-white p-3">
+              {mediaFile?.type.startsWith("video/") ? (
+                <video
+                  src={mediaPreviewUrl}
+                  controls
+                  className="max-h-80 w-full rounded-lg"
+                />
+              ) : (
+                <img
+                  src={mediaPreviewUrl}
+                  alt="Selected"
+                  className="max-h-80 w-full rounded-lg object-contain"
+                />
+              )}
+              <div className="mt-3 flex items-center justify-between text-[12px] text-[#5f6368]">
+                <span>{mediaFile?.name}</span>
+                <button
+                  type="button"
+                  onClick={handleRemoveMedia}
+                  className="rounded-lg px-3 py-1 text-[#1a73e8] hover:bg-[#e8f0fe]"
+                >
+                  Remove media
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
 
         {/* Character count and progress bar */}
         <div className="mt-4 space-y-2">
@@ -130,7 +216,7 @@ export default function ComposePage() {
           </Button>
           <Button
             onClick={handleSubmit}
-            disabled={!content.trim() || isSubmitting || isOverLimit}
+            disabled={!canSubmit || isSubmitting || isOverLimit}
             className="rounded-xl h-11 px-8"
             title={
               isOverLimit ? `Post exceeds ${charLimit} character limit` : "Post"

@@ -1,7 +1,5 @@
-import { PrismaClient } from '../../generated/prisma/index';
-import { followUserSchema, unfollowParamSchema } from './follow.validation';
-
-const prisma = new PrismaClient();
+import { prisma } from "../../lib/prisma";
+import { followUserSchema, unfollowParamSchema } from "./follow.validation";
 
 export const ensureString = (val: unknown): string =>
   typeof val === "string" ? val : Array.isArray(val) ? val[0] : "";

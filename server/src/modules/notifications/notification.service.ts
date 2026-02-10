@@ -1,11 +1,9 @@
-import { PrismaClient } from '../../generated/prisma/index';
+import { prisma } from "../../lib/prisma";
 import {
   getNotificationsQuerySchema,
   notificationIdParamSchema,
   updateNotificationBodySchema,
-} from './notification.validation';
-
-const prisma = new PrismaClient();
+} from "./notification.validation";
 
 export const ensureString = (val: unknown): string =>
   typeof val === "string" ? val : Array.isArray(val) ? val[0] : "";

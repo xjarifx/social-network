@@ -1,4 +1,5 @@
 import { Router } from "express";
+import multer from "multer";
 import {
   createNewPost,
   getPost,
@@ -12,6 +13,23 @@ import likeRouter from "../likes/likes.routes";
 import commentsRouter from "../comments/comments.routes";
 
 const router = Router();
+
+const storage = multer.memoryStorage();
+
+const upload = multer({
+  storage,
+  limits: { fileSize: 50 * 1024 * 1024 },
+  fileFilter: (_req, file, cb) => {
+    if (
+      !file.mimetype.startsWith("image/") &&
+      !file.mimetype.startsWith("video/")
+    ) {
+      cb(new Error("Only image or video uploads are allowed"));
+      return;
+    }
+    cb(null, true);
+  },
+});
 
 // POSTS
 
@@ -27,16 +45,16 @@ const router = Router();
  *     requestBody:
  *       required: true
  *       content:
- *         application/json:
+ *         multipart/form-data:
  *           schema:
  *             type: object
- *             required:
- *               - content
  *             properties:
  *               content:
  *                 type: string
- *                 minLength: 1
  *                 maxLength: 100
+ *               image:
+ *                 type: string
+ *                 format: binary
  *           examples:
  *             CreatePostExample:
  *               value:
@@ -47,7 +65,7 @@ const router = Router();
  *       400:
  *         description: Validation error
  */
-router.post("/", authenticate, createNewPost);
+router.post("/", authenticate, upload.single("image"), createNewPost);
 /**
  * @openapi
  * /api/v1/posts/feed:
@@ -207,6 +225,21 @@ router.patch("/:postId", authenticate, updatePostContent);
  *         description: Post not found
  */
 router.delete("/:postId", authenticate, deletePostContent);
+
+router.use((err: unknown, _req, res, _next) => {
+  if (err instanceof multer.MulterError) {
+    res.status(400).json({ error: err.message });
+    return;
+  }
+  if (
+    err instanceof Error &&
+    err.message === "Only image or video uploads are allowed"
+  ) {
+    res.status(400).json({ error: err.message });
+    return;
+  }
+  res.status(500).json({ error: "Unable to process upload" });
+});
 
 // ----------------------------------------------------------------
 

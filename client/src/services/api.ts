@@ -1,6 +1,7 @@
 // API configuration
 const API_BASE_URL =
   import.meta.env.VITE_API_URL || "http://localhost:3000/api/v1";
+export const API_ROOT_URL = API_BASE_URL.replace(/\/api\/v1\/?$/, "");
 
 // Storage keys
 const TOKEN_KEY = "social_access_token";
@@ -37,6 +38,7 @@ export interface Post {
   id: string;
   authorId?: string;
   content: string;
+  imageUrl?: string | null;
   likesCount: number;
   commentsCount: number;
   createdAt: string;
@@ -153,10 +155,14 @@ async function apiRequest<T>(
   options: RequestInit = {},
 ): Promise<T> {
   const url = `${API_BASE_URL}${endpoint}`;
+  const isFormData =
+    typeof FormData !== "undefined" && options.body instanceof FormData;
   const headers: Record<string, string> = {
-    "Content-Type": "application/json",
     ...((options.headers as Record<string, string>) || {}),
   };
+  if (!isFormData) {
+    headers["Content-Type"] = "application/json";
+  }
 
   const token = getAccessToken();
   if (token) {
@@ -350,10 +356,18 @@ export const usersAPI = {
 // ============================================================================
 
 export const postsAPI = {
-  create: async (content: string): Promise<Post> => {
+  create: async (content: string, image?: File | null): Promise<Post> => {
+    const body = new FormData();
+    const trimmedContent = content.trim();
+    if (trimmedContent) {
+      body.append("content", trimmedContent);
+    }
+    if (image) {
+      body.append("image", image);
+    }
     return apiRequest("/posts", {
       method: "POST",
-      body: JSON.stringify({ content }),
+      body,
     });
   },
 

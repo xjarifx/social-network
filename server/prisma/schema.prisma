@@ -5,8 +5,6 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  // ignore this "url" warning and don't remove it, otherwise migrations will not work
-  url      = env("DATABASE_URL")
 }
 
 enum NotificationType {
@@ -55,6 +53,7 @@ model Post {
   id            String    @id @default(uuid())
   authorId      String    @map("author_id")
   content       String    @db.Text
+  imageUrl      String?   @map("image_url")
   likesCount    Int       @default(0) @map("likes_count")
   commentsCount Int       @default(0) @map("comments_count")
   createdAt     DateTime  @default(now()) @map("created_at")

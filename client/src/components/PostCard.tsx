@@ -150,6 +150,11 @@ function PostCardComponent({
     .slice(0, 2)
     .join("");
 
+  const isVideoMedia =
+    !!image &&
+    (/\.(mp4|webm|ogg)(\?|#|$)/i.test(image) ||
+      image.includes("/video/upload/"));
+
   return (
     <article className="group relative rounded-2xl bg-white transition-shadow hover:shadow-[0_1px_3px_0_rgba(60,64,67,.3),0_4px_8px_3px_rgba(60,64,67,.15)] overflow-hidden">
       {/* Top colored accent bar */}
@@ -239,17 +244,33 @@ function PostCardComponent({
 
             {/* Content — directly under name, indented with avatar */}
             <div className="mt-2">
-              <p className="text-[14px] leading-[22px] text-[#3c4043] whitespace-pre-wrap">
-                {content}
-              </p>
+              {content.trim().length > 0 && (
+                <p className="text-[14px] leading-[22px] text-[#3c4043] whitespace-pre-wrap">
+                  {content}
+                </p>
+              )}
 
               {image && (
-                <div className="mt-3 overflow-hidden rounded-xl">
-                  <img
-                    src={image}
-                    alt="Post"
-                    className="h-auto w-full max-h-96 object-cover"
-                  />
+                <div
+                  className={
+                    content.trim().length > 0
+                      ? "mt-3 overflow-hidden rounded-xl"
+                      : "overflow-hidden rounded-xl"
+                  }
+                >
+                  {isVideoMedia ? (
+                    <video
+                      src={image}
+                      controls
+                      className="h-auto w-full max-h-96 object-cover"
+                    />
+                  ) : (
+                    <img
+                      src={image}
+                      alt="Post"
+                      className="h-auto w-full max-h-96 object-cover"
+                    />
+                  )}
                 </div>
               )}
             </div>

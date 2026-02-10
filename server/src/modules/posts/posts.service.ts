@@ -1,11 +1,10 @@
-import { PrismaClient } from "../../generated/prisma/index";
+import { prisma } from "../../lib/prisma";
+import { uploadMedia } from "../../lib/cloudinary";
 import {
   createPostSchema,
   postIdParamSchema,
   updatePostSchema,
 } from "./posts.validation";
-
-const prisma = new PrismaClient();
 
 export const ensureString = (val: unknown): string =>
   typeof val === "string" ? val : Array.isArray(val) ? val[0] : "";
@@ -88,6 +87,7 @@ export const getFeed = async (
   return posts.map((post) => ({
     id: post.id,
     content: post.content,
+    imageUrl: post.imageUrl,
     author: post.author,
     likesCount: post.likesCount,
     commentsCount: post.commentsCount,
@@ -167,6 +167,7 @@ export const getForYouFeed = async (
   return posts.map((post) => ({
     id: post.id,
     content: post.content,
+    imageUrl: post.imageUrl,
     author: post.author,
     likesCount: post.likesCount,
     commentsCount: post.commentsCount,
@@ -199,6 +200,7 @@ const enforcePostLimitForUser = async (authorId: string, content: string) => {
 export const createPost = async (
   userId: unknown,
   body: Record<string, unknown>,
+  file?: Express.Multer.File,
 ) => {
   // Validate input
   const validationResult = createPostSchema.safeParse({ body });
@@ -212,14 +214,36 @@ export const createPost = async (
 
   const { content } = validationResult.data.body;
   const authorId = ensureString(userId);
+  const normalizedContent = (content ?? "").trim();
 
-  await enforcePostLimitForUser(authorId, content);
+  if (!normalizedContent && !file) {
+    throw {
+      status: 400,
+      error: "Post must include text or an image",
+    };
+  }
+
+  if (normalizedContent) {
+    await enforcePostLimitForUser(authorId, normalizedContent);
+  }
+
+  let imageUrl: string | null = null;
+  if (file) {
+    try {
+      const uploadResult = await uploadMedia(file);
+      imageUrl = uploadResult.secure_url;
+    } catch (error) {
+      console.error("Cloudinary upload error:", error);
+      throw { status: 500, error: "Unable to upload media" };
+    }
+  }
 
   // Create post
   const post = await prisma.post.create({
     data: {
-      content,
+      content: normalizedContent,
       authorId,
+      imageUrl,
     },
     include: {
       author: {
@@ -237,6 +261,7 @@ export const createPost = async (
   return {
     id: post.id,
     content: post.content,
+    imageUrl: post.imageUrl,
     author: post.author,
     likesCount: post.likesCount,
     commentsCount: post.commentsCount,
@@ -301,6 +326,7 @@ export const getPostById = async (params: Record<string, unknown>) => {
   return {
     id: post.id,
     content: post.content,
+    imageUrl: post.imageUrl,
     author: post.author,
     likesCount: post.likesCount,
     commentsCount: post.commentsCount,
@@ -375,6 +401,7 @@ export const updatePost = async (
   return {
     id: updatedPost.id,
     content: updatedPost.content,
+    imageUrl: updatedPost.imageUrl,
     author: updatedPost.author,
     likesCount: updatedPost.likesCount,
     commentsCount: updatedPost.commentsCount,

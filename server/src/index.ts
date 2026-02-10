@@ -1,5 +1,6 @@
 import dotenv from "dotenv";
 import path from "path";
+import fs from "fs";
 import { fileURLToPath } from "url";
 
 // Configure dotenv before any imports that need environment variables
@@ -11,7 +12,7 @@ dotenv.config({ path: envPath, debug: false });
 async function main() {
   const express = (await import("express")).default;
   const cors = (await import("cors")).default;
-  const { PrismaClient } = await import("./generated/prisma/index.js");
+  const { prisma } = await import("./lib/prisma.js");
   const authRouter = (await import("./modules/auth/auth.routes.js")).default;
   const userRouter = (await import("./modules/user/user.routes.js")).default;
   const postsRouter = (await import("./modules/posts/posts.routes.js")).default;
@@ -26,7 +27,6 @@ async function main() {
 
   const app = express();
   const PORT = Number(process.env.PORT);
-  const prisma = new PrismaClient();
 
   // CORS Configuration
   app.use(
@@ -46,6 +46,10 @@ async function main() {
     }),
   );
   app.use(express.urlencoded({ extended: true }));
+
+  const uploadsDir = path.resolve(process.cwd(), "uploads");
+  fs.mkdirSync(uploadsDir, { recursive: true });
+  app.use("/uploads", express.static(uploadsDir));
 
   // Swagger docs and OpenAPI spec
   app.use("/api", swaggerRouter);

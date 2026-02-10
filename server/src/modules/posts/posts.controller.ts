@@ -41,7 +41,11 @@ export const createNewPost = async (
   res: Response,
 ): Promise<void> => {
   try {
-    const post = await createPost(req.userId, req.body);
+    const post = await createPost(
+      req.userId,
+      req.body,
+      req.file as Express.Multer.File | undefined,
+    );
 
     res.status(201).json(post);
   } catch (error: unknown) {
