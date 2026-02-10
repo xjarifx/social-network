@@ -58,6 +58,16 @@ h6 {
 }
 
 @layer utilities {
+  .scrollbar-hidden {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+
+  .scrollbar-hidden::-webkit-scrollbar {
+    width: 0;
+    height: 0;
+  }
+
   .gm-card {
     background: #fff;
     border-radius: 16px;

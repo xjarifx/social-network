@@ -22,10 +22,10 @@ export default function HomePage() {
   const [forYouOffset, setForYouOffset] = useState(0);
   const [hasMoreFollowing, setHasMoreFollowing] = useState(true);
   const [hasMoreForYou, setHasMoreForYou] = useState(true);
-  const scrollPositions = useRef<Record<FeedTab, number>>({
-    following: 0,
-    forYou: 0,
-  });
+  const forYouScrollRef = useRef<HTMLDivElement | null>(null);
+  const followingScrollRef = useRef<HTMLDivElement | null>(null);
+  const forYouSentinelRef = useRef<HTMLDivElement | null>(null);
+  const followingSentinelRef = useRef<HTMLDivElement | null>(null);
 
   const comments = useComments();
 
@@ -48,23 +48,21 @@ export default function HomePage() {
     document.documentElement.style.overflow = comments.openCommentsPostId
       ? "hidden"
       : "";
+    document.body.style.overflow = comments.openCommentsPostId ? "hidden" : "";
     return () => {
       document.documentElement.style.overflow = "";
+      document.body.style.overflow = "";
     };
   }, [comments.openCommentsPostId]);
 
   useEffect(() => {
-    const handleScroll = () => {
-      scrollPositions.current[activeTab] = window.scrollY;
+    document.documentElement.style.overflow = "hidden";
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.documentElement.style.overflow = "";
+      document.body.style.overflow = "";
     };
-    window.addEventListener("scroll", handleScroll, { passive: true });
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, [activeTab]);
-
-  useEffect(() => {
-    const position = scrollPositions.current[activeTab] ?? 0;
-    requestAnimationFrame(() => window.scrollTo({ top: position }));
-  }, [activeTab]);
+  }, []);
 
   // Load posts
   useEffect(() => {
@@ -144,11 +142,6 @@ export default function HomePage() {
 
   const activeHasMore =
     activeTab === "following" ? hasMoreFollowing : hasMoreForYou;
-
-  const handleTabChange = (tab: FeedTab) => {
-    scrollPositions.current[activeTab] = window.scrollY;
-    setActiveTab(tab);
-  };
 
   const handleFollowToggle = useCallback(
     async (authorId: string, isFollowing: boolean) => {
@@ -247,13 +240,42 @@ export default function HomePage() {
       ) ?? null)
     : null;
 
+  useEffect(() => {
+    const sentinel =
+      activeTab === "following"
+        ? followingSentinelRef.current
+        : forYouSentinelRef.current;
+    const scrollRoot =
+      activeTab === "following"
+        ? followingScrollRef.current
+        : forYouScrollRef.current;
+
+    if (!sentinel || !scrollRoot) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0]?.isIntersecting) {
+          handleLoadMore();
+        }
+      },
+      {
+        root: scrollRoot,
+        rootMargin: "200px 0px",
+        threshold: 0,
+      },
+    );
+
+    observer.observe(sentinel);
+    return () => observer.disconnect();
+  }, [activeTab, handleLoadMore]);
+
   return (
-    <div>
+    <div className="flex min-h-[calc(100dvh-60px)] flex-col">
       {/* Tab Navigation */}
       <div className="sticky top-[60px] z-10 border-b border-[#ececec] bg-white/80 backdrop-blur-sm">
         <div className="flex">
           <button
-            onClick={() => handleTabChange("forYou")}
+            onClick={() => setActiveTab("forYou")}
             className={`flex-1 px-4 py-3 text-center font-medium transition-colors ${
               activeTab === "forYou"
                 ? "text-[#1a73e8]"
@@ -263,7 +285,7 @@ export default function HomePage() {
             For you
           </button>
           <button
-            onClick={() => handleTabChange("following")}
+            onClick={() => setActiveTab("following")}
             className={`flex-1 px-4 py-3 text-center font-medium transition-colors ${
               activeTab === "following"
                 ? "text-[#1a73e8]"
@@ -283,39 +305,57 @@ export default function HomePage() {
         </div>
       </div>
 
-      <div className="py-4">
-        {error && (
-          <div className="mb-4 rounded-lg border border-[#ea4335]/30 bg-[#fce8e6] px-4 py-3 text-[13px] text-[#c5221f]">
-            {error}
-          </div>
-        )}
-        <Feed
-          posts={activePosts}
-          isLoading={isLoading}
-          onLike={handleLike}
-          onReply={comments.toggleComments}
-          onFollowToggle={handleFollowToggle}
-        />
-        {activePosts.length > 0 && (
-          <div className="mt-4 flex justify-center">
-            <button
-              type="button"
-              onClick={handleLoadMore}
-              disabled={isLoadingMore || !activeHasMore}
-              className={`rounded-full border px-5 py-2 text-[13px] font-medium transition-colors ${
-                isLoadingMore || !activeHasMore
-                  ? "cursor-not-allowed border-[#dadce0] text-[#9aa0a6]"
-                  : "border-[#1a73e8] text-[#1a73e8] hover:bg-[#e8f0fe]"
-              }`}
-            >
-              {isLoadingMore
-                ? "Loading..."
-                : activeHasMore
-                  ? "Load more"
-                  : "No more posts"}
-            </button>
-          </div>
-        )}
+      <div className="relative flex-1 min-h-0 overflow-hidden">
+        <div
+          ref={forYouScrollRef}
+          className={`absolute inset-0 overflow-y-auto scrollbar-hidden ${
+            activeTab === "forYou" ? "block" : "hidden"
+          }`}
+        >
+          {error && (
+            <div className="mb-4 rounded-lg border border-[#ea4335]/30 bg-[#fce8e6] px-4 py-3 text-[13px] text-[#c5221f]">
+              {error}
+            </div>
+          )}
+          <Feed
+            posts={forYouPostsWithFollowState}
+            isLoading={isLoading}
+            onLike={handleLike}
+            onReply={comments.toggleComments}
+            onFollowToggle={handleFollowToggle}
+          />
+          <div ref={forYouSentinelRef} className="h-6" />
+          {isLoadingMore && activeTab === "forYou" && (
+            <div className="pb-6 text-center text-[13px] text-[#5f6368]">
+              Loading...
+            </div>
+          )}
+        </div>
+        <div
+          ref={followingScrollRef}
+          className={`absolute inset-0 overflow-y-auto scrollbar-hidden ${
+            activeTab === "following" ? "block" : "hidden"
+          }`}
+        >
+          {error && (
+            <div className="mb-4 rounded-lg border border-[#ea4335]/30 bg-[#fce8e6] px-4 py-3 text-[13px] text-[#c5221f]">
+              {error}
+            </div>
+          )}
+          <Feed
+            posts={followingPostsWithFollowState}
+            isLoading={isLoading}
+            onLike={handleLike}
+            onReply={comments.toggleComments}
+            onFollowToggle={handleFollowToggle}
+          />
+          <div ref={followingSentinelRef} className="h-6" />
+          {isLoadingMore && activeTab === "following" && (
+            <div className="pb-6 text-center text-[13px] text-[#5f6368]">
+              Loading...
+            </div>
+          )}
+        </div>
       </div>
 
       {comments.openCommentsPostId && selectedPost && (

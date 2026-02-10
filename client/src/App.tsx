@@ -37,7 +37,7 @@ function AppLayout({ children }: { children: React.ReactNode }) {
       <TopNav />
       {/* Centered single column layout */}
       <div className="pb-20 pt-[80px] lg:pt-16 lg:pb-0">
-        <div className="mx-auto w-full max-w-[680px] px-4 py-6 lg:py-8">
+        <div className="mx-auto w-full max-w-[680px]">
           {/* Main content */}
           <main className="w-full">{children}</main>
         </div>
