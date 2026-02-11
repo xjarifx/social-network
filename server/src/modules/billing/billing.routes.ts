@@ -5,10 +5,25 @@ import {
   getMyBillingStatus,
   confirmPaymentHandler,
   stripeWebhook,
+  webhookHealth,
+  debugRecentSessions,
 } from "./billing.controller";
 import { authenticate } from "../../middleware/authenticate.middleware";
 
 const router = Router();
+
+/**
+ * @openapi
+ * /api/v1/billing/webhook-health:
+ *   get:
+ *     summary: Check webhook configuration status
+ *     tags:
+ *       - Billing
+ *     responses:
+ *       200:
+ *         description: Webhook configuration status
+ */
+router.get("/webhook-health", webhookHealth);
 
 /**
  * @openapi
@@ -88,6 +103,21 @@ router.get("/me", authenticate, getMyBillingStatus);
  *         description: Payment status returned
  */
 router.get("/confirm", authenticate, confirmPaymentHandler);
+
+/**
+ * @openapi
+ * /api/v1/billing/debug/recent-sessions:
+ *   get:
+ *     summary: Get recent checkout sessions for debugging
+ *     tags:
+ *       - Billing
+ *     security:
+ *       - BearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Recent sessions for current user
+ */
+router.get("/debug/recent-sessions", authenticate, debugRecentSessions);
 
 /**
  * @openapi

@@ -2,23 +2,27 @@ import { useEffect, useState } from "react";
 import { billingAPI } from "../services/api";
 import type { BillingStatus } from "../services/api";
 import { Button } from "../components/ui/button";
-import { Check, Sparkles } from "lucide-react";
+import { Check, Sparkles, RefreshCw } from "lucide-react";
+import { useAuth } from "../context/AuthContext";
 
 // ---------------------------------------------------------------------------
 // Main billing page - redirects to Stripe Checkout
 // ---------------------------------------------------------------------------
 
 export default function BillingPage() {
+  const { user } = useAuth();
   const [status, setStatus] = useState<BillingStatus | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isRedirecting, setIsRedirecting] = useState(false);
+  const [isRefreshing, setIsRefreshing] = useState(false);
 
   const loadStatus = async () => {
     try {
       setIsLoading(true);
       const response = await billingAPI.getStatus();
       setStatus(response);
+      setError(null);
     } catch (err) {
       const message =
         err instanceof Error ? err.message : "Failed to load billing";
@@ -28,8 +32,36 @@ export default function BillingPage() {
     }
   };
 
+  const handleRefresh = async () => {
+    try {
+      setIsRefreshing(true);
+      const response = await billingAPI.getStatus();
+      setStatus(response);
+      setError(null);
+    } catch (err) {
+      const message =
+        err instanceof Error ? err.message : "Failed to refresh billing status";
+      setError(message);
+    } finally {
+      setIsRefreshing(false);
+    }
+  };
+
   useEffect(() => {
     loadStatus();
+
+    // Listen for visibility changes (user returning to tab)
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === "visible") {
+        console.log("📱 Page regained focus, refreshing billing status...");
+        loadStatus();
+      }
+    };
+
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+    return () => {
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+    };
   }, []);
 
   const handleUpgradeToPro = async () => {
@@ -37,18 +69,24 @@ export default function BillingPage() {
       setIsRedirecting(true);
       setError(null);
 
-      console.log("🚀 Starting checkout session creation...");
+      console.log("\n" + "=".repeat(60));
+      console.log("🚀 Starting checkout flow...");
+      console.log("=".repeat(60));
 
       // Create checkout session and redirect to Stripe
       const result = await billingAPI.createCheckoutSession();
-      console.log("✅ Checkout session response:", result);
+      console.log("✅ Checkout session created:", result);
 
       if (!result || !result.url) {
         console.error("❌ No URL in response:", result);
         throw new Error("Failed to create checkout session - no redirect URL");
       }
 
-      console.log("🔗 Redirecting to:", result.url);
+      console.log("\n📍 Redirecting to Stripe:");
+      console.log("  URL:", result.url);
+      console.log("  Time:", new Date().toISOString());
+      console.log("=".repeat(60) + "\n");
+
       // Redirect to Stripe's hosted checkout page
       window.location.href = result.url;
     } catch (err) {
@@ -60,7 +98,8 @@ export default function BillingPage() {
     }
   };
 
-  const currentPlan = status?.plan || "FREE";
+  // Use auth context user plan as source of truth when available
+  const currentPlan = user?.plan || status?.plan || "FREE";
   const isPro = currentPlan === "PRO";
 
   return (
@@ -76,8 +115,17 @@ export default function BillingPage() {
       </div>
 
       {error && (
-        <div className="rounded-xl border border-[#ea4335]/30 bg-[#fce8e6] px-4 py-3 text-[13px] text-[#c5221f]">
-          {error}
+        <div className="rounded-xl border border-[#ea4335]/30 bg-[#fce8e6] px-4 py-3 text-[13px] text-[#c5221f] flex items-center justify-between">
+          <span>{error}</span>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={handleRefresh}
+            disabled={isRefreshing}
+            className="h-6 w-6 p-0"
+          >
+            <RefreshCw className="h-4 w-4" />
+          </Button>
         </div>
       )}
 

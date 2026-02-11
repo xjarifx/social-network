@@ -1,33 +1,55 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { billingAPI } from "../services/api";
 import { Button } from "../components/ui/button";
 import { Check } from "lucide-react";
+import { useAuth } from "../context/AuthContext";
 
 export default function BillingSuccessPage() {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
+  const { refreshUserProfile } = useAuth();
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [paymentStatus, setPaymentStatus] = useState<string | null>(null);
   const [plan, setPlan] = useState<string>("FREE");
+  const hasRunRef = useRef(false);
 
   useEffect(() => {
+    // Prevent running multiple times in strict mode
+    if (hasRunRef.current) return;
+    hasRunRef.current = true;
+
     const checkPayment = async () => {
       try {
         setIsLoading(true);
         const sessionId = searchParams.get("session_id");
         const piId = searchParams.get("payment_intent_id");
 
+        console.log("\n" + "=".repeat(60));
+        console.log("🔄 BillingSuccessPage: Checking payment");
+        console.log("=".repeat(60));
+        console.log("URL Parameters:");
+        console.log("  session_id:", sessionId);
+        console.log("  payment_intent_id:", piId);
+
         if (!sessionId && !piId) {
           throw new Error("Missing payment information");
         }
 
         // Check payment status with Stripe
+        console.log("\n📞 Calling confirmPayment API...");
         const result = await billingAPI.confirmPayment(
           sessionId || undefined,
           piId || undefined,
         );
+
+        console.log("\n✅ confirmPayment Response:");
+        console.log("  paymentStatus:", result.paymentStatus);
+        console.log("  amount:", result.amount);
+        console.log("  currency:", result.currency);
+        console.log("  plan:", result.plan);
+
         setPaymentStatus(result.paymentStatus);
         setPlan(result.plan);
 
@@ -37,19 +59,37 @@ export default function BillingSuccessPage() {
             result.paymentStatus === "paid") &&
           result.plan !== "PRO"
         ) {
+          console.log(
+            "\n⏳ Payment succeeded but plan not updated. Polling for webhook...",
+          );
           for (let i = 0; i < 5; i++) {
+            console.log(`  Poll ${i + 1}/5...`);
             await new Promise((r) => setTimeout(r, 1500));
             const retry = await billingAPI.confirmPayment(
               sessionId || undefined,
               piId || undefined,
             );
+            console.log(
+              `    Response - plan: ${retry.plan}, status: ${retry.paymentStatus}`,
+            );
             setPlan(retry.plan);
-            if (retry.plan === "PRO") break;
+            if (retry.plan === "PRO") {
+              console.log("  ✅ Plan updated to PRO!");
+              break;
+            }
           }
         }
+
+        // Refresh user profile once after checking payment
+        console.log("\n🔄 Refreshing user profile...");
+        await refreshUserProfile();
+        console.log("✅ User profile refreshed after payment");
+
+        console.log("=".repeat(60) + "\n");
       } catch (err) {
         const message =
           err instanceof Error ? err.message : "Failed to confirm payment";
+        console.error("❌ Payment confirmation error:", err);
         setError(message);
       } finally {
         setIsLoading(false);
@@ -57,7 +97,7 @@ export default function BillingSuccessPage() {
     };
 
     checkPayment();
-  }, [searchParams]);
+  }, []); // Empty dependency array - run only once
 
   if (isLoading) {
     return (

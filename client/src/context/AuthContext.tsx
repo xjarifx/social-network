@@ -24,6 +24,8 @@ interface AuthContextType {
   }) => Promise<void>;
   logout: () => Promise<void>;
   clearError: () => void;
+  refreshUserProfile: () => Promise<void>;
+  updateUserPlan: (plan: "FREE" | "PRO") => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -113,6 +115,24 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const clearError = () => setError(null);
 
+  // Refresh the user profile from the server
+  // This is useful after plan changes or payment updates
+  const refreshUserProfile = async () => {
+    try {
+      const currentUser = await usersAPI.getCurrentProfile();
+      setUser(currentUser);
+    } catch (err) {
+      console.error("Failed to refresh user profile:", err);
+    }
+  };
+
+  // Update user's plan in local state after payment
+  const updateUserPlan = (plan: "FREE" | "PRO") => {
+    if (user) {
+      setUser({ ...user, plan });
+    }
+  };
+
   const value = useMemo(
     () => ({
       user,
@@ -123,6 +143,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       register,
       logout,
       clearError,
+      refreshUserProfile,
+      updateUserPlan,
     }),
     [user, isLoading, error],
   );
