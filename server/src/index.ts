@@ -24,7 +24,6 @@ async function main() {
     .default;
   const billingRouter = (await import("./modules/billing/billing.routes.js"))
     .default;
-  const { swaggerRouter } = await import("./swagger.js");
 
   const app = express();
   const PORT = Number(process.env.PORT);
@@ -51,9 +50,6 @@ async function main() {
   const uploadsDir = path.resolve(process.cwd(), "uploads");
   fs.mkdirSync(uploadsDir, { recursive: true });
   app.use("/uploads", express.static(uploadsDir));
-
-  // Swagger docs and OpenAPI spec
-  app.use("/api", swaggerRouter);
 
   // Auth
   app.use("/api/v1/auth", authRouter);
