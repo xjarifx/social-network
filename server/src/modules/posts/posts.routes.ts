@@ -12,6 +12,10 @@ import {
   authenticate,
   authenticateOptional,
 } from "../../middleware/authenticate.middleware";
+import {
+  createPostLimiter,
+  generalLimiter,
+} from "../../middleware/rateLimit.middleware";
 import likeRouter from "../likes/likes.routes";
 import commentsRouter from "../comments/comments.routes";
 
@@ -36,16 +40,21 @@ const upload = multer({
 
 // POSTS
 
+router.post(
+  "/",
+  createPostLimiter,
+  authenticate,
+  upload.single("image"),
+  createNewPost,
+);
 
-router.post("/", authenticate, upload.single("image"), createNewPost);
+router.get("/feed", generalLimiter, authenticate, getPostsFeed);
 
-router.get("/feed", authenticate, getPostsFeed);
+router.get("/for-you", generalLimiter, authenticate, getForYouPostsFeed);
 
-router.get("/for-you", authenticate, getForYouPostsFeed);
+router.get("/", generalLimiter, authenticate, getPostsFeed);
 
-router.get("/", authenticate, getPostsFeed);
-
-router.get("/:postId", authenticateOptional, getPost);
+router.get("/:postId", generalLimiter, authenticateOptional, getPost);
 
 router.patch("/:postId", authenticate, updatePostContent);
 

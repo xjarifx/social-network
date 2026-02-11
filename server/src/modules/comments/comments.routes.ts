@@ -3,6 +3,7 @@ import {
   authenticate,
   authenticateOptional,
 } from "../../middleware/authenticate.middleware";
+import { createCommentLimiter } from "../../middleware/rateLimit.middleware";
 import {
   createCommentHandler,
   getCommentsHandler,
@@ -17,15 +18,13 @@ const router = Router({ mergeParams: true });
 
 // COMMENTS
 
-
-router.post("/", authenticate, createCommentHandler);
+router.post("/", createCommentLimiter, authenticate, createCommentHandler);
 
 router.get("/", authenticateOptional, getCommentsHandler);
 
 router.get("/:commentId", getCommentsHandler);
 router.patch("/:commentId", authenticate, updateCommentHandler);
 router.delete("/:commentId", authenticate, deleteCommentHandler);
-
 
 router.post("/:commentId/likes", authenticate, likeCommentHandler);
 

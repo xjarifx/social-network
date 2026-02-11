@@ -1,5 +1,6 @@
 import { Router } from "express";
 import { authenticate } from "../../middleware/authenticate.middleware";
+import { createLikeLimiter } from "../../middleware/rateLimit.middleware";
 import {
   likePostHandler,
   unlikePostHandler,
@@ -10,10 +11,9 @@ const router = Router({ mergeParams: true });
 
 // LIKES
 
+router.post("/", createLikeLimiter, authenticate, likePostHandler);
 
-router.post("/", authenticate, likePostHandler);
-
-router.delete("/", authenticate, unlikePostHandler);
+router.delete("/", createLikeLimiter, authenticate, unlikePostHandler);
 
 router.get("/", authenticate, getPostLikesHandler);
 

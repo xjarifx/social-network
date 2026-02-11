@@ -14,6 +14,8 @@ async function main() {
   const cors = (await import("cors")).default;
   const { prisma } = await import("./lib/prisma.js");
   const { initRedis, setCacheEnabled } = await import("./lib/cache.js");
+  const { generalLimiter } =
+    await import("./middleware/rateLimit.middleware.js");
   const authRouter = (await import("./modules/auth/auth.routes.js")).default;
   const userRouter = (await import("./modules/user/user.routes.js")).default;
   const postsRouter = (await import("./modules/posts/posts.routes.js")).default;
@@ -50,6 +52,9 @@ async function main() {
   const uploadsDir = path.resolve(process.cwd(), "uploads");
   fs.mkdirSync(uploadsDir, { recursive: true });
   app.use("/uploads", express.static(uploadsDir));
+
+  // Apply rate limiting to all API routes
+  app.use("/api", generalLimiter);
 
   // Auth
   app.use("/api/v1/auth", authRouter);

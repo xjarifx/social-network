@@ -1,14 +1,14 @@
 import { Router } from "express";
 import { register, login, logout, refresh } from "./auth.controller";
+import { authLimiter } from "../../middleware/rateLimit.middleware";
 
 const router = Router();
 
 // AUTH
 
+router.post("/register", authLimiter, register);
 
-router.post("/register", register);
-
-router.post("/login", login);
+router.post("/login", authLimiter, login);
 
 router.post("/logout", logout);
 

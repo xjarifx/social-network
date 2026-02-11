@@ -7,6 +7,7 @@ import {
   search,
 } from "./user.controller";
 import { authenticate } from "../../middleware/authenticate.middleware";
+import { generalLimiter } from "../../middleware/rateLimit.middleware";
 import followRouter from "../follows/follow.routes";
 import {
   getUserFollowers,
@@ -17,21 +18,17 @@ const router = Router();
 
 // USER
 
+router.get("/me", generalLimiter, authenticate, getCurrentProfile);
 
-router.get("/me", authenticate, getCurrentProfile);
+router.get("/search", generalLimiter, search);
 
+router.get("/:userId", generalLimiter, getProfile);
 
-router.get("/search", search);
-
-
-router.get("/:userId", getProfile);
-
-router.get("/:userId/posts", authenticate, getTimeline);
+router.get("/:userId/posts", generalLimiter, authenticate, getTimeline);
 
 router.patch("/me", authenticate, updateProfile);
 
 // FOLLOW
-
 
 router.use("/:userId/follow", followRouter);
 
