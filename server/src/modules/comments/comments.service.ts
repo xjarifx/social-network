@@ -113,6 +113,7 @@ export const createComment = async (
             username: true,
             firstName: true,
             lastName: true,
+            plan: true,
           },
         },
         _count: {
@@ -242,6 +243,7 @@ export const getComments = async (
         username: true,
         firstName: true,
         lastName: true,
+        plan: true,
       },
     },
     _count: {
@@ -397,6 +399,7 @@ export const updateComment = async (
           username: true,
           firstName: true,
           lastName: true,
+          plan: true,
         },
       },
       _count: {
@@ -641,6 +644,7 @@ export const getCommentLikes = async (
           username: true,
           firstName: true,
           lastName: true,
+          plan: true,
         },
       },
     },

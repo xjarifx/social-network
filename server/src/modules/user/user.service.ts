@@ -171,6 +171,7 @@ export const getUserTimeline = async (
           email: true,
           firstName: true,
           lastName: true,
+          plan: true,
         },
       },
       likes: {
@@ -317,6 +318,7 @@ export const searchUsers = async (query: Record<string, unknown>) => {
       email: true,
       firstName: true,
       lastName: true,
+      plan: true,
       createdAt: true,
     },
     take: limit,

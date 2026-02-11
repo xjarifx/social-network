@@ -1,5 +1,6 @@
 import { PostCard } from "./PostCard";
 import type { PostProps } from "./PostCard";
+import { ProBadge } from "./ProBadge";
 import type { Comment as ApiComment } from "../services/api";
 import { useAuth } from "../context/AuthContext";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "./ui/dialog";
@@ -85,11 +86,12 @@ export function CommentsModal({
           <div className="min-w-0 flex-1">
             <div className="flex flex-wrap items-center justify-between gap-2">
               <p
-                className={`font-semibold text-[#202124] ${
+                className={`font-semibold text-[#202124] inline-flex items-center gap-1 ${
                   isRoot ? "text-[13px]" : "text-[12px]"
                 }`}
               >
                 {authorName}
+                <ProBadge isPro={comment.author?.plan === "PRO"} />
               </p>
               {canManage && !isEditing && (
                 <div className="flex items-center gap-1">

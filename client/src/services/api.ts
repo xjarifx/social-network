@@ -32,6 +32,7 @@ export interface UserSummary {
   username: string;
   firstName: string;
   lastName: string;
+  plan?: "FREE" | "PRO";
 }
 
 export interface Post {

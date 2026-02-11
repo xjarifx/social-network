@@ -84,6 +84,7 @@ export const getFeed = async (
           email: true,
           firstName: true,
           lastName: true,
+          plan: true,
         },
       },
       likes: {
@@ -165,6 +166,7 @@ export const getForYouFeed = async (
           email: true,
           firstName: true,
           lastName: true,
+          plan: true,
         },
       },
       likes: {
@@ -199,6 +201,7 @@ const mapPostFeed = (post: {
     email: string;
     firstName: string | null;
     lastName: string | null;
+    plan: string;
   };
   likesCount: number;
   commentsCount: number;
