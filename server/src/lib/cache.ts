@@ -13,7 +13,7 @@ type CacheSetOptions = {
 };
 
 const redisUrl = process.env.REDIS_URL || "redis://localhost:6379";
-const cacheEnabled = process.env.CACHE_ENABLED !== "false";
+let cacheEnabled = process.env.CACHE_ENABLED !== "false";
 
 let client: RedisClientType | null = null;
 let clientReady = false;
@@ -59,6 +59,16 @@ export const initRedis = async (): Promise<void> => {
 };
 
 const isCacheReady = (): boolean => cacheEnabled && clientReady && !!client;
+
+export const setCacheEnabled = (enabled: boolean): void => {
+  // Cache switch
+  cacheEnabled = enabled;
+  if (!enabled) {
+    clientReady = false;
+  }
+};
+
+export const getCacheEnabled = (): boolean => cacheEnabled;
 
 export const cacheGet = async <T = CacheValue>(
   key: string,

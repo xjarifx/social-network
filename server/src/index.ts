@@ -13,7 +13,7 @@ async function main() {
   const express = (await import("express")).default;
   const cors = (await import("cors")).default;
   const { prisma } = await import("./lib/prisma.js");
-  const { initRedis } = await import("./lib/cache.js");
+  const { initRedis, setCacheEnabled } = await import("./lib/cache.js");
   const authRouter = (await import("./modules/auth/auth.routes.js")).default;
   const userRouter = (await import("./modules/user/user.routes.js")).default;
   const postsRouter = (await import("./modules/posts/posts.routes.js")).default;
@@ -72,6 +72,8 @@ async function main() {
     await prisma.$connect();
     console.log("✅ Database connected");
 
+    const cacheSwitch = true; // Cache switch
+    setCacheEnabled(cacheSwitch);
     await initRedis();
 
     app.listen(PORT, () => {
