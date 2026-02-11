@@ -1,146 +1,18 @@
-import { useEffect, useState, type FormEvent } from "react";
-import { useNavigate } from "react-router-dom";
-import { loadStripe } from "@stripe/stripe-js";
-import {
-  Elements,
-  CardElement,
-  useStripe,
-  useElements,
-} from "@stripe/react-stripe-js";
+import { useEffect, useState } from "react";
 import { billingAPI } from "../services/api";
 import type { BillingStatus } from "../services/api";
 import { Button } from "../components/ui/button";
 import { Check, Sparkles } from "lucide-react";
 
-// Load Stripe with the publishable key from env
-const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLIC_KEY || "");
-
 // ---------------------------------------------------------------------------
-// Card payment form — mirrors the working test code:
-//   1. Fetch clientSecret from server (PaymentIntent)
-//   2. User enters card
-//   3. stripe.confirmCardPayment(clientSecret, { payment_method: { card } })
-// ---------------------------------------------------------------------------
-
-function PaymentForm() {
-  const stripe = useStripe();
-  const elements = useElements();
-  const navigate = useNavigate();
-
-  const [clientSecret, setClientSecret] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [initError, setInitError] = useState<string | null>(null);
-
-  // Step 1: Create PaymentIntent on mount (same as test code's fetch)
-  useEffect(() => {
-    const init = async () => {
-      try {
-        const { clientSecret: cs } = await billingAPI.createPaymentIntent();
-        setClientSecret(cs);
-      } catch (err) {
-        const msg =
-          err instanceof Error ? err.message : "Failed to initialize payment";
-        setInitError(msg);
-      }
-    };
-    init();
-  }, []);
-
-  // Step 2 & 3: On submit, confirm card payment (same as test code)
-  const handleSubmit = async (e: FormEvent) => {
-    e.preventDefault();
-    if (!stripe || !elements || !clientSecret) return;
-
-    const card = elements.getElement(CardElement);
-    if (!card) return;
-
-    setIsLoading(true);
-    setError(null);
-
-    try {
-      const { error: stripeError, paymentIntent } =
-        await stripe.confirmCardPayment(clientSecret, {
-          payment_method: { card },
-        });
-
-      if (stripeError) {
-        setError(stripeError.message || "Payment failed");
-        return;
-      }
-
-      if (paymentIntent?.status === "succeeded") {
-        // Payment succeeded — redirect to success page
-        navigate(`/billing/success?payment_intent_id=${paymentIntent.id}`);
-      } else {
-        setError(`Unexpected status: ${paymentIntent?.status}`);
-      }
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Payment failed");
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  if (initError) {
-    return (
-      <div className="rounded-xl border border-[#ea4335]/30 bg-[#fce8e6] px-4 py-3 text-[13px] text-[#c5221f]">
-        {initError}
-      </div>
-    );
-  }
-
-  if (!clientSecret) {
-    return (
-      <div className="flex justify-center py-8">
-        <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
-      </div>
-    );
-  }
-
-  return (
-    <form onSubmit={handleSubmit} className="space-y-5">
-      <div className="rounded-xl border border-[#dadce0] p-4">
-        <CardElement
-          options={{
-            style: {
-              base: {
-                fontSize: "16px",
-                color: "#202124",
-                "::placeholder": { color: "#9aa0a6" },
-              },
-              invalid: { color: "#c5221f" },
-            },
-          }}
-        />
-      </div>
-
-      {error && (
-        <div className="rounded-xl border border-[#ea4335]/30 bg-[#fce8e6] px-4 py-3 text-[13px] text-[#c5221f]">
-          {error}
-        </div>
-      )}
-
-      <Button
-        type="submit"
-        disabled={!stripe || isLoading}
-        className="w-full rounded-xl h-11"
-      >
-        {isLoading ? "Processing..." : "Pay $9.99"}
-      </Button>
-    </form>
-  );
-}
-
-// ---------------------------------------------------------------------------
-// Main billing page
+// Main billing page - redirects to Stripe Checkout
 // ---------------------------------------------------------------------------
 
 export default function BillingPage() {
   const [status, setStatus] = useState<BillingStatus | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [showPayment, setShowPayment] = useState(false);
+  const [isRedirecting, setIsRedirecting] = useState(false);
 
   const loadStatus = async () => {
     try {
@@ -159,6 +31,34 @@ export default function BillingPage() {
   useEffect(() => {
     loadStatus();
   }, []);
+
+  const handleUpgradeToPro = async () => {
+    try {
+      setIsRedirecting(true);
+      setError(null);
+
+      console.log("🚀 Starting checkout session creation...");
+
+      // Create checkout session and redirect to Stripe
+      const result = await billingAPI.createCheckoutSession();
+      console.log("✅ Checkout session response:", result);
+
+      if (!result || !result.url) {
+        console.error("❌ No URL in response:", result);
+        throw new Error("Failed to create checkout session - no redirect URL");
+      }
+
+      console.log("🔗 Redirecting to:", result.url);
+      // Redirect to Stripe's hosted checkout page
+      window.location.href = result.url;
+    } catch (err) {
+      console.error("❌ Checkout error:", err);
+      const message =
+        err instanceof Error ? err.message : "Failed to start checkout";
+      setError(message);
+      setIsRedirecting(false);
+    }
+  };
 
   const currentPlan = status?.plan || "FREE";
   const isPro = currentPlan === "PRO";
@@ -302,16 +202,13 @@ export default function BillingPage() {
               <Button disabled className="w-full rounded-xl h-11">
                 Current Plan
               </Button>
-            ) : showPayment ? (
-              <Elements stripe={stripePromise}>
-                <PaymentForm />
-              </Elements>
             ) : (
               <Button
                 className="w-full rounded-xl h-11"
-                onClick={() => setShowPayment(true)}
+                onClick={handleUpgradeToPro}
+                disabled={isRedirecting}
               >
-                Upgrade to Pro
+                {isRedirecting ? "Redirecting to Stripe..." : "Pay $9.99"}
               </Button>
             )}
           </div>

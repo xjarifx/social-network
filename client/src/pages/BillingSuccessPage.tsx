@@ -16,22 +16,33 @@ export default function BillingSuccessPage() {
     const checkPayment = async () => {
       try {
         setIsLoading(true);
+        const sessionId = searchParams.get("session_id");
         const piId = searchParams.get("payment_intent_id");
 
-        if (!piId) {
+        if (!sessionId && !piId) {
           throw new Error("Missing payment information");
         }
 
-        // Just read the payment status — Pro is granted by webhook only
-        const result = await billingAPI.confirmPayment(piId);
+        // Check payment status with Stripe
+        const result = await billingAPI.confirmPayment(
+          sessionId || undefined,
+          piId || undefined,
+        );
         setPaymentStatus(result.paymentStatus);
         setPlan(result.plan);
 
         // If webhook hasn't processed yet, poll a few times
-        if (result.paymentStatus === "succeeded" && result.plan !== "PRO") {
+        if (
+          (result.paymentStatus === "succeeded" ||
+            result.paymentStatus === "paid") &&
+          result.plan !== "PRO"
+        ) {
           for (let i = 0; i < 5; i++) {
             await new Promise((r) => setTimeout(r, 1500));
-            const retry = await billingAPI.confirmPayment(piId);
+            const retry = await billingAPI.confirmPayment(
+              sessionId || undefined,
+              piId || undefined,
+            );
             setPlan(retry.plan);
             if (retry.plan === "PRO") break;
           }
@@ -84,7 +95,7 @@ export default function BillingSuccessPage() {
               </Button>
             </div>
           </>
-        ) : paymentStatus === "succeeded" ? (
+        ) : paymentStatus === "succeeded" || paymentStatus === "paid" ? (
           <>
             <div className="mb-4 flex justify-center">
               <div className="h-16 w-16 rounded-full bg-[#e6f4ea] flex items-center justify-center">

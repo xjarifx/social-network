@@ -583,19 +583,27 @@ export const billingAPI = {
     return apiRequest("/billing/me");
   },
 
+  createCheckoutSession: async (): Promise<{ url: string }> => {
+    return apiRequest("/billing/create-checkout-session", { method: "POST" });
+  },
+
   createPaymentIntent: async (): Promise<{ clientSecret: string }> => {
     return apiRequest("/billing/create-payment-intent", { method: "POST" });
   },
 
   confirmPayment: async (
-    paymentIntentId: string,
+    sessionId?: string,
+    paymentIntentId?: string,
   ): Promise<{
     paymentStatus: string;
     amount: number;
     currency: string;
     plan: string;
   }> => {
-    return apiRequest(`/billing/confirm?payment_intent_id=${paymentIntentId}`);
+    const params = new URLSearchParams();
+    if (sessionId) params.append("session_id", sessionId);
+    if (paymentIntentId) params.append("payment_intent_id", paymentIntentId);
+    return apiRequest(`/billing/confirm?${params.toString()}`);
   },
 };
 

@@ -1,5 +1,6 @@
 import type { Request, Response } from "express";
 import {
+  createCheckoutSession,
   createPaymentIntent,
   getBillingStatus,
   confirmPayment,
@@ -14,7 +15,23 @@ const sendError = (res: Response, error: unknown) => {
   res.status(status).json({ error: message });
 };
 
-// POST /billing/create-payment-intent
+// POST /billing/create-checkout-session
+export const createCheckoutSessionHandler = async (
+  req: Request,
+  res: Response,
+): Promise<void> => {
+  try {
+    console.log("📝 Received checkout session request for user:", req.userId);
+    const result = await createCheckoutSession(req.userId);
+    console.log("✅ Checkout session created successfully:", result);
+    res.status(200).json(result);
+  } catch (error) {
+    console.error("❌ Create checkout session error:", error);
+    sendError(res, error);
+  }
+};
+
+// POST /billing/create-payment-intent (legacy)
 export const createPaymentIntentHandler = async (
   req: Request,
   res: Response,
@@ -42,7 +59,7 @@ export const getMyBillingStatus = async (
   }
 };
 
-// GET /billing/confirm?payment_intent_id=...
+// GET /billing/confirm?session_id=... OR ?payment_intent_id=...
 export const confirmPaymentHandler = async (
   req: Request,
   res: Response,
@@ -50,6 +67,7 @@ export const confirmPaymentHandler = async (
   try {
     const result = await confirmPayment(
       req.userId,
+      req.query.session_id,
       req.query.payment_intent_id,
     );
     res.status(200).json(result);

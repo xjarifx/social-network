@@ -1,5 +1,6 @@
 import { Router } from "express";
 import {
+  createCheckoutSessionHandler,
   createPaymentIntentHandler,
   getMyBillingStatus,
   confirmPaymentHandler,
@@ -11,9 +12,30 @@ const router = Router();
 
 /**
  * @openapi
+ * /api/v1/billing/create-checkout-session:
+ *   post:
+ *     summary: Create a Stripe Checkout Session for Pro upgrade
+ *     tags:
+ *       - Billing
+ *     security:
+ *       - BearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Checkout Session created — returns Stripe URL
+ *       400:
+ *         description: Already on Pro plan
+ */
+router.post(
+  "/create-checkout-session",
+  authenticate,
+  createCheckoutSessionHandler,
+);
+
+/**
+ * @openapi
  * /api/v1/billing/create-payment-intent:
  *   post:
- *     summary: Create a PaymentIntent for Pro upgrade
+ *     summary: Create a PaymentIntent for Pro upgrade (legacy)
  *     tags:
  *       - Billing
  *     security:
@@ -45,15 +67,20 @@ router.get("/me", authenticate, getMyBillingStatus);
  * @openapi
  * /api/v1/billing/confirm:
  *   get:
- *     summary: Confirm payment status (read-only, never grants Pro)
+ *     summary: Confirm payment status
  *     tags:
  *       - Billing
  *     security:
  *       - BearerAuth: []
  *     parameters:
  *       - in: query
+ *         name: session_id
+ *         required: false
+ *         schema:
+ *           type: string
+ *       - in: query
  *         name: payment_intent_id
- *         required: true
+ *         required: false
  *         schema:
  *           type: string
  *     responses:
