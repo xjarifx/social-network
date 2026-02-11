@@ -542,3 +542,63 @@ export const confirmPayment = async (
     plan: user?.plan ?? "FREE",
   };
 };
+
+// ---------------------------------------------------------------------------
+// Webhook health check - returns configuration status
+// ---------------------------------------------------------------------------
+
+export const getWebhookHealth = () => {
+  const stripeSecretKey = process.env.STRIPE_SECRET_KEY;
+  const stripeWebhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
+  const frontendUrl = process.env.FRONTEND_URL || "http://localhost:5173";
+
+  const isConfigured = !!(stripeSecretKey && stripeWebhookSecret);
+
+  return {
+    status: isConfigured ? "configured" : "not_configured",
+    stripe_secret_key_set: !!stripeSecretKey,
+    stripe_webhook_secret_set: !!stripeWebhookSecret,
+    stripe_secret_key_preview: stripeSecretKey
+      ? stripeSecretKey.substring(0, 20) + "..."
+      : null,
+    webhook_url: frontendUrl + "/api/v1/billing/webhook",
+    timestamp: new Date().toISOString(),
+  };
+};
+
+// ---------------------------------------------------------------------------
+// Debug recent sessions - returns recent checkout sessions for a user
+// ---------------------------------------------------------------------------
+
+export const getRecentSessions = async (userId: unknown) => {
+  const id = requireUserId(userId);
+
+  console.log("🔍 DEBUG: Fetching recent sessions for user:", id);
+
+  const sessions = await getStripe().checkout.sessions.list({
+    limit: 10,
+  });
+
+  const userSessions = sessions.data
+    .filter((s) => s.metadata?.userId === id)
+    .map((s) => ({
+      id: s.id,
+      status: (s as any).status,
+      payment_status: s.payment_status,
+      amount_total: s.amount_total,
+      currency: s.currency,
+      created: new Date(s.created * 1000).toISOString(),
+      metadata: s.metadata,
+    }));
+
+  return {
+    user_id: id,
+    total_sessions_found: userSessions.length,
+    sessions: userSessions,
+    all_account_sessions_count: sessions.data.length,
+    debug: {
+      frontend_url: process.env.FRONTEND_URL,
+      timestamp: new Date().toISOString(),
+    },
+  };
+};

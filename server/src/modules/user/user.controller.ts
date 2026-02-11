@@ -53,18 +53,9 @@ export const getTimeline = async (
   res: Response,
 ): Promise<void> => {
   try {
-    const limit = req.query.limit
-      ? parseInt(req.query.limit as string, 10)
-      : undefined;
-    const offset = req.query.offset
-      ? parseInt(req.query.offset as string, 10)
-      : undefined;
     const timelineData = await getUserTimeline(
       req.params,
-      {
-        limit: limit as unknown as number,
-        offset: offset as unknown as number,
-      },
+      req.query,
       req.userId as string | undefined,
     );
     res.status(200).json(timelineData);

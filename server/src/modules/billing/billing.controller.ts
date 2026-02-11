@@ -5,6 +5,8 @@ import {
   getBillingStatus,
   confirmPayment,
   handleStripeWebhook,
+  getWebhookHealth,
+  getRecentSessions,
 } from "./billing.service";
 
 // Helper to send error responses
@@ -110,23 +112,8 @@ export const webhookHealth = async (
   res: Response,
 ): Promise<void> => {
   try {
-    const stripeSecretKey = process.env.STRIPE_SECRET_KEY;
-    const stripeWebhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
-
-    const isConfigured = !!(stripeSecretKey && stripeWebhookSecret);
-
-    res.status(200).json({
-      status: isConfigured ? "configured" : "not_configured",
-      stripe_secret_key_set: !!stripeSecretKey,
-      stripe_webhook_secret_set: !!stripeWebhookSecret,
-      stripe_secret_key_preview: stripeSecretKey
-        ? stripeSecretKey.substring(0, 20) + "..."
-        : null,
-      webhook_url:
-        process.env.FRONTEND_URL ||
-        "http://localhost:5173" + "/api/v1/billing/webhook",
-      timestamp: new Date().toISOString(),
-    });
+    const healthData = getWebhookHealth();
+    res.status(200).json(healthData);
   } catch (error) {
     console.error("Webhook health check error:", error);
     sendError(res, error);
@@ -138,39 +125,8 @@ export const debugRecentSessions = async (
   res: Response,
 ): Promise<void> => {
   try {
-    console.log("🔍 DEBUG: Fetching recent sessions for user:", req.userId);
-
-    // Dynamic import needed here
-    const Stripe = (await import("stripe")).default;
-    const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || "");
-
-    // Get recent sessions
-    const sessions = await stripe.checkout.sessions.list({
-      limit: 10,
-    });
-
-    const userSessions = sessions.data
-      .filter((s) => s.metadata?.userId === req.userId)
-      .map((s) => ({
-        id: s.id,
-        status: (s as any).status,
-        payment_status: s.payment_status,
-        amount_total: s.amount_total,
-        currency: s.currency,
-        created: new Date(s.created * 1000).toISOString(),
-        metadata: s.metadata,
-      }));
-
-    res.status(200).json({
-      user_id: req.userId,
-      total_sessions_found: userSessions.length,
-      sessions: userSessions,
-      all_account_sessions_count: sessions.data.length,
-      debug: {
-        frontend_url: process.env.FRONTEND_URL,
-        timestamp: new Date().toISOString(),
-      },
-    });
+    const result = await getRecentSessions(req.userId);
+    res.status(200).json(result);
   } catch (error) {
     console.error("Debug sessions error:", error);
     sendError(res, error);
