@@ -3,7 +3,7 @@ import { useParams } from "react-router-dom";
 import { usersAPI, followsAPI, blocksAPI, likesAPI } from "../services/api";
 import type { User, Follower } from "../services/api";
 import { useAuth } from "../context/AuthContext";
-import { Feed, CommentsModal } from "../components";
+import { Feed, CommentsModal, ProBadge } from "../components";
 import type { PostProps } from "../components";
 import { useComments } from "../hooks";
 import { transformPost } from "../utils";
@@ -219,8 +219,9 @@ export default function UserProfilePage() {
                 </div>
                 <div className="flex flex-1 items-center justify-between gap-4 pb-1">
                   <div>
-                    <p className="text-[20px] font-medium text-[#202124]">
+                    <p className="text-[20px] font-medium text-[#202124] flex items-center gap-2">
                       {profile?.firstName} {profile?.lastName}
+                      <ProBadge isPro={profile?.plan === "PRO"} />
                     </p>
                     <p className="text-[13px] text-[#5f6368]">
                       @{profile?.username}

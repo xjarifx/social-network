@@ -85,6 +85,7 @@ export const getUserProfile = async (params: Record<string, unknown>) => {
       firstName: true,
       lastName: true,
       createdAt: true,
+      plan: true,
     },
   });
 

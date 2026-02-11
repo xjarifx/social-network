@@ -4,7 +4,6 @@ import { useAuth } from "../context/AuthContext";
 import { Eye, EyeOff, ArrowRight } from "lucide-react";
 import { Input } from "../components/ui/input";
 import { Button } from "../components/ui/button";
-import logo from "../../assets/cloud.png";
 
 export default function LoginPage() {
   const navigate = useNavigate();
@@ -61,7 +60,7 @@ export default function LoginPage() {
       <div className="hidden lg:flex lg:w-[480px] xl:w-[560px] shrink-0 flex-col items-center justify-center bg-[#e8f0fe] px-12">
         <div className="max-w-[340px] text-center">
           <img
-            src={logo}
+            src="/cloud.png"
             alt="Social Network logo"
             className="mx-auto mb-6 h-20 w-20"
           />
@@ -99,7 +98,7 @@ export default function LoginPage() {
           {/* Mobile logo */}
           <div className="mb-8 text-center lg:hidden">
             <img
-              src={logo}
+              src="/cloud.png"
               alt="Social Network logo"
               className="mx-auto mb-4 h-14 w-14"
             />

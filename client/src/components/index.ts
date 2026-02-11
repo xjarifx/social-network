@@ -6,3 +6,4 @@ export { CommentsModal } from "./CommentsModal";
 export { EditPostModal } from "./EditPostModal";
 export { ProtectedRoute } from "./ProtectedRoute";
 export { MobileNav } from "./MobileNav";
+export { ProBadge } from "./ProBadge";

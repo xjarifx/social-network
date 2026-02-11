@@ -22,7 +22,6 @@ import {
   DialogTitle,
 } from "./ui/dialog";
 import { Button } from "./ui/button";
-import logo from "../../assets/cloud.png";
 
 export function TopNav() {
   const { logout } = useAuth();
@@ -139,7 +138,11 @@ export function TopNav() {
               onClick={() => navigate("/")}
               className="flex items-center gap-2.5 px-2 shrink-0 cursor-pointer"
             >
-              <img src={logo} alt="Social Network logo" className="h-9 w-9" />
+              <img
+                src="/cloud.png"
+                alt="Social Network logo"
+                className="h-9 w-9"
+              />
               <span className="text-[18px] font-medium text-[#202124]">
                 Social Network
               </span>
@@ -271,7 +274,11 @@ export function TopNav() {
               onClick={() => navigate("/")}
               className="flex items-center gap-2 shrink-0 cursor-pointer"
             >
-              <img src={logo} alt="Social Network logo" className="h-8 w-8" />
+              <img
+                src="/cloud.png"
+                alt="Social Network logo"
+                className="h-8 w-8"
+              />
               <span className="text-[16px] font-medium text-[#202124]">
                 Social Network
               </span>

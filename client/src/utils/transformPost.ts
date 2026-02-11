@@ -24,6 +24,7 @@ export function transformPost(post: Post, currentUserId?: string): PostProps {
       handle: post.author?.username || "user",
       avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${post.author?.id || post.author?.username || post.id}`,
     },
+    authorPlan: post.author?.plan,
     content: post.content,
     image: imageUrl,
     visibility: post.visibility,

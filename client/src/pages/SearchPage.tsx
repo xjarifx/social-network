@@ -4,6 +4,7 @@ import { usersAPI, type User } from "../services/api";
 import { useAuth } from "../context/AuthContext";
 import { ChevronLeft, Search } from "lucide-react";
 import { Button } from "../components/ui/button";
+import { ProBadge } from "../components";
 
 export default function SearchPage() {
   const navigate = useNavigate();
@@ -126,8 +127,9 @@ export default function SearchPage() {
                     {user.lastName[0]}
                   </div>
                   <div>
-                    <p className="text-[14px] font-medium text-[#202124]">
+                    <p className="text-[14px] font-medium text-[#202124] flex items-center gap-2">
                       {user.firstName} {user.lastName}
+                      <ProBadge isPro={user.plan === "PRO"} />
                     </p>
                     <p className="text-[12px] text-[#5f6368]">
                       @{user.username}

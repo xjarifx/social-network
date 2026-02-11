@@ -12,6 +12,7 @@ import {
 import { Link } from "react-router-dom";
 import { blocksAPI, followsAPI } from "../services/api";
 import { useAuth } from "../context/AuthContext";
+import { ProBadge } from "./ProBadge";
 import { Button } from "./ui/button";
 import {
   DropdownMenu,
@@ -29,6 +30,7 @@ export interface PostProps {
     handle: string;
     avatar: string;
   };
+  authorPlan?: "FREE" | "PRO";
   content: string;
   image?: string;
   visibility?: "PUBLIC" | "PRIVATE";
@@ -52,6 +54,7 @@ function PostCardComponent({
   id,
   authorId,
   author,
+  authorPlan,
   content,
   image,
   visibility = "PUBLIC",
@@ -231,13 +234,15 @@ function PostCardComponent({
             <div className="flex items-center gap-2 flex-wrap">
               {authorId && user?.id !== authorId ? (
                 <Link to={`/users/${authorId}`}>
-                  <span className="text-[14px] font-medium text-[#202124] hover:underline">
+                  <span className="text-[14px] font-medium text-[#202124] hover:underline inline-flex items-center gap-1">
                     {author.name}
+                    <ProBadge isPro={authorPlan === "PRO"} />
                   </span>
                 </Link>
               ) : (
-                <span className="text-[14px] font-medium text-[#202124]">
+                <span className="text-[14px] font-medium text-[#202124] inline-flex items-center gap-1">
                   {author.name}
+                  <ProBadge isPro={authorPlan === "PRO"} />
                 </span>
               )}
               <span className="text-[12px] text-[#80868b]">

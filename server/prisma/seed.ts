@@ -3,11 +3,7 @@ import path from "path";
 import { fileURLToPath } from "url";
 import bcrypt from "bcryptjs";
 import crypto from "node:crypto";
-import {
-  NotificationType,
-  Plan,
-  PostVisibility,
-} from "../src/generated/prisma/index.js";
+import { Plan, PostVisibility } from "../src/generated/prisma/index.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -300,13 +296,11 @@ async function main() {
   const { prisma } = await import("../src/lib/prisma.js");
   prismaClient = prisma;
   console.log("🗑️  Cleaning up existing data...");
-  await prisma.notification.deleteMany();
   await prisma.commentLike.deleteMany();
   await prisma.like.deleteMany();
   await prisma.comment.deleteMany();
   await prisma.follower.deleteMany();
   await prisma.block.deleteMany();
-  await prisma.refreshToken.deleteMany();
   await prisma.post.deleteMany();
   await prisma.user.deleteMany();
 
@@ -608,100 +602,6 @@ async function main() {
     });
   }
   console.log(`✅ Created ${blockPairs.length} blocks`);
-
-  console.log("🔑 Creating refresh tokens...");
-  const refreshTokensData = [] as Array<{
-    userId: string;
-    token: string;
-    expiresAt: Date;
-  }>;
-  for (let i = 0; i < users.length; i++) {
-    if (i % 3 === 0) {
-      refreshTokensData.push({
-        userId: users[i].id,
-        token: crypto.randomBytes(32).toString("hex"),
-        expiresAt: new Date(Date.now() + 1000 * 60 * 60 * 24 * 30),
-      });
-    }
-  }
-
-  for (let i = 0; i < refreshTokensData.length; i += BATCH_SIZE) {
-    await prisma.refreshToken.createMany({
-      data: refreshTokensData.slice(i, i + BATCH_SIZE),
-    });
-  }
-  console.log(`✅ Created ${refreshTokensData.length} refresh tokens`);
-
-  console.log("🔔 Creating notifications...");
-  const notificationsData = [] as Array<{
-    userId: string;
-    type: NotificationType;
-    relatedUserId: string;
-    relatedPostId?: string;
-    message: string;
-    createdAt: Date;
-  }>;
-
-  const recentLikes = await prisma.like.findMany({
-    take: 500,
-    orderBy: { createdAt: "desc" },
-    include: { post: true },
-  });
-
-  for (const like of recentLikes) {
-    if (like.post.authorId !== like.userId) {
-      notificationsData.push({
-        userId: like.post.authorId,
-        type: NotificationType.LIKE,
-        relatedUserId: like.userId,
-        relatedPostId: like.postId,
-        message: "liked your post.",
-        createdAt: like.createdAt,
-      });
-    }
-  }
-
-  const recentComments = await prisma.comment.findMany({
-    take: 500,
-    orderBy: { createdAt: "desc" },
-    include: { post: true },
-  });
-
-  for (const comment of recentComments) {
-    if (comment.post.authorId !== comment.authorId) {
-      notificationsData.push({
-        userId: comment.post.authorId,
-        type: NotificationType.COMMENT,
-        relatedUserId: comment.authorId,
-        relatedPostId: comment.postId,
-        message: "commented on your post.",
-        createdAt: comment.createdAt,
-      });
-    }
-  }
-
-  const recentFollows = await prisma.follower.findMany({
-    take: 500,
-    orderBy: { createdAt: "desc" },
-  });
-
-  for (const follow of recentFollows) {
-    notificationsData.push({
-      userId: follow.followingId,
-      type: NotificationType.NEW_FOLLOWER,
-      relatedUserId: follow.followerId,
-      message: "started following you.",
-      createdAt: follow.createdAt,
-    });
-  }
-
-  for (let i = 0; i < notificationsData.length; i += BATCH_SIZE) {
-    await prisma.notification.createMany({
-      data: notificationsData.slice(i, i + BATCH_SIZE),
-    });
-  }
-  console.log(`✅ Created ${notificationsData.length} notifications`);
-
   console.log("📊 Updating counts...");
   for (const post of posts) {
     await prisma.post.update({
@@ -730,7 +630,6 @@ async function main() {
   - Likes: ${likesData.length}
   - Follows: ${followerPairs.length}
   - Blocks: ${blockPairs.length}
-  - Notifications: ${notificationsData.length}
   `);
 }
 

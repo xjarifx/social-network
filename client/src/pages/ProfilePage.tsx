@@ -10,7 +10,7 @@ import {
 } from "../services/api";
 import type { User, Follower, BlockedUser } from "../services/api";
 import { useAuth } from "../context/AuthContext";
-import { Feed, CommentsModal, EditPostModal } from "../components";
+import { Feed, CommentsModal, EditPostModal, ProBadge } from "../components";
 import type { PostProps } from "../components";
 import { useComments } from "../hooks";
 import { transformPost } from "../utils";
@@ -231,8 +231,9 @@ export default function ProfilePage() {
               {user?.lastName?.[0]}
             </div>
             <div className="min-w-0 pb-1">
-              <h2 className="text-[20px] font-medium text-[#202124]">
+              <h2 className="text-[20px] font-medium text-[#202124] flex items-center gap-2">
                 {profile?.firstName} {profile?.lastName}
+                <ProBadge isPro={profile?.plan === "PRO"} />
               </h2>
               <p className="text-[13px] text-[#5f6368]">@{profile?.username}</p>
             </div>
