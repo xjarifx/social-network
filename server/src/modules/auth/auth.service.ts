@@ -27,6 +27,11 @@ const generateRefreshToken = (userId: string): string => {
   );
 };
 
+const getRefreshTokenExpiry = (): Date => {
+  // 30 days from now
+  return new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
+};
+
 export const registerUser = async (input: any) => {
   // Validate input
   const validationResult = registerSchema.safeParse({ body: input });
@@ -95,9 +100,7 @@ export const registerUser = async (input: any) => {
   const refreshToken = generateRefreshToken(user.id);
 
   // Store refresh token in database
-  const expiresAt = new Date();
-  expiresAt.setDate(expiresAt.getDate() + 30); // 30 days from now
-
+  const expiresAt = getRefreshTokenExpiry();
   await prisma.refreshToken.create({
     data: {
       userId: user.id,
@@ -143,9 +146,7 @@ export const loginUser = async (input: any) => {
   const refreshToken = generateRefreshToken(user.id);
 
   // Store refresh token in database
-  const expiresAt = new Date();
-  expiresAt.setDate(expiresAt.getDate() + 30); // 30 days from now
-
+  const expiresAt = getRefreshTokenExpiry();
   await prisma.refreshToken.create({
     data: {
       userId: user.id,
@@ -234,9 +235,7 @@ export const refreshAccessToken = async (refreshToken: string) => {
   });
 
   // Store new refresh token
-  const expiresAt = new Date();
-  expiresAt.setDate(expiresAt.getDate() + 30); // 30 days from now
-
+  const expiresAt = getRefreshTokenExpiry();
   await prisma.refreshToken.create({
     data: {
       userId: tokenRecord.userId,

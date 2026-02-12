@@ -5,7 +5,7 @@ const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
 
 // Password regex: at least 8 characters, 1 uppercase, 1 lowercase, 1 number, 1 special character
 const passwordRegex =
-  /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+  /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[#@$!%*?&])[A-Za-z\d#$@!%*?&]{8,}$/;
 
 export const registerSchema = z.object({
   body: z
@@ -22,7 +22,7 @@ export const registerSchema = z.object({
         .min(8, { message: "Password must be at least 8 characters long" })
         .regex(passwordRegex, {
           message:
-            "Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character (@$!%*?&)",
+            "Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character (#@$!%*?&)",
         }),
       firstName: z
         .string()
