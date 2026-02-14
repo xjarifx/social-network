@@ -14,23 +14,31 @@ export const createCommentHandler = async (
   res: Response,
 ): Promise<void> => {
   try {
-    const comment = await createComment(req.userId, req.params, req.body);
-
-    res.status(201).json(comment);
-  } catch (error: unknown) {
-    const err = error as { status?: number; error?: unknown };
-    if (err.status === 400) {
-      res.status(400).json({ error: err.error });
+    const userId = req.userId;
+    if (!userId) {
+      res.status(401).json({ error: "Unauthorized" });
       return;
     }
-    if (err.status === 404) {
-      res.status(404).json({ error: err.error });
+
+    const body: object = req.body as object;
+    if (!body) {
+      res.status(400).json({ error: "Invalid request body" });
       return;
+    }
+
+    const comment = await createComment(userId, body);
+
+    res.status(201).json(comment);
+  } catch (error) {
+    if (error instanceof Error) {
+      // TODO: Handle known errors with specific status codes
     }
     console.error("Create comment error:", error);
     res.status(500).json({ error: "Unable to create comment" });
   }
 };
+
+// //
 
 export const getCommentsHandler = async (
   req: Request,

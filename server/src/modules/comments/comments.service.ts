@@ -6,18 +6,7 @@ import {
   cacheSet,
   invalidateTags,
 } from "../../lib/cache";
-import {
-  commentLikeParamsSchema,
-  commentIdParamSchema,
-  createCommentSchema,
-  getCommentLikesQuerySchema,
-  getCommentsQuerySchema,
-  postIdParamSchema,
-  updateCommentSchema,
-} from "./comments.validation";
-
-const ensureString = (val: unknown): string =>
-  typeof val === "string" ? val : Array.isArray(val) ? val[0] : "";
+import { createCommentSchema } from "./comments.validation";
 
 const formatUserLabel = (user?: {
   username?: string | null;
@@ -57,24 +46,14 @@ const countCommentSubtree = async (commentId: string): Promise<number> => {
 
 const COMMENTS_TTL_SECONDS = 30;
 
-export const createComment = async (
-  userId: unknown,
-  params: Record<string, unknown>,
-  body: Record<string, unknown>,
-) => {
-  const paramValidation = postIdParamSchema.safeParse({ params });
-  if (!paramValidation.success) {
-    throw { status: 400, error: paramValidation.error.flatten() };
-  }
-
+export const createComment = async (userId: string, body: object) => {
   const validationResult = createCommentSchema.safeParse({ body });
-
   if (!validationResult.success) {
-    throw { status: 400, error: validationResult.error.flatten() };
+    throw new Error("Invalid request body");
   }
 
-  const { postId } = paramValidation.data.params;
-  const authorId = ensureString(userId);
+  const { postId, content, parentId } = validationResult.data.body;
+  const authorId = userId;
 
   // Check if post exists
   const post = await prisma.post.findUnique({
@@ -83,17 +62,15 @@ export const createComment = async (
   });
 
   if (!post) {
-    throw { status: 404, error: "Post not found" };
+    throw new Error("Post not found");
   }
-
-  const { content, parentId } = validationResult.data.body;
 
   if (parentId) {
     const parent = await prisma.comment.findFirst({
       where: { id: parentId, postId },
     });
     if (!parent) {
-      throw { status: 404, error: "Parent comment not found" };
+      throw new Error("Parent comment not found");
     }
   }
 
@@ -160,6 +137,7 @@ export const createComment = async (
     createdAt: result.createdAt,
   };
 
+  // Invalidate relevant cache entries
   await invalidateTags([
     `comments:post:${postId}`,
     `post:${postId}`,

@@ -43,12 +43,12 @@
 | ------ | ----------------- | ------------------------------ |
 | POST   | /                 | Create a new comment on a post |
 | GET    | /                 | Get all comments for a post    |
-| GET    | /:commentId       | Get a specific comment         |
+<!-- | GET    | /:commentId       | Get a specific comment         | -->
 | PATCH  | /:commentId       | Update a comment               |
 | DELETE | /:commentId       | Delete a comment               |
 | POST   | /:commentId/likes | Like a comment                 |
 | DELETE | /:commentId/likes | Unlike a comment               |
-| GET    | /:commentId/likes | Get users who liked a comment  |
+<!-- | GET    | /:commentId/likes | Get users who liked a comment  | -->
 
 ## Follows Routes
 

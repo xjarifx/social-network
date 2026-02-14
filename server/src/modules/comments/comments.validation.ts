@@ -1,20 +1,9 @@
 import z from "zod";
 
-export const postIdParamSchema = z.object({
-  params: z.object({
-    postId: z.string().uuid({ message: "Invalid post ID format" }),
-  }),
-});
-
-export const commentIdParamSchema = z.object({
-  params: z.object({
-    commentId: z.string().uuid({ message: "Invalid comment ID format" }),
-  }),
-});
-
 export const createCommentSchema = z.object({
   body: z
     .object({
+      postId: z.string().uuid({ message: "Invalid post ID format" }),
       content: z
         .string()
         .min(1, { message: "Comment content is required" })
