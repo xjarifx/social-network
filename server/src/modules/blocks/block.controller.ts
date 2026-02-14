@@ -57,7 +57,18 @@ export const unblock = async (req: Request, res: Response): Promise<void> => {
     res.status(204).json(result);
   } catch (error) {
     if (error instanceof Error) {
-      // Handle specific error messages
+      if (error.message === "User not found") {
+        res.status(404).json({ error: error.message });
+        return;
+      }
+      if (error.message === "Cannot unblock yourself") {
+        res.status(400).json({ error: error.message });
+        return;
+      }
+      if (error.message === "User is not blocked") {
+        res.status(409).json({ error: error.message });
+        return;
+      }
     }
     console.error("Unblock user error:", error);
     res.status(500).json({ error: "Failed to unblock user" });
@@ -86,9 +97,6 @@ export const getBlocked = async (
     const blocked = await getBlockedUsers(userId, query);
     res.status(200).json(blocked);
   } catch (error) {
-    if (error instanceof Error) {
-      // Handle specific error messages
-    }
     console.error("Get blocked users error:", error);
     res.status(500).json({ error: "Failed to get blocked users" });
   }
