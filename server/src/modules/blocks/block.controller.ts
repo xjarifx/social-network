@@ -69,13 +69,25 @@ export const getBlocked = async (
   res: Response,
 ): Promise<void> => {
   try {
-    const blocked = await getBlockedUsers(req.userId, req.query);
-    res.status(200).json(blocked);
-  } catch (error: unknown) {
-    const err = error as { status?: number; error?: unknown };
-    if (err.status === 401) {
-      res.status(401).json({ error: err.error });
+    // USER who wants to get his/her block list
+    const userId: string = req.userId as string;
+    if (!userId) {
+      res.status(401).json({ error: "Unauthorized" });
       return;
+    }
+
+    // limit and offset for pagination
+    const query: object = req.body.query as object;
+    if (!query) {
+      res.status(400).json({ error: "Query is required" });
+      return;
+    }
+
+    const blocked = await getBlockedUsers(userId, query);
+    res.status(200).json(blocked);
+  } catch (error) {
+    if (error instanceof Error) {
+      // Handle specific error messages
     }
     console.error("Get blocked users error:", error);
     res.status(500).json({ error: "Failed to get blocked users" });
