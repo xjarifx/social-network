@@ -3,8 +3,47 @@ import { blockUser, getBlockedUsers, unblockUser } from "./block.service";
 
 export const block = async (req: Request, res: Response): Promise<void> => {
   try {
-    const result = await blockUser(req.userId, req.body);
+    // USER who wants to block
+    const userId: string = req.userId as string;
+    if (!userId) {
+      res.status(401).json({ error: "Unauthorized" });
+      return;
+    }
+    // USER who will be blocked
+    const username: string = req.body.username;
+    if (!username || typeof username !== "string") {
+      res.status(400).json({ error: "Username is required" });
+      return;
+    }
+    const result = await blockUser(userId, username);
     res.status(201).json(result);
+  } catch (error) {
+    if (error instanceof Error) {
+      if (error.message === "User not found") {
+        res.status(404).json({ error: error.message });
+        return;
+      }
+      if (error.message === "Cannot block yourself") {
+        res.status(400).json({ error: error.message });
+        return;
+      }
+
+      if (error.message === "User already blocked") {
+        res.status(409).json({ error: error.message });
+        return;
+      }
+    }
+
+    console.error("Block user error:", error);
+    res.status(500).json({ error: "Failed to block user" });
+  }
+};
+
+export const unblock = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const username = req.body.username as string;
+    await unblockUser(req.userId, username);
+    res.status(204).send();
   } catch (error: unknown) {
     const err = error as { status?: number; error?: unknown };
     if (err.status === 400) {
@@ -19,12 +58,8 @@ export const block = async (req: Request, res: Response): Promise<void> => {
       res.status(404).json({ error: err.error });
       return;
     }
-    if (err.status === 409) {
-      res.status(409).json({ error: err.error });
-      return;
-    }
-    console.error("Block user error:", error);
-    res.status(500).json({ error: "Failed to block user" });
+    console.error("Unblock user error:", error);
+    res.status(500).json({ error: "Failed to unblock user" });
   }
 };
 
@@ -43,28 +78,5 @@ export const getBlocked = async (
     }
     console.error("Get blocked users error:", error);
     res.status(500).json({ error: "Failed to get blocked users" });
-  }
-};
-
-export const unblock = async (req: Request, res: Response): Promise<void> => {
-  try {
-    await unblockUser(req.userId, req.params);
-    res.status(204).send();
-  } catch (error: unknown) {
-    const err = error as { status?: number; error?: unknown };
-    if (err.status === 400) {
-      res.status(400).json({ error: err.error });
-      return;
-    }
-    if (err.status === 401) {
-      res.status(401).json({ error: err.error });
-      return;
-    }
-    if (err.status === 404) {
-      res.status(404).json({ error: err.error });
-      return;
-    }
-    console.error("Unblock user error:", error);
-    res.status(500).json({ error: "Failed to unblock user" });
   }
 };

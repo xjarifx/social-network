@@ -1,57 +1,40 @@
 import { prisma } from "../../lib/prisma";
-import {
-  blockUserSchema,
-  getBlockedQuerySchema,
-  unblockParamSchema,
-} from "./block.validation";
+import { getBlockedQuerySchema } from "./block.validation";
 
-const ensureString = (val: unknown): string =>
-  typeof val === "string" ? val : Array.isArray(val) ? val[0] : "";
-
-export const blockUser = async (
-  blockerId: unknown,
-  body: Record<string, unknown>,
-) => {
-  const validation = blockUserSchema.safeParse({ body });
-  if (!validation.success) {
-    throw { status: 400, error: validation.error.flatten() };
-  }
-
-  const { blockedId } = validation.data.body;
-  const blockerUserId = ensureString(blockerId);
-
-  if (!blockerUserId) {
-    throw { status: 401, error: "Unauthorized" };
-  }
-
-  if (blockerUserId === blockedId) {
-    throw { status: 400, error: "Cannot block yourself" };
-  }
-
-  const user = await prisma.user.findUnique({
-    where: { id: blockedId },
+export const blockUser = async (userId: string, username: string) => {
+  // USER who will be blocked, find his username
+  const userToBlock = await prisma.user.findUnique({
+    where: { username },
   });
-  if (!user) {
-    throw { status: 404, error: "User not found" };
+
+  if (!userToBlock) {
+    throw new Error("User not found");
   }
 
-  const existing = await prisma.block.findFirst({
+  if (userId === userToBlock.id) {
+    throw new Error("Cannot block yourself");
+  }
+
+  // Check if the block already exists
+  const isBlockExist = await prisma.block.findFirst({
     where: {
-      blockerId: blockerUserId,
-      blockedId,
+      blockerId: userId,
+      blockedId: userToBlock.id,
     },
   });
 
-  if (existing) {
-    throw { status: 409, error: "User already blocked" };
+  if (isBlockExist) {
+    throw new Error("User already blocked");
   }
 
-  return await prisma.block.create({
+  const applyBlock = await prisma.block.create({
     data: {
-      blockerId: blockerUserId,
-      blockedId,
+      blockerId: userId,
+      blockedId: userToBlock.id,
     },
   });
+
+  return applyBlock;
 };
 
 export const getBlockedUsers = async (
@@ -110,26 +93,30 @@ export const getBlockedUsers = async (
   };
 };
 
-export const unblockUser = async (
-  blockerId: unknown,
-  params: Record<string, unknown>,
-) => {
-  const validation = unblockParamSchema.safeParse({ params });
-  if (!validation.success) {
-    throw { status: 400, error: validation.error.flatten() };
-  }
-
-  const { userId } = validation.data.params;
+export const unblockUser = async (blockerId: unknown, username: string) => {
   const blockerUserId = ensureString(blockerId);
 
   if (!blockerUserId) {
     throw { status: 401, error: "Unauthorized" };
   }
 
+  if (!username || typeof username !== "string") {
+    throw { status: 400, error: "Username is required" };
+  }
+
+  // Find the user to unblock by username
+  const userToUnblock = await prisma.user.findUnique({
+    where: { username },
+  });
+
+  if (!userToUnblock) {
+    throw { status: 404, error: "User not found" };
+  }
+
   const block = await prisma.block.findFirst({
     where: {
       blockerId: blockerUserId,
-      blockedId: userId,
+      blockedId: userToUnblock.id,
     },
   });
 
