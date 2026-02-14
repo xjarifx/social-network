@@ -7,9 +7,8 @@ const router = Router();
 
 // BLOCKS
 
-router.post("/", generalLimiter, authenticate, block);
+router.post("/:username", generalLimiter, authenticate, block);
 router.get("/", generalLimiter, authenticate, getBlocked);
-
-router.delete("/:userId", generalLimiter, authenticate, unblock);
+router.delete("/:username", generalLimiter, authenticate, unblock);
 
 export default router;
