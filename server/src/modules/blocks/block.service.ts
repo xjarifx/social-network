@@ -37,6 +37,43 @@ export const blockUser = async (userId: string, username: string) => {
   return applyBlock;
 };
 
+export const unblockUser = async (userId: string, username: string) => {
+  const userToUnblock = await prisma.user.findUnique({
+    where: { username },
+  });
+
+  if (!userToUnblock) {
+    throw new Error("User not found");
+  }
+
+  if (userId === userToUnblock.id) {
+    throw new Error("Cannot unblock yourself");
+  }
+
+  // Check if the block already exists
+  const isBlockExist = await prisma.block.findFirst({
+    where: {
+      blockerId: userId,
+      blockedId: userToUnblock.id,
+    },
+  });
+
+  if (!isBlockExist) {
+    throw new Error("User is not blocked");
+  }
+
+  const applyUnblock = await prisma.block.delete({
+    where: {
+      blockerId_blockedId: {
+        blockerId: userId,
+        blockedId: userToUnblock.id,
+      },
+    },
+  });
+
+  return applyUnblock;
+};
+
 export const getBlockedUsers = async (
   userId: unknown,
   query: Record<string, unknown>,
@@ -91,39 +128,4 @@ export const getBlockedUsers = async (
     limit,
     offset,
   };
-};
-
-export const unblockUser = async (blockerId: unknown, username: string) => {
-  const blockerUserId = ensureString(blockerId);
-
-  if (!blockerUserId) {
-    throw { status: 401, error: "Unauthorized" };
-  }
-
-  if (!username || typeof username !== "string") {
-    throw { status: 400, error: "Username is required" };
-  }
-
-  // Find the user to unblock by username
-  const userToUnblock = await prisma.user.findUnique({
-    where: { username },
-  });
-
-  if (!userToUnblock) {
-    throw { status: 404, error: "User not found" };
-  }
-
-  const block = await prisma.block.findFirst({
-    where: {
-      blockerId: blockerUserId,
-      blockedId: userToUnblock.id,
-    },
-  });
-
-  if (!block) {
-    throw { status: 404, error: "Block not found" };
-  }
-
-  await prisma.block.delete({ where: { id: block.id } });
-  return { deleted: true };
 };

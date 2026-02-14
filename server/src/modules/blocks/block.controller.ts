@@ -41,22 +41,23 @@ export const block = async (req: Request, res: Response): Promise<void> => {
 
 export const unblock = async (req: Request, res: Response): Promise<void> => {
   try {
-    const username = req.body.username as string;
-    await unblockUser(req.userId, username);
-    res.status(204).send();
-  } catch (error: unknown) {
-    const err = error as { status?: number; error?: unknown };
-    if (err.status === 400) {
-      res.status(400).json({ error: err.error });
+    // USER who wants to unblock
+    const userId: string = req.userId as string;
+    if (!userId) {
+      res.status(401).json({ error: "Unauthorized" });
       return;
     }
-    if (err.status === 401) {
-      res.status(401).json({ error: err.error });
+    // USER who will be unblocked
+    const username: string = req.body.username;
+    if (!username || typeof username !== "string") {
+      res.status(400).json({ error: "Username is required" });
       return;
     }
-    if (err.status === 404) {
-      res.status(404).json({ error: err.error });
-      return;
+    const result = await unblockUser(userId, username);
+    res.status(204).json(result);
+  } catch (error) {
+    if (error instanceof Error) {
+      // Handle specific error messages
     }
     console.error("Unblock user error:", error);
     res.status(500).json({ error: "Failed to unblock user" });
