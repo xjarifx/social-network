@@ -14,8 +14,8 @@ import {
 const router = Router({ mergeParams: true });
 
 // COMMENTS
-
 router.post("/", createCommentLimiter, authenticate, createCommentHandler);
+
 router.get("/", authenticate, getCommentsHandler);
 router.patch("/:commentId", authenticate, updateCommentHandler);
 router.delete("/:commentId", authenticate, deleteCommentHandler);

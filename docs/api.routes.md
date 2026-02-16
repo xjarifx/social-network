@@ -33,7 +33,7 @@
 | ------ | -------- | ------------------------- |
 | POST   | /        | Block a user              |
 | GET    | /        | Get list of blocked users |
-| DELETE | /:userId | Unblock a user            |
+| DELETE | /        | Unblock a user            |
 
 ## Comments Routes
 

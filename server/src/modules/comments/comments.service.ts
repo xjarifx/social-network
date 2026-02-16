@@ -1,48 +1,24 @@
 import { NotificationType } from "../../generated/prisma/index";
+
 import { prisma } from "../../lib/prisma";
+
 import {
   buildCacheKey,
   cacheGet,
   cacheSet,
   invalidateTags,
 } from "../../lib/cache";
-import { createCommentSchema } from "./comments.validation";
 
-const formatUserLabel = (user?: {
-  username?: string | null;
-  firstName?: string | null;
-  lastName?: string | null;
-}): string => {
-  if (!user) {
-    return "Someone";
-  }
-  const fullName = [user.firstName, user.lastName].filter(Boolean).join(" ");
-  return fullName || user.username || "Someone";
-};
+import {
+  createCommentSchema,
+  getCommentsSchema,
+  updateCommentSchema,
+  deleteCommentSchema,
+  commentLikeParamsSchema,
+  getCommentLikesQuerySchema,
+} from "./comments.validation";
 
-const countCommentSubtree = async (commentId: string): Promise<number> => {
-  const visited = new Set<string>();
-  let queue = [commentId];
-
-  while (queue.length > 0) {
-    const batch = queue;
-    queue = [];
-
-    const children = await prisma.comment.findMany({
-      where: { parentId: { in: batch } },
-      select: { id: true },
-    });
-
-    for (const child of children) {
-      if (!visited.has(child.id)) {
-        visited.add(child.id);
-        queue.push(child.id);
-      }
-    }
-  }
-
-  return 1 + visited.size;
-};
+import { countCommentSubtree } from "./comments.lib";
 
 const COMMENTS_TTL_SECONDS = 30;
 
@@ -118,7 +94,7 @@ export const createComment = async (userId: string, body: object) => {
           type: NotificationType.COMMENT,
           relatedUserId: authorId,
           relatedPostId: postId,
-          message: `${formatUserLabel(comment.author)} commented on your post`,
+          message: `${comment.author.firstName} ${comment.author.lastName} commented on your post`,
         },
       });
     }
@@ -150,23 +126,13 @@ export const createComment = async (userId: string, body: object) => {
   return response;
 };
 
-export const getComments = async (
-  params: Record<string, unknown>,
-  query: Record<string, unknown>,
-  userId?: unknown,
-) => {
-  const paramValidation = postIdParamSchema.safeParse({ params });
-  if (!paramValidation.success) {
-    throw { status: 400, error: paramValidation.error.flatten() };
+// TODO: Review this function logic. Not clear how comments getting out.
+export const getComments = async (userId: string, body: object) => {
+  const validationResult = getCommentsSchema.safeParse({ body: body });
+  if (!validationResult.success) {
+    throw new Error(JSON.stringify(validationResult.error.flatten()));
   }
-
-  const queryValidation = getCommentsQuerySchema.safeParse({ query });
-  if (!queryValidation.success) {
-    throw { status: 400, error: queryValidation.error.flatten() };
-  }
-
-  const { postId } = paramValidation.data.params;
-  const { limit, offset, parentId } = queryValidation.data.query;
+  const { postId, limit, offset, parentId } = validationResult.data.body;
 
   // Check if post exists
   const post = await prisma.post.findUnique({
@@ -174,17 +140,19 @@ export const getComments = async (
   });
 
   if (!post) {
-    throw { status: 404, error: "Post not found" };
+    throw new Error("Post not found");
   }
 
+  // Try to get from cache first
   const cacheKey = buildCacheKey(
     "comments",
     postId,
     parentId ?? "root",
     limit,
     offset,
-    ensureString(userId) || "anon",
+    userId || "anon",
   );
+
   const cached = await cacheGet<{
     comments: Array<{
       id: string;
@@ -209,11 +177,13 @@ export const getComments = async (
     return cached;
   }
 
+  // Count total comments for pagination metadata
   const total = await prisma.comment.count({
     where: { postId, parentId: parentId ?? null },
   });
 
-  const authorId = ensureString(userId);
+  // here "authorId" refers to the comment's creator
+  const authorId = userId;
   const includeAuthor = {
     author: {
       select: {
@@ -231,6 +201,7 @@ export const getComments = async (
     },
   };
 
+  // TODO: this logic might get his own dedicated place
   let comments = [] as Array<{
     id: string;
     content: string;
@@ -331,24 +302,14 @@ export const getComments = async (
   return response;
 };
 
-export const updateComment = async (
-  userId: unknown,
-  params: Record<string, unknown>,
-  body: Record<string, unknown>,
-) => {
-  const paramValidation = commentIdParamSchema.safeParse({ params });
-  if (!paramValidation.success) {
-    throw { status: 400, error: paramValidation.error.flatten() };
-  }
-
+export const updateComment = async (userId: string, body: object) => {
   const validationResult = updateCommentSchema.safeParse({ body });
 
   if (!validationResult.success) {
     throw { status: 400, error: validationResult.error.flatten() };
   }
 
-  const { commentId } = paramValidation.data.params;
-  const authorId = ensureString(userId);
+  const { commentId, content } = validationResult.data.body;
 
   // Check if comment exists
   const comment = await prisma.comment.findUnique({
@@ -356,15 +317,15 @@ export const updateComment = async (
   });
 
   if (!comment) {
-    throw { status: 404, error: "Comment not found" };
+    throw new Error("Comment not found");
   }
+
+  const authorId: string = userId;
 
   // Check if user is the comment author
   if (comment.authorId !== authorId) {
-    throw { status: 403, error: "Cannot update other user's comment" };
+    throw new Error("Cannot update other user's comment");
   }
-
-  const { content } = validationResult.data.body;
 
   // Update comment
   const updatedComment = await prisma.comment.update({
@@ -409,39 +370,32 @@ export const updateComment = async (
   return response;
 };
 
-export const deleteComment = async (
-  userId: unknown,
-  params: Record<string, unknown>,
-) => {
-  const paramValidation = commentIdParamSchema.safeParse({ params });
-  if (!paramValidation.success) {
-    throw { status: 400, error: paramValidation.error.flatten() };
+export const deleteComment = async (userId: string, body: object) => {
+  const validationResult = deleteCommentSchema.safeParse({ body });
+  if (!validationResult.success) {
+    throw new Error(JSON.stringify(validationResult.error.flatten()));
   }
+  const { commentId } = validationResult.data.body;
 
-  const { commentId } = paramValidation.data.params;
-  const authorId = ensureString(userId);
   // Check if comment exists
   const comment = await prisma.comment.findUnique({
     where: { id: commentId },
   });
-
   if (!comment) {
-    throw { status: 404, error: "Comment not found" };
+    throw new Error("Comment not found");
   }
-
+  const authorId = userId;
   // Check if user is the comment author
   if (comment.authorId !== authorId) {
-    throw { status: 403, error: "Cannot delete other user's comment" };
+    throw new Error("Cannot delete other user's comment");
   }
-
+  // Count total comments in the subtree to be deleted (including the comment itself)
   const subtreeCount = await countCommentSubtree(commentId);
-
   // Delete comment and decrement comment count in a transaction
   await prisma.$transaction(async (tx) => {
     await tx.comment.delete({
       where: { id: commentId },
     });
-
     // Decrement comments count
     await tx.post.update({
       where: { id: comment.postId },
@@ -452,14 +406,12 @@ export const deleteComment = async (
       },
     });
   });
-
   await invalidateTags([
     `comments:post:${comment.postId}`,
     `post:${comment.postId}`,
     "feed",
     "for-you",
   ]);
-
   return {
     message: "Comment deleted successfully",
     deletedCount: subtreeCount,
