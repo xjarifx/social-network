@@ -2,3 +2,10 @@
 2. Always throw complete ERROR not part of it, will have good context about the error
 3. Never trust client input for identity
 4. one validation file, use it inside controller for parameter check and early exit, and rest inside service file
+5. Response format:
+    {
+        "success": true,
+        "data": {},
+        "error": null
+    }
+6. 
