@@ -191,7 +191,8 @@ async function apiRequest<T>(
         });
 
         if (refreshResponse.ok) {
-          const data: AuthResponse = await refreshResponse.json();
+          const envelope = await refreshResponse.json();
+          const data: AuthResponse = envelope.data ?? envelope;
           setTokens(data.accessToken, data.refreshToken);
 
           // Retry original request with new token
@@ -279,20 +280,22 @@ export const authAPI = {
     firstName: string;
     lastName: string;
   }): Promise<AuthResponse> => {
-    return apiRequest("/auth/register", {
+    const res = await apiRequest<{ success: boolean; data: AuthResponse; error: string | null }>("/auth/register", {
       method: "POST",
       body: JSON.stringify(data),
     });
+    return res.data;
   },
 
   login: async (data: {
     email: string;
     password: string;
   }): Promise<AuthResponse> => {
-    return apiRequest("/auth/login", {
+    const res = await apiRequest<{ success: boolean; data: AuthResponse; error: string | null }>("/auth/login", {
       method: "POST",
       body: JSON.stringify(data),
     });
+    return res.data;
   },
 
   logout: async (): Promise<void> => {
@@ -504,12 +507,11 @@ export const commentsAPI = {
 
 export const followsAPI = {
   followUser: async (
-    userId: string,
-    followingId: string,
+    _currentUserId: string,
+    targetUserId: string,
   ): Promise<Follower> => {
-    return apiRequest(`/users/${userId}/follow`, {
+    return apiRequest(`/users/${targetUserId}/follow`, {
       method: "POST",
-      body: JSON.stringify({ followingId }),
     });
   },
 

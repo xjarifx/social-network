@@ -106,9 +106,9 @@ export default function ProfilePage() {
       blocksAPI.list(),
     ])
       .then(([f, g, b]) => {
-        setFollowers(f);
-        setFollowing(g);
-        setBlocked(b.blocked);
+        setFollowers(Array.isArray(f) ? f : []);
+        setFollowing(Array.isArray(g) ? g : []);
+        setBlocked(Array.isArray(b) ? b : b?.blocked ?? []);
       })
       .catch((err) =>
         console.error("Failed to load followers/following:", err),
@@ -185,10 +185,10 @@ export default function ProfilePage() {
         prev.map((p) =>
           p.id === editingPostId
             ? {
-                ...p,
-                content: editingContent.trim(),
-                visibility: editingVisibility,
-              }
+              ...p,
+              content: editingContent.trim(),
+              visibility: editingVisibility,
+            }
             : p,
         ),
       );

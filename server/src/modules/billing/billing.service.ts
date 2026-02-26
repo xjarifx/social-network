@@ -544,6 +544,57 @@ export const confirmPayment = async (
 };
 
 // ---------------------------------------------------------------------------
+// POST /billing/downgrade
+//
+// Downgrades the user from PRO to FREE plan.
+// Cancels Stripe subscription if one exists.
+// ---------------------------------------------------------------------------
+
+export const downgradeToFree = async (userId: unknown) => {
+  const id = requireUserId(userId);
+
+  const user = await prisma.user.findUnique({ where: { id } });
+  if (!user) throw { status: 404, error: "User not found" };
+
+  if (user.plan === Plan.FREE) {
+    throw { status: 400, error: "You are already on the Free plan" };
+  }
+
+  // Cancel Stripe subscription if exists
+  if (user.stripeSubscriptionId) {
+    try {
+      await getStripe().subscriptions.cancel(user.stripeSubscriptionId);
+      console.log(
+        `✅ Stripe subscription ${user.stripeSubscriptionId} cancelled for user ${id}`,
+      );
+    } catch (err) {
+      console.warn(`⚠️ Failed to cancel Stripe subscription:`, err);
+      // Continue with downgrade even if Stripe cancellation fails
+    }
+  }
+
+  const updated = await prisma.user.update({
+    where: { id },
+    data: {
+      plan: Plan.FREE,
+      planStatus: null,
+      planStartedAt: null,
+      stripeSubscriptionId: null,
+      stripeCurrentPeriodEndAt: null,
+    },
+  });
+
+  console.log(`✅ User ${id} downgraded to FREE plan`);
+
+  return {
+    id: updated.id,
+    email: updated.email,
+    plan: updated.plan,
+    planStatus: updated.planStatus,
+  };
+};
+
+// ---------------------------------------------------------------------------
 // Webhook health check - returns configuration status
 // ---------------------------------------------------------------------------
 

@@ -26,6 +26,7 @@ async function main() {
     .default;
   const billingRouter = (await import("./modules/billing/billing.routes.js"))
     .default;
+  const { setupSwagger } = await import("./lib/swagger.js");
 
   const app = express();
   const PORT = Number(process.env.PORT);
@@ -52,6 +53,9 @@ async function main() {
   const uploadsDir = path.resolve(process.cwd(), "uploads");
   fs.mkdirSync(uploadsDir, { recursive: true });
   app.use("/uploads", express.static(uploadsDir));
+
+  // Swagger docs (available at /api-docs)
+  setupSwagger(app);
 
   // Apply rate limiting to all API routes
   app.use("/api", generalLimiter);
