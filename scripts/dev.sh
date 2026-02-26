@@ -1,4 +1,8 @@
+
 #!/bin/bash
+
+# Always run from project root
+cd "$(dirname "$0")/.."
 
 # Development script - starts server, client, and Prisma Studio
 
