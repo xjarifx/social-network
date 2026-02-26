@@ -46,3 +46,6 @@ export const loginSchema = z.object({
     })
     .strict(),
 });
+
+export type RegisterBody = z.infer<typeof registerSchema>["body"];
+export type LoginBody = z.infer<typeof loginSchema>["body"];

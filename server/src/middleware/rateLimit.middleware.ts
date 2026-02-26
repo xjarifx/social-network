@@ -8,7 +8,7 @@ export const authLimiter = rateLimit({
   standardHeaders: true,
   legacyHeaders: false,
   keyGenerator: (req) => {
-    return req.body?.email || req.ip || "unknown";
+    return (req as any).body?.email || req.ip || "unknown";
   },
 });
 
@@ -29,7 +29,7 @@ export const createPostLimiter = rateLimit({
   standardHeaders: true,
   legacyHeaders: false,
   keyGenerator: (req) => {
-    return (req as any).user?.id || req.ip || "unknown";
+    return (req as any).userId || req.ip || "unknown";
   },
 });
 
@@ -41,7 +41,7 @@ export const createCommentLimiter = rateLimit({
   standardHeaders: true,
   legacyHeaders: false,
   keyGenerator: (req) => {
-    return (req as any).user?.id || req.ip || "unknown";
+    return (req as any).userId || req.ip || "unknown";
   },
 });
 
@@ -53,7 +53,7 @@ export const createLikeLimiter = rateLimit({
   standardHeaders: true,
   legacyHeaders: false,
   keyGenerator: (req) => {
-    return (req as any).user?.id || req.ip || "unknown";
+    return (req as any).userId || req.ip || "unknown";
   },
 });
 
@@ -65,6 +65,6 @@ export const followLimiter = rateLimit({
   standardHeaders: true,
   legacyHeaders: false,
   keyGenerator: (req) => {
-    return (req as any).user?.id || req.ip || "unknown";
+    return (req as any).userId || req.ip || "unknown";
   },
 });

@@ -29,20 +29,15 @@ export const createCommentHandler = async (
     const comment = await createComment(userId, body);
 
     res.status(201).json(comment);
-  } catch (error) {
-    if (error instanceof Error) {
-      if (error.message === "Invalid request body") {
-        res.status(400).json({ error: error.message });
-        return;
-      }
-      if (error.message === "Post not found") {
-        res.status(404).json({ error: error.message });
-        return;
-      }
-      if (error.message === "Parent comment not found") {
-        res.status(404).json({ error: error.message });
-        return;
-      }
+  } catch (error: unknown) {
+    const err = error as { status?: number; error?: unknown };
+    if (err.status === 400) {
+      res.status(400).json({ error: err.error });
+      return;
+    }
+    if (err.status === 404) {
+      res.status(404).json({ error: err.error });
+      return;
     }
     console.error("Create comment error:", error);
     res.status(500).json({ error: "Unable to create comment" });
@@ -60,17 +55,18 @@ export const getCommentsHandler = async (
       return;
     }
 
-    const body: object = req.body as object;
-    if (!body) {
-      res.status(400).json({ error: "Invalid request body" });
-      return;
-    }
-    const result = await getComments(userId, body);
+    const result = await getComments(userId, req.params, req.query);
 
     res.status(200).json(result);
-  } catch (error) {
-    if (error instanceof Error) {
-      // TODO: Handle known errors with specific status codes
+  } catch (error: unknown) {
+    const err = error as { status?: number; error?: unknown };
+    if (err.status === 400) {
+      res.status(400).json({ error: err.error });
+      return;
+    }
+    if (err.status === 404) {
+      res.status(404).json({ error: err.error });
+      return;
     }
     console.error("Get comments error:", error);
     res.status(500).json({ error: "Unable to fetch comments" });
@@ -93,12 +89,22 @@ export const updateCommentHandler = async (
       res.status(400).json({ error: "Invalid request body" });
       return;
     }
-    const comment = await updateComment(userId, body);
+    const comment = await updateComment(userId, req.params, body);
 
     res.status(200).json(comment);
-  } catch (error) {
-    if (error instanceof Error) {
-      // TODO: Handle known errors with specific status codes
+  } catch (error: unknown) {
+    const err = error as { status?: number; error?: unknown };
+    if (err.status === 400) {
+      res.status(400).json({ error: err.error });
+      return;
+    }
+    if (err.status === 403) {
+      res.status(403).json({ error: err.error });
+      return;
+    }
+    if (err.status === 404) {
+      res.status(404).json({ error: err.error });
+      return;
     }
     console.error("Update comment error:", error);
     res.status(500).json({ error: "Unable to update comment" });
@@ -116,17 +122,22 @@ export const deleteCommentHandler = async (
       return;
     }
 
-    const body: object = req.body as object;
-    if (!body) {
-      res.status(400).json({ error: "Invalid request body" });
-      return;
-    }
-    const result = await deleteComment(userId, body);
+    const result = await deleteComment(userId, req.params);
 
     res.status(200).json(result);
-  } catch (error) {
-    if (error instanceof Error) {
-      // TODO: Handle known errors with specific status codes
+  } catch (error: unknown) {
+    const err = error as { status?: number; error?: unknown };
+    if (err.status === 400) {
+      res.status(400).json({ error: err.error });
+      return;
+    }
+    if (err.status === 403) {
+      res.status(403).json({ error: err.error });
+      return;
+    }
+    if (err.status === 404) {
+      res.status(404).json({ error: err.error });
+      return;
     }
     console.error("Delete comment error:", error);
     res.status(500).json({ error: "Unable to delete comment" });

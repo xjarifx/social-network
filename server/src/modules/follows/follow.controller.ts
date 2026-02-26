@@ -9,7 +9,7 @@ import {
 export const follow = async (req: Request, res: Response): Promise<void> => {
   try {
     const authUserId = req.userId as string;
-    const result = await followUser(authUserId, req.body);
+    const result = await followUser(authUserId, req.params);
     res.status(201).json(result);
   } catch (error: unknown) {
     const err = error as { status?: number; error?: unknown };

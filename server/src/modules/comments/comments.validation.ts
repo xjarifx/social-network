@@ -19,8 +19,10 @@ export const createCommentSchema = z.object({
 });
 
 export const getCommentsSchema = z.object({
-  body: z.object({
+  params: z.object({
     postId: z.string().uuid({ message: "Invalid post ID format" }),
+  }),
+  query: z.object({
     limit: z.string().default("10").transform(Number),
     offset: z.string().default("0").transform(Number),
     parentId: z
@@ -31,9 +33,11 @@ export const getCommentsSchema = z.object({
 });
 
 export const updateCommentSchema = z.object({
+  params: z.object({
+    commentId: z.string().uuid({ message: "Invalid comment ID format" }),
+  }),
   body: z
     .object({
-      commentId: z.string().uuid({ message: "Invalid comment ID format" }),
       content: z
         .string()
         .min(1, { message: "Comment content is required" })
@@ -45,7 +49,7 @@ export const updateCommentSchema = z.object({
 });
 
 export const deleteCommentSchema = z.object({
-  body: z.object({
+  params: z.object({
     commentId: z.string().uuid({ message: "Invalid comment ID format" }),
   }),
 });

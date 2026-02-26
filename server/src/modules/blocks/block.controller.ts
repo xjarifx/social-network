@@ -87,14 +87,7 @@ export const getBlocked = async (
       return;
     }
 
-    // limit and offset for pagination
-    const query: object = req.body.query as object;
-    if (!query) {
-      res.status(400).json({ error: "Query is required" });
-      return;
-    }
-
-    const blocked = await getBlockedUsers(userId, query);
+    const blocked = await getBlockedUsers(userId, req.query);
     res.status(200).json(blocked);
   } catch (error) {
     console.error("Get blocked users error:", error);

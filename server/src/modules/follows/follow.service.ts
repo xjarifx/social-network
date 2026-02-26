@@ -16,14 +16,14 @@ const formatUserLabel = (user?: {
 
 export const followUser = async (
   followerId: string,
-  body: Record<string, unknown>,
+  params: Record<string, unknown>,
 ) => {
-  const validation = followUserSchema.safeParse({ body });
+  const validation = followUserSchema.safeParse({ params });
   if (!validation.success) {
     throw { status: 400, error: validation.error.flatten() };
   }
 
-  const { followingId } = validation.data.body;
+  const { userId: followingId } = validation.data.params;
 
   if (followerId === followingId) {
     throw { status: 400, error: "Cannot follow yourself" };

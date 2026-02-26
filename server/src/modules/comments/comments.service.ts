@@ -22,10 +22,13 @@ import { countCommentSubtree } from "./comments.lib";
 
 const COMMENTS_TTL_SECONDS = 30;
 
+const ensureString = (val: unknown): string =>
+  typeof val === "string" ? val : Array.isArray(val) ? val[0] : "";
+
 export const createComment = async (userId: string, body: object) => {
   const validationResult = createCommentSchema.safeParse({ body });
   if (!validationResult.success) {
-    throw new Error("Invalid request body");
+    throw { status: 400, error: "Invalid request body" };
   }
 
   const { postId, content, parentId } = validationResult.data.body;
@@ -38,7 +41,7 @@ export const createComment = async (userId: string, body: object) => {
   });
 
   if (!post) {
-    throw new Error("Post not found");
+    throw { status: 404, error: "Post not found" };
   }
 
   if (parentId) {
@@ -46,7 +49,7 @@ export const createComment = async (userId: string, body: object) => {
       where: { id: parentId, postId },
     });
     if (!parent) {
-      throw new Error("Parent comment not found");
+      throw { status: 404, error: "Parent comment not found" };
     }
   }
 
@@ -127,12 +130,20 @@ export const createComment = async (userId: string, body: object) => {
 };
 
 // TODO: Review this function logic. Not clear how comments getting out.
-export const getComments = async (userId: string, body: object) => {
-  const validationResult = getCommentsSchema.safeParse({ body: body });
+export const getComments = async (
+  userId: string,
+  params: Record<string, unknown>,
+  query: Record<string, unknown>,
+) => {
+  const validationResult = getCommentsSchema.safeParse({ params, query });
   if (!validationResult.success) {
-    throw new Error(JSON.stringify(validationResult.error.flatten()));
+    throw { status: 400, error: validationResult.error.flatten() };
   }
-  const { postId, limit, offset, parentId } = validationResult.data.body;
+
+  const {
+    params: { postId },
+    query: { limit, offset, parentId },
+  } = validationResult.data;
 
   // Check if post exists
   const post = await prisma.post.findUnique({
@@ -140,7 +151,7 @@ export const getComments = async (userId: string, body: object) => {
   });
 
   if (!post) {
-    throw new Error("Post not found");
+    throw { status: 404, error: "Post not found" };
   }
 
   // Try to get from cache first
@@ -202,7 +213,7 @@ export const getComments = async (userId: string, body: object) => {
   };
 
   // TODO: this logic might get his own dedicated place
-  let comments = [] as Array<{
+  let comments: Array<{
     id: string;
     content: string;
     author: {
@@ -216,7 +227,7 @@ export const getComments = async (userId: string, body: object) => {
     likesCount: number;
     _count: { replies: number };
     createdAt: Date;
-  }>;
+  }> = [];
 
   if (!authorId) {
     comments = await prisma.comment.findMany({
@@ -302,14 +313,21 @@ export const getComments = async (userId: string, body: object) => {
   return response;
 };
 
-export const updateComment = async (userId: string, body: object) => {
-  const validationResult = updateCommentSchema.safeParse({ body });
+export const updateComment = async (
+  userId: string,
+  params: Record<string, unknown>,
+  body: object,
+) => {
+  const validationResult = updateCommentSchema.safeParse({ params, body });
 
   if (!validationResult.success) {
     throw { status: 400, error: validationResult.error.flatten() };
   }
 
-  const { commentId, content } = validationResult.data.body;
+  const {
+    params: { commentId },
+    body: { content },
+  } = validationResult.data;
 
   // Check if comment exists
   const comment = await prisma.comment.findUnique({
@@ -317,14 +335,14 @@ export const updateComment = async (userId: string, body: object) => {
   });
 
   if (!comment) {
-    throw new Error("Comment not found");
+    throw { status: 404, error: "Comment not found" };
   }
 
   const authorId: string = userId;
 
   // Check if user is the comment author
   if (comment.authorId !== authorId) {
-    throw new Error("Cannot update other user's comment");
+    throw { status: 403, error: "Cannot update other user's comment" };
   }
 
   // Update comment
@@ -370,24 +388,30 @@ export const updateComment = async (userId: string, body: object) => {
   return response;
 };
 
-export const deleteComment = async (userId: string, body: object) => {
-  const validationResult = deleteCommentSchema.safeParse({ body });
+export const deleteComment = async (
+  userId: string,
+  params: Record<string, unknown>,
+) => {
+  const validationResult = deleteCommentSchema.safeParse({ params });
   if (!validationResult.success) {
-    throw new Error(JSON.stringify(validationResult.error.flatten()));
+    throw { status: 400, error: validationResult.error.flatten() };
   }
-  const { commentId } = validationResult.data.body;
+
+  const {
+    params: { commentId },
+  } = validationResult.data;
 
   // Check if comment exists
   const comment = await prisma.comment.findUnique({
     where: { id: commentId },
   });
   if (!comment) {
-    throw new Error("Comment not found");
+    throw { status: 404, error: "Comment not found" };
   }
   const authorId = userId;
   // Check if user is the comment author
   if (comment.authorId !== authorId) {
-    throw new Error("Cannot delete other user's comment");
+    throw { status: 403, error: "Cannot delete other user's comment" };
   }
   // Count total comments in the subtree to be deleted (including the comment itself)
   const subtreeCount = await countCommentSubtree(commentId);

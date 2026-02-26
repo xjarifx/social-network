@@ -2,14 +2,32 @@ import { prisma } from "../../lib/prisma";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import { randomBytes } from "crypto";
-import { registerSchema } from "./auth.validation";
+import type { RegisterBody, LoginBody } from "./auth.validation";
 
 const SALT_ROUNDS = 10;
-const JWT_SECRET: string = process.env.JWT_SECRET || "";
-const JWT_EXPIRES_IN: string = process.env.JWT_EXPIRES_IN || "";
-const REFRESH_TOKEN_SECRET: string = process.env.REFRESH_TOKEN_SECRET || "";
-const REFRESH_TOKEN_EXPIRES_IN: string =
-  process.env.REFRESH_TOKEN_EXPIRES_IN || "";
+
+const JWT_SECRET: string | undefined = process.env.JWT_SECRET;
+const JWT_EXPIRES_IN: string | undefined = process.env.JWT_EXPIRES_IN;
+const REFRESH_TOKEN_SECRET: string | undefined =
+  process.env.REFRESH_TOKEN_SECRET;
+const REFRESH_TOKEN_EXPIRES_IN: string | undefined =
+  process.env.REFRESH_TOKEN_EXPIRES_IN;
+
+if (!JWT_SECRET) {
+  throw new Error("JWT_SECRET environment variable is not set");
+}
+
+if (!JWT_EXPIRES_IN) {
+  throw new Error("JWT_EXPIRES_IN environment variable is not set");
+}
+
+if (!REFRESH_TOKEN_SECRET) {
+  throw new Error("REFRESH_TOKEN_SECRET environment variable is not set");
+}
+
+if (!REFRESH_TOKEN_EXPIRES_IN) {
+  throw new Error("REFRESH_TOKEN_EXPIRES_IN environment variable is not set");
+}
 
 const generateToken = (userId: string): string => {
   return jwt.sign({ userId }, JWT_SECRET as jwt.Secret, {
@@ -32,17 +50,7 @@ const getRefreshTokenExpiry = (): Date => {
   return new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
 };
 
-export const registerUser = async (input: any) => {
-  // Validate input
-  const validationResult = registerSchema.safeParse({ body: input });
-
-  if (!validationResult.success) {
-    const errors = validationResult.error.issues
-      .map((err) => `${err.path.join(".")}: ${err.message}`)
-      .join("; ");
-    throw new Error(`VALIDATION_ERROR: ${errors}`);
-  }
-
+export const registerUser = async (input: RegisterBody) => {
   const { email, username, password, firstName, lastName } = input;
 
   // Check if email already exists
@@ -124,27 +132,22 @@ export const registerUser = async (input: any) => {
   };
 };
 
-export const loginUser = async (input: any) => {
+export const loginUser = async (input: LoginBody) => {
   // Find user by email
   const user = await prisma.user.findUnique({
     where: { email: input.email },
   });
-
   if (!user) {
     throw new Error("INVALID_CREDENTIALS");
   }
-
   // Verify password
   const isPasswordValid = await bcrypt.compare(input.password, user.password);
-
   if (!isPasswordValid) {
     throw new Error("INVALID_CREDENTIALS");
   }
-
   // Generate JWT token
   const token = generateToken(user.id);
   const refreshToken = generateRefreshToken(user.id);
-
   // Store refresh token in database
   const expiresAt = getRefreshTokenExpiry();
   await prisma.refreshToken.create({
@@ -154,7 +157,6 @@ export const loginUser = async (input: any) => {
       expiresAt,
     },
   });
-
   return {
     accessToken: token,
     refreshToken,
