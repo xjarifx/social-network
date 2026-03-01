@@ -46,9 +46,12 @@ export function TopNav({ onOpenPostComposer }: TopNavProps) {
       <aside className="sticky top-0 hidden h-screen w-64 shrink-0 bg-black px-3 py-2 lg:flex lg:flex-col">
         <button
           onClick={() => navigate("/")}
-          className="mb-3 flex h-12 w-12 cursor-pointer items-center justify-center rounded-full text-left transition hover:bg-white/10"
+          className="mb-3 flex w-fit cursor-pointer items-center gap-2 rounded-full px-3 py-2 text-left transition hover:bg-white/10"
         >
           <img src="/fire.png" alt="Social Network logo" className="h-7 w-7" />
+          <span className="text-[18px] font-semibold text-white">
+            Social Network
+          </span>
         </button>
 
         <nav className="space-y-0.5">

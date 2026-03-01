@@ -14,7 +14,7 @@ const DialogOverlay = React.forwardRef<
   <DialogPrimitive.Overlay
     ref={ref}
     className={cn(
-      "fixed inset-0 z-50 bg-black/65 backdrop-blur-sm data-[state=open]:animate-fade-in",
+      "data-[state=open]:animate-fade-in fixed inset-0 z-50 bg-black/65 backdrop-blur-sm",
       className,
     )}
     {...props}
@@ -31,13 +31,14 @@ const DialogContent = React.forwardRef<
     <DialogPrimitive.Content
       ref={ref}
       className={cn(
-        "fixed left-[50%] top-[50%] z-50 w-full max-w-2xl translate-x-[-50%] translate-y-[-50%] rounded-2xl border border-white/20 bg-white p-0 text-[#202124] shadow-[0_24px_38px_3px_rgba(0,0,0,.14),0_9px_46px_8px_rgba(0,0,0,.12),0_11px_15px_-7px_rgba(0,0,0,.2)] data-[state=open]:animate-scale-in",
+        "data-[state=open]:animate-scale-in fixed top-[50%] left-[50%] z-50 w-full max-w-2xl translate-x-[-50%] translate-y-[-50%] rounded-2xl border border-white/20 bg-white p-0 text-[#202124] shadow-[0_24px_38px_3px_rgba(0,0,0,.14),0_9px_46px_8px_rgba(0,0,0,.12),0_11px_15px_-7px_rgba(0,0,0,.2)]",
         className,
       )}
       {...props}
+      aria-describedby={props["aria-describedby"] ?? undefined}
     >
       {children}
-      <DialogPrimitive.Close className="absolute right-4 top-4 rounded-full p-2 text-current opacity-70 transition hover:opacity-100">
+      <DialogPrimitive.Close className="absolute top-4 right-4 rounded-full p-2 text-current opacity-70 transition hover:opacity-100">
         <X className="h-4 w-4" />
         <span className="sr-only">Close</span>
       </DialogPrimitive.Close>
@@ -83,7 +84,7 @@ const DialogDescription = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <DialogPrimitive.Description
     ref={ref}
-    className={cn("text-sm text-muted-foreground", className)}
+    className={cn("text-muted-foreground text-sm", className)}
     {...props}
   />
 ));

@@ -9,7 +9,7 @@ import { ProBadge } from "../components";
 export default function SearchPage() {
   const navigate = useNavigate();
   const { user: currentUser } = useAuth();
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
   const query = searchParams.get("q") || "";
 
   const [results, setResults] = useState<User[]>([]);
@@ -17,7 +17,13 @@ export default function SearchPage() {
   const [error, setError] = useState<string | null>(null);
   const [total, setTotal] = useState(0);
   const [offset, setOffset] = useState(0);
+  const [searchInput, setSearchInput] = useState(query);
   const limit = 20;
+
+  useEffect(() => {
+    setSearchInput(query);
+    setOffset(0);
+  }, [query]);
 
   useEffect(() => {
     const performSearch = async () => {
@@ -50,6 +56,17 @@ export default function SearchPage() {
     setOffset((prev) => prev + limit);
   };
 
+  const handleSearchSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    const nextQuery = searchInput.trim();
+    setOffset(0);
+    if (!nextQuery) {
+      setSearchParams({});
+      return;
+    }
+    setSearchParams({ q: nextQuery });
+  };
+
   return (
     <div>
       {/* Header */}
@@ -71,6 +88,20 @@ export default function SearchPage() {
           )}
         </div>
       </div>
+
+      <form
+        onSubmit={handleSearchSubmit}
+        className="flex items-center gap-2 border-b border-white/15 bg-white/5 px-4 py-3"
+      >
+        <Search className="h-4 w-4 text-white/60" />
+        <input
+          type="text"
+          value={searchInput}
+          onChange={(event) => setSearchInput(event.target.value)}
+          placeholder="Search users"
+          className="w-full bg-transparent text-[15px] text-white outline-none placeholder:text-white/60"
+        />
+      </form>
 
       {error && (
         <div className="rounded-none border border-[#ea4335]/30 bg-[#fce8e6] px-4 py-3 text-[13px] text-[#c5221f]">

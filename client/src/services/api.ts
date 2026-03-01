@@ -449,9 +449,17 @@ export const commentsAPI = {
     content: string,
     parentId?: string | null,
   ): Promise<Comment> => {
+    const payload: { postId: string; content: string; parentId?: string } = {
+      postId,
+      content,
+    };
+    if (parentId) {
+      payload.parentId = parentId;
+    }
+
     return apiRequest(`/posts/${postId}/comments`, {
       method: "POST",
-      body: JSON.stringify({ content, parentId }),
+      body: JSON.stringify(payload),
     });
   },
 
