@@ -16,7 +16,8 @@ interface AuthContextType {
   }) => Promise<void>;
   logout: () => Promise<void>;
   clearError: () => void;
-  refreshUserProfile: () => Promise<void>;
+  refreshUserProfile: () => Promise<User | null>;
+  setUserPlan: (plan: User["plan"]) => void;
 }
 
 export const AuthContext = createContext<AuthContextType | undefined>(

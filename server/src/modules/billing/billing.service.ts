@@ -1,6 +1,7 @@
 import Stripe from "stripe";
 import { Plan } from "../../generated/prisma/index";
 import { prisma } from "../../lib/prisma";
+import { invalidateTags } from "../../lib/cache";
 
 // ---------------------------------------------------------------------------
 // Stripe init
@@ -49,6 +50,10 @@ const requireUserId = (val: unknown): string => {
   const id = ensureString(val);
   if (!id) throw { status: 401, error: "Unauthorized" };
   return id;
+};
+
+const invalidateUserPlanCaches = async (userId: string) => {
+  await invalidateTags([`user:${userId}`, `timeline:user:${userId}`]);
 };
 
 // ---------------------------------------------------------------------------
@@ -295,6 +300,8 @@ export const handleStripeWebhook = async (
       },
     });
 
+    await invalidateUserPlanCaches(userId);
+
     console.log(`✅ User ${userId} → PRO plan activated`);
     console.log(`   Updated user:`, {
       id: updatedUser.id,
@@ -345,6 +352,8 @@ export const handleStripeWebhook = async (
             : (pi.customer?.id ?? user.stripeCustomerId),
       },
     });
+
+    await invalidateUserPlanCaches(userId);
 
     console.log(`✅ User ${userId} → PRO plan activated`);
     console.log(`   Updated user:`, {
@@ -459,6 +468,7 @@ export const confirmPayment = async (
                 : (session.customer?.id ?? user.stripeCustomerId),
           },
         });
+        await invalidateUserPlanCaches(id);
         console.log(`✅ Database Updated - User now PRO:`, {
           id: updated.id,
           email: updated.email,
@@ -525,6 +535,7 @@ export const confirmPayment = async (
               : (pi.customer?.id ?? user.stripeCustomerId),
         },
       });
+      await invalidateUserPlanCaches(id);
       console.log(`✅ User ${id} → PRO (confirmed via PaymentIntent ${piId})`);
     }
   }
@@ -583,6 +594,8 @@ export const downgradeToFree = async (userId: unknown) => {
       stripeCurrentPeriodEndAt: null,
     },
   });
+
+  await invalidateUserPlanCaches(id);
 
   console.log(`✅ User ${id} downgraded to FREE plan`);
 

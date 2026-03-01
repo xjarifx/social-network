@@ -97,13 +97,24 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   // Refresh the user profile from the server
   // This is useful after plan changes or payment updates
-  const refreshUserProfile = async () => {
+  const refreshUserProfile = async (): Promise<User | null> => {
     try {
       const currentUser = await usersAPI.getCurrentProfile();
       setUser(currentUser);
+      return currentUser;
     } catch (err) {
       console.error("Failed to refresh user profile:", err);
+      return null;
     }
+  };
+
+  const setUserPlan = (plan: User["plan"]) => {
+    setUser((prev) => {
+      if (!prev || prev.plan === plan) {
+        return prev;
+      }
+      return { ...prev, plan };
+    });
   };
 
   const value = {
@@ -116,6 +127,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     logout,
     clearError,
     refreshUserProfile,
+    setUserPlan,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

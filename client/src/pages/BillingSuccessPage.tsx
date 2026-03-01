@@ -8,7 +8,7 @@ import { useAuth } from "../context/auth-context";
 export default function BillingSuccessPage() {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
-  const { refreshUserProfile } = useAuth();
+  const { refreshUserProfile, setUserPlan } = useAuth();
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [paymentStatus, setPaymentStatus] = useState<string | null>(null);
@@ -52,6 +52,9 @@ export default function BillingSuccessPage() {
 
         setPaymentStatus(result.paymentStatus);
         setPlan(result.plan);
+        if (result.plan === "FREE" || result.plan === "PRO") {
+          setUserPlan(result.plan);
+        }
 
         // If webhook hasn't processed yet, poll a few times
         if (
@@ -73,6 +76,9 @@ export default function BillingSuccessPage() {
               `    Response - plan: ${retry.plan}, status: ${retry.paymentStatus}`,
             );
             setPlan(retry.plan);
+            if (retry.plan === "FREE" || retry.plan === "PRO") {
+              setUserPlan(retry.plan);
+            }
             if (retry.plan === "PRO") {
               console.log("  ✅ Plan updated to PRO!");
               break;

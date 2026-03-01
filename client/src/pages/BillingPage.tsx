@@ -10,7 +10,7 @@ import { useAuth } from "../context/auth-context";
 // ---------------------------------------------------------------------------
 
 export default function BillingPage() {
-  const { user } = useAuth();
+  const { user, refreshUserProfile, setUserPlan } = useAuth();
   const [status, setStatus] = useState<BillingStatus | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -23,6 +23,8 @@ export default function BillingPage() {
       setIsLoading(true);
       const response = await billingAPI.getStatus();
       setStatus(response);
+      setUserPlan(response.plan);
+      await refreshUserProfile();
       setError(null);
     } catch (err) {
       const message =
@@ -38,6 +40,8 @@ export default function BillingPage() {
       setIsRefreshing(true);
       const response = await billingAPI.getStatus();
       setStatus(response);
+      setUserPlan(response.plan);
+      await refreshUserProfile();
       setError(null);
     } catch (err) {
       const message =
@@ -107,6 +111,10 @@ export default function BillingPage() {
       console.log("🔄 Starting downgrade to FREE...");
       const result = await billingAPI.downgrade();
       console.log("✅ Downgraded successfully:", result);
+      if (result.plan === "FREE" || result.plan === "PRO") {
+        setUserPlan(result.plan);
+      }
+      await refreshUserProfile();
 
       // Refresh status to reflect the change
       await loadStatus();
@@ -121,7 +129,7 @@ export default function BillingPage() {
   };
 
   // Use auth context user plan as source of truth when available
-  const currentPlan = user?.plan || status?.plan || "FREE";
+  const currentPlan = status?.plan || user?.plan || "FREE";
   const isPro = currentPlan === "PRO";
 
   return (

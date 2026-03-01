@@ -15,20 +15,6 @@ const PROFILE_TTL_SECONDS = 120;
 const TIMELINE_TTL_SECONDS = 30;
 
 export const getCurrentUserProfile = async (userId: string) => {
-  const cacheKey = buildCacheKey("user", "current", userId);
-  const cached = await cacheGet<{
-    id: string;
-    username: string;
-    email: string;
-    firstName: string | null;
-    lastName: string | null;
-    createdAt: Date;
-    plan: string | null;
-  }>(cacheKey);
-  if (cached) {
-    return cached;
-  }
-
   // Fetch user by ID
   const user = await prisma.user.findUnique({
     where: { id: userId },
@@ -46,11 +32,6 @@ export const getCurrentUserProfile = async (userId: string) => {
   if (!user) {
     throw { status: 404, error: "User not found" };
   }
-
-  await cacheSet(cacheKey, user, {
-    ttlSeconds: PROFILE_TTL_SECONDS,
-    tags: [`user:${userId}`],
-  });
 
   return user;
 };
