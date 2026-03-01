@@ -16,6 +16,7 @@ export default function BillingPage() {
   const [error, setError] = useState<string | null>(null);
   const [isRedirecting, setIsRedirecting] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const [isDowngrading, setIsDowngrading] = useState(false);
 
   const loadStatus = async () => {
     try {
@@ -95,6 +96,27 @@ export default function BillingPage() {
         err instanceof Error ? err.message : "Failed to start checkout";
       setError(message);
       setIsRedirecting(false);
+    }
+  };
+
+  const handleDowngradeToFree = async () => {
+    try {
+      setIsDowngrading(true);
+      setError(null);
+
+      console.log("🔄 Starting downgrade to FREE...");
+      const result = await billingAPI.downgrade();
+      console.log("✅ Downgraded successfully:", result);
+
+      // Refresh status to reflect the change
+      await loadStatus();
+    } catch (err) {
+      console.error("❌ Downgrade error:", err);
+      const message =
+        err instanceof Error ? err.message : "Failed to downgrade";
+      setError(message);
+    } finally {
+      setIsDowngrading(false);
     }
   };
 
@@ -183,10 +205,11 @@ export default function BillingPage() {
 
             <Button
               variant="secondary"
-              disabled={!isPro}
+              disabled={!isPro || isDowngrading}
+              onClick={isPro ? handleDowngradeToFree : undefined}
               className="w-full rounded-xl h-11"
             >
-              {!isPro ? "Current Plan" : "Downgrade"}
+              {!isPro ? "Current Plan" : isDowngrading ? "Downgrading..." : "Downgrade"}
             </Button>
           </div>
 

@@ -7,6 +7,7 @@ import {
   handleStripeWebhook,
   getWebhookHealth,
   getRecentSessions,
+  downgradeToFree,
 } from "./billing.service";
 
 // Helper to send error responses
@@ -129,6 +130,20 @@ export const debugRecentSessions = async (
     res.status(200).json(result);
   } catch (error) {
     console.error("Debug sessions error:", error);
+    sendError(res, error);
+  }
+};
+
+// POST /billing/downgrade
+export const downgradeHandler = async (
+  req: Request,
+  res: Response,
+): Promise<void> => {
+  try {
+    const result = await downgradeToFree(req.userId);
+    res.status(200).json(result);
+  } catch (error) {
+    console.error("Downgrade error:", error);
     sendError(res, error);
   }
 };

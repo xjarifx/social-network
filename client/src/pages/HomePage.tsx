@@ -264,7 +264,7 @@ export default function HomePage() {
   return (
     <div className="flex min-h-[calc(100dvh-60px)] flex-col">
       {/* Tab Navigation */}
-      <div className="sticky top-[60px] z-10 border-b border-[#ececec] bg-white/80 backdrop-blur-sm">
+      <div className="sticky top-[60px] z-10 mb-4 border-b border-[#ececec] bg-white/80 backdrop-blur-sm">
         <div className="flex">
           <button
             onClick={() => setActiveTab("forYou")}

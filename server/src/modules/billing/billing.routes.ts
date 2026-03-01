@@ -7,6 +7,7 @@ import {
   stripeWebhook,
   webhookHealth,
   debugRecentSessions,
+  downgradeHandler,
 } from "./billing.controller";
 import { authenticate } from "../../middleware/authenticate.middleware";
 import { generalLimiter } from "../../middleware/rateLimit.middleware";
@@ -187,6 +188,47 @@ router.get(
   authenticate,
   debugRecentSessions,
 );
+
+/**
+ * @openapi
+ * /billing/downgrade:
+ *   post:
+ *     tags: [Billing]
+ *     summary: Downgrade to free plan
+ *     description: Downgrades the authenticated user from PRO to FREE plan.
+ *     security:
+ *       - BearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Successfully downgraded
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 id:
+ *                   type: string
+ *                 email:
+ *                   type: string
+ *                 plan:
+ *                   type: string
+ *                 planStatus:
+ *                   type: string
+ *                   nullable: true
+ *       400:
+ *         description: Already on free plan
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *       500:
+ *         description: Failed to downgrade
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ */
+router.post("/downgrade", generalLimiter, authenticate, downgradeHandler);
 
 /**
  * @openapi

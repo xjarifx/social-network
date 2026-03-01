@@ -608,6 +608,15 @@ export const billingAPI = {
     if (paymentIntentId) params.append("payment_intent_id", paymentIntentId);
     return apiRequest(`/billing/confirm?${params.toString()}`);
   },
+
+  downgrade: async (): Promise<{
+    id: string;
+    email: string;
+    plan: string;
+    planStatus: string | null;
+  }> => {
+    return apiRequest("/billing/downgrade", { method: "POST" });
+  },
 };
 
 // ============================================================================
