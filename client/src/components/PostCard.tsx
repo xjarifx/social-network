@@ -13,7 +13,6 @@ import { Link } from "react-router-dom";
 import { blocksAPI, followsAPI } from "../services/api";
 import { useAuth } from "../context/AuthContext";
 import { ProBadge } from "./ProBadge";
-import { Button } from "./ui/button";
 import {
   DropdownMenu,
   DropdownMenuTrigger,

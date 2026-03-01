@@ -188,7 +188,7 @@ export default function UserProfilePage() {
     : null;
 
   const handleFollowTogglePost = useCallback(
-    async (authorId: string, _currentIsFollowing: boolean) => {
+    async (authorId: string) => {
       if (authorId !== userId) return;
       await handleFollowToggle();
     },

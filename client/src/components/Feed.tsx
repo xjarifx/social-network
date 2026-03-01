@@ -3,7 +3,7 @@ import { MessageCircle } from "lucide-react";
 import { PostCard } from "./PostCard";
 import type { PostProps } from "./PostCard";
 
-export interface FeedProps {
+interface FeedProps {
   posts: PostProps[];
   isLoading?: boolean;
   showPostMenu?: boolean;

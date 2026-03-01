@@ -11,7 +11,7 @@ const REFRESH_TOKEN_KEY = "social_refresh_token";
 // TYPES
 // ============================================================================
 
-export interface AuthResponse {
+interface AuthResponse {
   accessToken: string;
   refreshToken: string;
   user: User;
@@ -68,7 +68,7 @@ export interface Follower {
   user?: UserSummary;
 }
 
-export interface NotificationsResponse {
+interface NotificationsResponse {
   notifications: Notification[];
   total: number;
   limit: number;
@@ -85,7 +85,7 @@ export interface Notification {
   relatedPost?: { id: string; content: string } | null;
 }
 
-export interface BlocksResponse {
+interface BlocksResponse {
   blocked: BlockedUser[];
   total: number;
   limit: number;
@@ -108,21 +108,21 @@ export interface BillingStatus {
   stripeSubscriptionId: string | null;
 }
 
-export interface CommentsResponse {
+interface CommentsResponse {
   comments: Comment[];
   total: number;
   limit: number;
   offset: number;
 }
 
-export interface UserPostsResponse {
+interface UserPostsResponse {
   posts: Post[];
   total: number;
   limit: number;
   offset: number;
 }
 
-export interface SearchUsersResponse {
+interface SearchUsersResponse {
   results: User[];
   total: number;
   limit: number;
@@ -280,7 +280,11 @@ export const authAPI = {
     firstName: string;
     lastName: string;
   }): Promise<AuthResponse> => {
-    const res = await apiRequest<{ success: boolean; data: AuthResponse; error: string | null }>("/auth/register", {
+    const res = await apiRequest<{
+      success: boolean;
+      data: AuthResponse;
+      error: string | null;
+    }>("/auth/register", {
       method: "POST",
       body: JSON.stringify(data),
     });
@@ -291,7 +295,11 @@ export const authAPI = {
     email: string;
     password: string;
   }): Promise<AuthResponse> => {
-    const res = await apiRequest<{ success: boolean; data: AuthResponse; error: string | null }>("/auth/login", {
+    const res = await apiRequest<{
+      success: boolean;
+      data: AuthResponse;
+      error: string | null;
+    }>("/auth/login", {
       method: "POST",
       body: JSON.stringify(data),
     });

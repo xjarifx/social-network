@@ -9,8 +9,6 @@ export default defineConfig({
     rollupOptions: {
       output: {
         manualChunks: {
-          framer: ["framer-motion"],
-          lottie: ["lottie-react"],
           lucide: ["lucide-react"],
           router: ["react-router-dom"],
         },
@@ -22,12 +20,6 @@ export default defineConfig({
     reportCompressedSize: false,
   },
   optimizeDeps: {
-    include: [
-      "framer-motion",
-      "react",
-      "react-dom",
-      "react-router-dom",
-      "lucide-react",
-    ],
+    include: ["react", "react-dom", "react-router-dom", "lucide-react"],
   },
 });

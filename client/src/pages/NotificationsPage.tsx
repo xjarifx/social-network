@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import { notificationsAPI } from "../services/api";
 import type { Notification } from "../services/api";
-import { Button } from "../components/ui/button";
 import { Bell, RefreshCw } from "lucide-react";
 
 export default function NotificationsPage() {
