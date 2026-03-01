@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { usersAPI, type User } from "../services/api";
-import { useAuth } from "../context/AuthContext";
+import { useAuth } from "../context/auth-context";
 import { ChevronLeft, Search } from "lucide-react";
 import { Button } from "../components/ui/button";
 import { ProBadge } from "../components";

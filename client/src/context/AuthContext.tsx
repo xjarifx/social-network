@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useEffect, useMemo } from "react";
+import { useState, useEffect } from "react";
 import type { ReactNode } from "react";
 import {
   authAPI,
@@ -8,27 +8,7 @@ import {
   getAccessToken,
 } from "../services/api";
 import type { User } from "../services/api";
-
-interface AuthContextType {
-  user: User | null;
-  isLoading: boolean;
-  isAuthenticated: boolean;
-  error: string | null;
-  login: (email: string, password: string) => Promise<void>;
-  register: (data: {
-    username: string;
-    email: string;
-    password: string;
-    firstName: string;
-    lastName: string;
-  }) => Promise<void>;
-  logout: () => Promise<void>;
-  clearError: () => void;
-  refreshUserProfile: () => Promise<void>;
-  updateUserPlan: (plan: "FREE" | "PRO") => void;
-}
-
-const AuthContext = createContext<AuthContextType | undefined>(undefined);
+import { AuthContext } from "./auth-context";
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
@@ -126,36 +106,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  // Update user's plan in local state after payment
-  const updateUserPlan = (plan: "FREE" | "PRO") => {
-    if (user) {
-      setUser({ ...user, plan });
-    }
+  const value = {
+    user,
+    isLoading,
+    isAuthenticated: !!user,
+    error,
+    login,
+    register,
+    logout,
+    clearError,
+    refreshUserProfile,
   };
 
-  const value = useMemo(
-    () => ({
-      user,
-      isLoading,
-      isAuthenticated: !!user,
-      error,
-      login,
-      register,
-      logout,
-      clearError,
-      refreshUserProfile,
-      updateUserPlan,
-    }),
-    [user, isLoading, error],
-  );
-
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
-}
-
-export function useAuth() {
-  const context = useContext(AuthContext);
-  if (!context) {
-    throw new Error("useAuth must be used within AuthProvider");
-  }
-  return context;
 }

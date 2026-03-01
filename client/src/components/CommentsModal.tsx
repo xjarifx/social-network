@@ -2,7 +2,7 @@ import { PostCard } from "./PostCard";
 import type { PostProps } from "./PostCard";
 import { ProBadge } from "./ProBadge";
 import type { Comment as ApiComment } from "../services/api";
-import { useAuth } from "../context/AuthContext";
+import { useAuth } from "../context/auth-context";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "./ui/dialog";
 import { Input } from "./ui/input";
 import { Button } from "./ui/button";

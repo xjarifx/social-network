@@ -11,7 +11,7 @@ import {
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { blocksAPI, followsAPI } from "../services/api";
-import { useAuth } from "../context/AuthContext";
+import { useAuth } from "../context/auth-context";
 import { ProBadge } from "./ProBadge";
 import {
   DropdownMenu,

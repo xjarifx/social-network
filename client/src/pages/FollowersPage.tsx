@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { followsAPI } from "../services/api";
 import type { Follower } from "../services/api";
-import { useAuth } from "../context/AuthContext";
+import { useAuth } from "../context/auth-context";
 import { Button } from "../components/ui/button";
 import { Users } from "lucide-react";
 

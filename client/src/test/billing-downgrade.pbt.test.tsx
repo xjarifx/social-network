@@ -37,12 +37,12 @@ vi.mock("../services/api", () => ({
   billingAPI: {
     getStatus: vi.fn(),
     createCheckoutSession: vi.fn(),
-    downgradeToFree: vi.fn(),
+    downgrade: vi.fn(),
   },
 }));
 
-// Mock the AuthContext
-vi.mock("../context/AuthContext", () => ({
+// Mock the auth hook module
+vi.mock("../context/auth-context", () => ({
   useAuth: () => ({
     user: { id: "test-user-id", plan: "PRO", email: "test@example.com" },
   }),

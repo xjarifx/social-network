@@ -3,7 +3,7 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import { billingAPI } from "../services/api";
 import { Button } from "../components/ui/button";
 import { Check } from "lucide-react";
-import { useAuth } from "../context/AuthContext";
+import { useAuth } from "../context/auth-context";
 
 export default function BillingSuccessPage() {
   const [searchParams] = useSearchParams();

@@ -2,7 +2,7 @@ import { useState, useEffect, useMemo, useCallback, useRef } from "react";
 import { postsAPI, likesAPI, followsAPI } from "../services/api";
 import { Feed, CommentsModal } from "../components";
 import type { PostProps } from "../components";
-import { useAuth } from "../context/AuthContext";
+import { useAuth } from "../context/auth-context";
 import { useComments } from "../hooks";
 import { transformPost } from "../utils";
 

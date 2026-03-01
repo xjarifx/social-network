@@ -3,7 +3,7 @@ import { billingAPI } from "../services/api";
 import type { BillingStatus } from "../services/api";
 import { Button } from "../components/ui/button";
 import { Check, Sparkles, RefreshCw } from "lucide-react";
-import { useAuth } from "../context/AuthContext";
+import { useAuth } from "../context/auth-context";
 
 // ---------------------------------------------------------------------------
 // Main billing page - redirects to Stripe Checkout

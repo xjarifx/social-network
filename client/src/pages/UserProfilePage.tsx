@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState, useRef, useCallback } from "react";
 import { useParams } from "react-router-dom";
 import { usersAPI, followsAPI, blocksAPI, likesAPI } from "../services/api";
 import type { User, Follower } from "../services/api";
-import { useAuth } from "../context/AuthContext";
+import { useAuth } from "../context/auth-context";
 import { Feed, CommentsModal, ProBadge } from "../components";
 import type { PostProps } from "../components";
 import { useComments } from "../hooks";

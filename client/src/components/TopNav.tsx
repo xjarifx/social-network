@@ -1,7 +1,7 @@
 import { useNavigate, useLocation } from "react-router-dom";
 import { Home, Bell, Search, User, CreditCard, LogOut } from "lucide-react";
 import { useState } from "react";
-import { useAuth } from "../context/AuthContext";
+import { useAuth } from "../context/auth-context";
 import { cn } from "../lib/utils";
 import {
   Dialog,

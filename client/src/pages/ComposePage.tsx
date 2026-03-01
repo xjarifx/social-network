@@ -5,7 +5,7 @@ import { postsAPI } from "../services/api";
 import { Textarea } from "../components/ui/textarea";
 import { Button } from "../components/ui/button";
 import { Input } from "../components/ui/input";
-import { useAuth } from "../context/AuthContext";
+import { useAuth } from "../context/auth-context";
 
 export default function ComposePage() {
   const navigate = useNavigate();

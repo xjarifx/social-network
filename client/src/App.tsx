@@ -1,7 +1,8 @@
 import { lazy, Suspense } from "react";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { Toaster } from "sonner";
-import { AuthProvider, useAuth } from "./context/AuthContext";
+import { AuthProvider } from "./context/AuthContext";
+import { useAuth } from "./context/auth-context";
 import { TopNav } from "./components/TopNav";
 import { RightSidebar } from "./components/RightSidebar";
 import { MobileNav } from "./components";
