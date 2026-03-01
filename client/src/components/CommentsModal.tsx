@@ -86,7 +86,7 @@ export function CommentsModal({
           <div className="min-w-0 flex-1">
             <div className="flex flex-wrap items-center justify-between gap-2">
               <p
-                className={`font-semibold text-[#202124] inline-flex items-center gap-1 ${
+                className={`inline-flex items-center gap-1 font-semibold text-white ${
                   isRoot ? "text-[13px]" : "text-[12px]"
                 }`}
               >
@@ -98,7 +98,7 @@ export function CommentsModal({
                   <Button
                     variant="ghost"
                     size="sm"
-                    className="h-6 px-2 text-[11px]"
+                    className="h-6 px-2 text-[11px] text-white/70 hover:bg-white/10 hover:text-white"
                     onClick={() =>
                       commentsApi.handleStartEditComment(post.id, comment)
                     }
@@ -125,7 +125,11 @@ export function CommentsModal({
                   onChange={(e) =>
                     commentsApi.setCommentEditDraft(comment.id, e.target.value)
                   }
-                  className={isRoot ? "h-9" : "h-8 text-[12px]"}
+                  className={
+                    isRoot
+                      ? "h-9 border-white/20 bg-black text-white placeholder:text-white/45"
+                      : "h-8 border-white/20 bg-black text-[12px] text-white placeholder:text-white/45"
+                  }
                 />
                 <div className="flex items-center gap-2">
                   <Button
@@ -139,6 +143,7 @@ export function CommentsModal({
                   <Button
                     size="sm"
                     variant="ghost"
+                    className="text-white/70 hover:bg-white/10 hover:text-white"
                     onClick={() =>
                       commentsApi.handleCancelEditComment(post.id, comment.id)
                     }
@@ -149,7 +154,7 @@ export function CommentsModal({
               </div>
             ) : (
               <p
-                className={`mt-1 leading-5 text-[#202124] ${
+                className={`mt-1 leading-5 text-white/90 ${
                   isRoot ? "text-[14px]" : "text-[13px]"
                 }`}
               >
@@ -158,12 +163,14 @@ export function CommentsModal({
             )}
 
             {!isEditing && (
-              <div className="mt-1.5 flex flex-wrap items-center gap-1 text-[#5f6368]">
+              <div className="mt-1.5 flex flex-wrap items-center gap-1 text-white/60">
                 <Button
                   variant="ghost"
                   size="sm"
                   className={`h-7 px-2 text-[12px] ${
-                    isLiked ? "text-[#ea4335]" : "hover:text-[#202124]"
+                    isLiked
+                      ? "text-[#ea4335] hover:text-[#ea4335]"
+                      : "text-white/70 hover:bg-white/10 hover:text-white"
                   }`}
                   onClick={() =>
                     commentsApi.handleToggleCommentLike(post.id, comment.id)
@@ -177,7 +184,7 @@ export function CommentsModal({
                 <Button
                   variant="ghost"
                   size="sm"
-                  className="h-7 px-2 text-[12px]"
+                  className="h-7 px-2 text-[12px] text-white/70 hover:bg-white/10 hover:text-white"
                   onClick={() => commentsApi.toggleReplies(post.id, comment.id)}
                 >
                   <MessageCircle className={actionIconSize} />
@@ -191,9 +198,9 @@ export function CommentsModal({
         </div>
 
         {repliesExpanded && (
-          <div className="ml-10 space-y-3 border-l border-[#e8eaed] pl-4">
-            <div className="rounded-xl bg-[#f8f9fa] px-3 py-2">
-              <p className="mb-2 text-[11px] font-medium text-[#5f6368]">
+          <div className="ml-10 space-y-3 border-l border-white/15 pl-4">
+            <div className="rounded-xl border border-white/15 bg-white/5 px-3 py-2">
+              <p className="mb-2 text-[11px] font-medium text-white/65">
                 Reply to {authorName}
               </p>
               <div className="flex flex-wrap items-center gap-2">
@@ -203,7 +210,7 @@ export function CommentsModal({
                     commentsApi.setReplyDraft(comment.id, e.target.value)
                   }
                   placeholder="Write a reply..."
-                  className="h-8 flex-1 text-[12px]"
+                  className="h-8 flex-1 border-white/20 bg-black text-[12px] text-white placeholder:text-white/45"
                 />
                 <Button
                   onClick={() =>
@@ -217,11 +224,11 @@ export function CommentsModal({
             </div>
 
             {repliesLoading ? (
-              <p className="text-[12px] text-[#5f6368]">Loading replies...</p>
+              <p className="text-[12px] text-white/60">Loading replies...</p>
             ) : replies.length > 0 ? (
               replies.map((reply) => renderComment(reply, depth + 1))
             ) : (
-              <p className="text-[12px] text-[#5f6368]">No replies yet.</p>
+              <p className="text-[12px] text-white/60">No replies yet.</p>
             )}
 
             {repliesHasMore && (
@@ -245,7 +252,7 @@ export function CommentsModal({
 
   return (
     <Dialog onOpenChange={(open: boolean) => !open && onClose()} open>
-      <DialogContent className="max-h-[90vh] max-w-2xl overflow-y-auto">
+      <DialogContent className="scrollbar-hidden max-h-[90vh] max-w-2xl overflow-y-auto border-white/15 bg-black text-white">
         <DialogHeader>
           <DialogTitle>Post</DialogTitle>
         </DialogHeader>
@@ -257,11 +264,11 @@ export function CommentsModal({
             onLike={onLike}
             onFollowToggle={onFollowToggle}
           />
-          <div className="rounded-2xl bg-[#f8f9fa] p-4">
-            <p className="text-[12px] font-medium uppercase tracking-wide text-[#5f6368]">
+          <div className="rounded-2xl border border-white/15 bg-white/5 p-4">
+            <p className="text-[12px] font-medium uppercase tracking-wide text-white/65">
               Comments
             </p>
-            <div className="my-3 h-px bg-[#e8eaed]" />
+            <div className="my-3 h-px bg-white/15" />
 
             <div className="flex flex-wrap items-center gap-2">
               <Input
@@ -270,7 +277,7 @@ export function CommentsModal({
                   commentsApi.setCommentDraft(post.id, e.target.value)
                 }
                 placeholder="Write a comment..."
-                className="h-10 flex-1"
+                className="h-10 flex-1 border-white/20 bg-black text-white placeholder:text-white/45"
               />
               <Button
                 onClick={() => commentsApi.handleAddComment(post.id)}
@@ -282,13 +289,11 @@ export function CommentsModal({
 
             <div className="mt-4 space-y-2">
               {isLoading ? (
-                <p className="text-[13px] text-[#5f6368]">
-                  Loading comments...
-                </p>
+                <p className="text-[13px] text-white/60">Loading comments...</p>
               ) : comments.length > 0 ? (
                 comments.map((comment) => renderComment(comment))
               ) : (
-                <p className="text-[13px] text-[#5f6368]">No comments yet.</p>
+                <p className="text-[13px] text-white/60">No comments yet.</p>
               )}
 
               {hasMore && (

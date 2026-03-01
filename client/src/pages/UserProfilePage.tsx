@@ -198,7 +198,7 @@ export default function UserProfilePage() {
   return (
     <div className="space-y-6">
       {/* Profile Hero */}
-      <div className="overflow-hidden rounded-2xl bg-white">
+      <div className="border-y border-white/15 bg-black">
         <div className="px-6 py-5">
           {error && (
             <div className="mb-4 rounded-xl border border-[#ea4335]/30 bg-[#fce8e6] px-4 py-3 text-[13px] text-[#c5221f]">
@@ -208,22 +208,22 @@ export default function UserProfilePage() {
 
           {isLoading ? (
             <div className="py-6">
-              <p className="text-[13px] text-[#5f6368]">Loading user...</p>
+              <p className="text-[13px] text-white/65">Loading user...</p>
             </div>
           ) : (
             <>
               <div className="flex items-end gap-5">
-                <div className="flex h-20 w-20 shrink-0 items-center justify-center rounded-2xl border-4 border-white bg-[#e8f0fe] text-[20px] font-medium text-[#1a73e8] shadow-lg">
+                <div className="flex h-20 w-20 shrink-0 items-center justify-center rounded-2xl border-4 border-white/20 bg-[#e8f0fe] text-[20px] font-medium text-[#1a73e8] shadow-lg">
                   {profile?.firstName?.[0] || ""}
                   {profile?.lastName?.[0] || ""}
                 </div>
                 <div className="flex flex-1 items-center justify-between gap-4 pb-1">
                   <div>
-                    <p className="text-[20px] font-medium text-[#202124] flex items-center gap-2">
+                    <p className="flex items-center gap-2 text-[20px] font-medium text-white">
                       {profile?.firstName} {profile?.lastName}
                       <ProBadge isPro={profile?.plan === "PRO"} />
                     </p>
-                    <p className="text-[13px] text-[#5f6368]">
+                    <p className="text-[13px] text-white/65">
                       @{profile?.username}
                     </p>
                   </div>
@@ -255,9 +255,6 @@ export default function UserProfilePage() {
 
       {/* Posts */}
       <div>
-        <h3 className="mb-4 text-[15px] font-medium text-[#202124] px-1">
-          Posts
-        </h3>
         {postsError && (
           <div className="mb-4 rounded-xl border border-[#ea4335]/30 bg-[#fce8e6] px-4 py-3 text-[13px] text-[#c5221f]">
             {postsError}

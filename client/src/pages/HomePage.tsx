@@ -462,7 +462,7 @@ export default function HomePage() {
   return (
     <div className="flex min-h-[calc(100dvh-60px)] flex-col">
       {/* Tab Navigation */}
-      <div className="sticky top-0 z-10 mb-4 border-b border-white/15 bg-black/85 backdrop-blur-sm">
+      <div className="sticky top-0 z-10 border-b border-white/15 bg-black/85 backdrop-blur-sm">
         <div className="flex divide-x divide-white/10 border-b border-white/10">
           <button
             onClick={() => setActiveTab("forYou")}
@@ -488,7 +488,7 @@ export default function HomePage() {
         {/* Underline indicator */}
         <div className="relative h-1 bg-white/10">
           <div
-            className={`absolute top-0 h-full w-1/2 bg-white transition-all duration-300 ${
+            className={`absolute top-0 h-full w-1/2 bg-blue-400 transition-all duration-300 ${
               activeTab === "following" ? "translate-x-full" : ""
             }`}
           />
