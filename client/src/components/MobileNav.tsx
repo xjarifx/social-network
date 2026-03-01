@@ -6,7 +6,7 @@ const navItems = [
   { icon: Home, label: "Home", to: "/" },
   { icon: PenSquare, label: "Post", to: "/compose" },
   { icon: Bell, label: "Alerts", to: "/notifications" },
-  { icon: CreditCard, label: "Billing", to: "/billing" },
+  { icon: CreditCard, label: "Subscription", to: "/billing" },
   { icon: User, label: "Profile", to: "/profile" },
 ];
 
@@ -16,7 +16,7 @@ export function MobileNav() {
 
   return (
     <div className="fixed bottom-4 left-4 right-4 z-40 lg:hidden">
-      <div className="mx-auto max-w-[400px] flex items-center justify-around rounded-2xl bg-white px-2 py-2 shadow-[0_2px_8px_0_rgba(60,64,67,.25),0_1px_3px_0_rgba(60,64,67,.15)]">
+      <div className="mx-auto flex max-w-105 items-center justify-around rounded-2xl border border-[#1a73e8]/35 bg-black px-2 py-2 shadow-[0_0_0_1px_rgba(26,115,232,.12)]">
         {navItems.map((item) => {
           const isActive = location.pathname === item.to;
           return (
@@ -26,8 +26,8 @@ export function MobileNav() {
               className={cn(
                 "relative flex h-10 w-10 items-center justify-center rounded-xl transition cursor-pointer",
                 isActive
-                  ? "text-[#1a73e8] bg-[#e8f0fe]"
-                  : "text-[#5f6368] hover:text-[#202124] hover:bg-[#f1f3f4]",
+                  ? "bg-[#1a73e8]/25 text-[#4da3ff]"
+                  : "text-white hover:bg-[#1a73e8]/15",
               )}
               title={item.label}
             >

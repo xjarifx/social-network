@@ -88,7 +88,7 @@ export default function RegisterPage() {
   };
 
   const strengthColor: Record<number, string> = {
-    0: "bg-[#dadce0]",
+    0: "bg-white/10",
     1: "bg-[#ea4335]",
     2: "bg-[#fa7b17]",
     3: "bg-[#f9ab00]",
@@ -97,19 +97,19 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="flex min-h-screen bg-white">
+    <div className="flex min-h-screen bg-black text-white">
       {/* Left Panel — Brand */}
-      <div className="hidden lg:flex lg:w-[480px] xl:w-[560px] shrink-0 flex-col items-center justify-center bg-[#e8f0fe] px-12">
-        <div className="max-w-[340px] text-center">
+      <div className="hidden shrink-0 flex-col items-center justify-center border-r border-white/10 bg-[#0f1419] px-12 lg:flex lg:w-120 xl:w-140">
+        <div className="max-w-85 text-center">
           <img
-            src="/cloud.png"
+            src="/fire.png"
             alt="Social Network logo"
             className="mx-auto mb-6 h-20 w-20"
           />
-          <h2 className="text-[28px] font-normal text-[#202124]">
+          <h2 className="text-[28px] font-semibold text-white">
             Join Social Network
           </h2>
-          <p className="mt-3 text-[15px] leading-relaxed text-[#5f6368]">
+          <p className="mt-3 text-[15px] leading-relaxed text-white/70">
             Create your account and start connecting with people around the
             world.
           </p>
@@ -118,32 +118,32 @@ export default function RegisterPage() {
 
       {/* Right Panel — Form */}
       <div className="flex flex-1 items-center justify-center px-6 py-12">
-        <div className="w-full max-w-[460px]">
+        <div className="w-full max-w-115">
           {/* Mobile logo */}
           <div className="mb-8 text-center lg:hidden">
             <img
-              src="/cloud.png"
+              src="/fire.png"
               alt="Social Network logo"
               className="mx-auto mb-4 h-14 w-14"
             />
           </div>
 
-          <h1 className="text-[28px] font-normal text-[#202124]">
+          <h1 className="text-[32px] font-bold text-white">
             Create your account
           </h1>
-          <p className="mt-2 text-[15px] text-[#5f6368]">
+          <p className="mt-2 text-[15px] text-white/70">
             Join the Social Network
           </p>
 
           {error && (
-            <div className="mt-6 rounded-xl border border-[#ea4335]/30 bg-[#fce8e6] px-4 py-3 text-[13px] text-[#c5221f]">
+            <div className="mt-6 rounded-xl border border-[#ea4335]/50 bg-[#2b1215] px-4 py-3 text-[13px] text-[#ff8380]">
               {error}
             </div>
           )}
 
           <form onSubmit={handleSubmit} className="mt-8 space-y-4">
             <div>
-              <label className="mb-1.5 block text-[13px] font-medium text-[#5f6368]">
+              <label className="mb-1.5 block text-[13px] font-medium text-white/70">
                 Username
               </label>
               <Input
@@ -162,7 +162,7 @@ export default function RegisterPage() {
             </div>
 
             <div>
-              <label className="mb-1.5 block text-[13px] font-medium text-[#5f6368]">
+              <label className="mb-1.5 block text-[13px] font-medium text-white/70">
                 Email address
               </label>
               <Input
@@ -182,7 +182,7 @@ export default function RegisterPage() {
 
             <div className="grid gap-3 sm:grid-cols-2">
               <div>
-                <label className="mb-1.5 block text-[13px] font-medium text-[#5f6368]">
+                <label className="mb-1.5 block text-[13px] font-medium text-white/70">
                   First name
                 </label>
                 <Input
@@ -200,7 +200,7 @@ export default function RegisterPage() {
                 )}
               </div>
               <div>
-                <label className="mb-1.5 block text-[13px] font-medium text-[#5f6368]">
+                <label className="mb-1.5 block text-[13px] font-medium text-white/70">
                   Last name
                 </label>
                 <Input
@@ -220,7 +220,7 @@ export default function RegisterPage() {
             </div>
 
             <div>
-              <label className="mb-1.5 block text-[13px] font-medium text-[#5f6368]">
+              <label className="mb-1.5 block text-[13px] font-medium text-white/70">
                 Password
               </label>
               <div className="relative">
@@ -235,7 +235,7 @@ export default function RegisterPage() {
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-[#5f6368] hover:text-[#202124] cursor-pointer"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-white/60 hover:text-white cursor-pointer"
                 >
                   {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                 </button>
@@ -247,9 +247,7 @@ export default function RegisterPage() {
                     <div
                       key={s}
                       className={`h-1.5 flex-1 rounded-full transition-all ${
-                        s <= passwordStrength
-                          ? strengthColor[s]
-                          : "bg-[#e8eaed]"
+                        s <= passwordStrength ? strengthColor[s] : "bg-white/10"
                       }`}
                     />
                   ))}
@@ -261,7 +259,7 @@ export default function RegisterPage() {
                   {fieldErrors.password}
                 </p>
               )}
-              <p className="mt-1 text-[11px] text-[#80868b]">
+              <p className="mt-1 text-[11px] text-white/50">
                 Must be 8+ characters with uppercase, number, and special
                 character
               </p>
@@ -284,7 +282,7 @@ export default function RegisterPage() {
             </div>
           </form>
 
-          <p className="mt-10 text-[11px] text-[#80868b]">
+          <p className="mt-10 text-[11px] text-white/50">
             By creating an account, you agree to our Terms of Service and
             Privacy Policy
           </p>

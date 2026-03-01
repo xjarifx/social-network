@@ -3,6 +3,7 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { Toaster } from "sonner";
 import { AuthProvider, useAuth } from "./context/AuthContext";
 import { TopNav } from "./components/TopNav";
+import { RightSidebar } from "./components/RightSidebar";
 import { MobileNav } from "./components";
 import { ProtectedRoute } from "./components/ProtectedRoute";
 
@@ -32,13 +33,16 @@ function PageFallback() {
 
 function AppLayout({ children }: { children: React.ReactNode }) {
   return (
-    <div className="min-h-screen bg-[#f8f9fa] text-[#202124]">
-      <TopNav />
-      {/* Centered single column layout */}
-      <div className="pb-20 pt-[80px] lg:pt-20 lg:pb-0">
-        <div className="mx-auto w-full max-w-[680px]">
-          {/* Main content */}
-          <main className="w-full">{children}</main>
+    <div className="min-h-screen bg-black text-white">
+      <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div className="lg:flex lg:items-start lg:gap-4 xl:gap-6">
+          <TopNav />
+          <div className="min-w-0 flex-1 pb-20 pt-16 lg:pb-8 lg:pt-0">
+            <div className="mx-auto w-full max-w-150">
+              <main className="w-full">{children}</main>
+            </div>
+          </div>
+          <RightSidebar />
         </div>
       </div>
       <MobileNav />
@@ -248,7 +252,7 @@ function App() {
       <AuthProvider>
         <AppRoutes />
       </AuthProvider>
-      <Toaster position="top-right" theme="light" />
+      <Toaster position="top-right" theme="dark" />
     </BrowserRouter>
   );
 }

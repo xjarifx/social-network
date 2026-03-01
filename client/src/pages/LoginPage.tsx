@@ -55,36 +55,36 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="flex min-h-screen bg-white">
+    <div className="flex min-h-screen bg-black text-white">
       {/* Left Panel — Brand / Illustration */}
-      <div className="hidden lg:flex lg:w-[480px] xl:w-[560px] shrink-0 flex-col items-center justify-center bg-[#e8f0fe] px-12">
-        <div className="max-w-[340px] text-center">
+      <div className="hidden shrink-0 flex-col items-center justify-center border-r border-white/10 bg-[#0f1419] px-12 lg:flex lg:w-120 xl:w-140">
+        <div className="max-w-85 text-center">
           <img
-            src="/cloud.png"
+            src="/fire.png"
             alt="Social Network logo"
             className="mx-auto mb-6 h-20 w-20"
           />
-          <h2 className="text-[28px] font-normal text-[#202124]">
+          <h2 className="text-[28px] font-semibold text-white">
             Welcome to Social Network
           </h2>
-          <p className="mt-3 text-[15px] leading-relaxed text-[#5f6368]">
+          <p className="mt-3 text-[15px] leading-relaxed text-white/70">
             Connect with friends, share your thoughts, and discover what's
             happening in the world.
           </p>
           <div className="mt-10 flex flex-col gap-4">
-            <div className="flex items-center gap-3 rounded-2xl bg-white/70 px-4 py-3 text-left">
-              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#1a73e8]/10 text-[#1a73e8]">
+            <div className="flex items-center gap-3 rounded-2xl border border-white/10 bg-[#16181c] px-4 py-3 text-left">
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#1d9bf0]/20 text-[#1d9bf0]">
                 <ArrowRight className="h-5 w-5" />
               </div>
-              <p className="text-[13px] text-[#3c4043]">
+              <p className="text-[13px] text-white/80">
                 Share your ideas with a growing community
               </p>
             </div>
-            <div className="flex items-center gap-3 rounded-2xl bg-white/70 px-4 py-3 text-left">
-              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#1a73e8]/10 text-[#1a73e8]">
+            <div className="flex items-center gap-3 rounded-2xl border border-white/10 bg-[#16181c] px-4 py-3 text-left">
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#1d9bf0]/20 text-[#1d9bf0]">
                 <ArrowRight className="h-5 w-5" />
               </div>
-              <p className="text-[13px] text-[#3c4043]">
+              <p className="text-[13px] text-white/80">
                 Follow people and stay up to date
               </p>
             </div>
@@ -94,30 +94,30 @@ export default function LoginPage() {
 
       {/* Right Panel — Form */}
       <div className="flex flex-1 items-center justify-center px-6 py-12">
-        <div className="w-full max-w-[400px]">
+        <div className="w-full max-w-100">
           {/* Mobile logo */}
           <div className="mb-8 text-center lg:hidden">
             <img
-              src="/cloud.png"
+              src="/fire.png"
               alt="Social Network logo"
               className="mx-auto mb-4 h-14 w-14"
             />
           </div>
 
-          <h1 className="text-[28px] font-normal text-[#202124]">Sign in</h1>
-          <p className="mt-2 text-[15px] text-[#5f6368]">
+          <h1 className="text-[32px] font-bold text-white">Sign in</h1>
+          <p className="mt-2 text-[15px] text-white/70">
             Use your Social Network account
           </p>
 
           {error && (
-            <div className="mt-6 rounded-xl border border-[#ea4335]/30 bg-[#fce8e6] px-4 py-3 text-[13px] text-[#c5221f]">
+            <div className="mt-6 rounded-xl border border-[#ea4335]/50 bg-[#2b1215] px-4 py-3 text-[13px] text-[#ff8380]">
               {error}
             </div>
           )}
 
           <form onSubmit={handleSubmit} className="mt-8 space-y-5">
             <div>
-              <label className="mb-1.5 block text-[13px] font-medium text-[#5f6368]">
+              <label className="mb-1.5 block text-[13px] font-medium text-white/70">
                 Email address
               </label>
               <Input
@@ -136,7 +136,7 @@ export default function LoginPage() {
             </div>
 
             <div>
-              <label className="mb-1.5 block text-[13px] font-medium text-[#5f6368]">
+              <label className="mb-1.5 block text-[13px] font-medium text-white/70">
                 Password
               </label>
               <div className="relative">
@@ -151,7 +151,7 @@ export default function LoginPage() {
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-[#5f6368] hover:text-[#202124] cursor-pointer"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-white/60 hover:text-white cursor-pointer"
                 >
                   {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                 </button>
@@ -180,7 +180,7 @@ export default function LoginPage() {
             </div>
           </form>
 
-          <p className="mt-10 text-[11px] text-[#80868b]">
+          <p className="mt-10 text-[11px] text-white/50">
             By signing in, you agree to our Terms of Service and Privacy Policy
           </p>
         </div>

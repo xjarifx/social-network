@@ -1,6 +1,6 @@
 import { createContext, useEffect, useMemo } from "react";
 
-type Theme = "light";
+type Theme = "dark";
 
 interface ThemeContextValue {
   theme: Theme;
@@ -13,13 +13,13 @@ const ThemeContext = createContext<ThemeContextValue | undefined>(undefined);
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     const root = document.documentElement;
-    root.classList.remove("dark");
-    root.setAttribute("data-theme", "light");
+    root.classList.add("dark");
+    root.setAttribute("data-theme", "dark");
   }, []);
 
   const value = useMemo(
     () => ({
-      theme: "light" as Theme,
+      theme: "dark" as Theme,
       setTheme: () => {},
       toggleTheme: () => {},
     }),

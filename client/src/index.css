@@ -2,25 +2,25 @@
 @import url("https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;600;700&family=Google+Sans+Text:wght@400;500;600&family=Roboto:wght@400;500&display=swap");
 
 :root {
-  color-scheme: light;
-  --background: 0 0% 97.5%;
-  --foreground: 0 0% 13%;
-  --card: 0 0% 100%;
-  --card-foreground: 0 0% 13%;
-  --popover: 0 0% 100%;
-  --popover-foreground: 0 0% 13%;
+  color-scheme: dark;
+  --background: 0 0% 0%;
+  --foreground: 0 0% 100%;
+  --card: 0 0% 6%;
+  --card-foreground: 0 0% 100%;
+  --popover: 0 0% 6%;
+  --popover-foreground: 0 0% 100%;
   --primary: 214 82% 51%;
   --primary-foreground: 0 0% 100%;
-  --secondary: 214 100% 96%;
-  --secondary-foreground: 214 82% 51%;
-  --muted: 0 0% 94%;
-  --muted-foreground: 0 0% 45%;
-  --accent: 214 100% 96%;
-  --accent-foreground: 214 82% 51%;
+  --secondary: 214 45% 18%;
+  --secondary-foreground: 214 90% 72%;
+  --muted: 0 0% 10%;
+  --muted-foreground: 0 0% 85%;
+  --accent: 214 45% 18%;
+  --accent-foreground: 214 90% 72%;
   --destructive: 4 90% 58%;
   --destructive-foreground: 0 0% 100%;
-  --border: 0 0% 85.5%;
-  --input: 0 0% 85.5%;
+  --border: 214 40% 28%;
+  --input: 214 40% 28%;
   --ring: 214 82% 51%;
   --radius: 16px;
 }
@@ -35,8 +35,8 @@ html {
 }
 
 body {
-  background: #f8f9fa;
-  color: #202124;
+  background: #000;
+  color: #fff;
   font-family: "Google Sans Text", "Google Sans", "Roboto", Arial, sans-serif;
   margin: 0;
   min-height: 100vh;
@@ -55,6 +55,42 @@ h4,
 h5,
 h6 {
   font-family: "Google Sans", "Roboto", Arial, sans-serif;
+}
+
+a {
+  color: #4da3ff;
+}
+
+.bg-white,
+.bg-\[\#f8f9fa\],
+.bg-\[\#f1f3f4\],
+.bg-\[\#e8eaed\],
+.bg-\[\#ececec\],
+.bg-white\/70,
+.bg-white\/80 {
+  background-color: #0f1013 !important;
+}
+
+.text-\[\#202124\],
+.text-\[\#3c4043\],
+.text-\[\#5f6368\],
+.text-\[\#80868b\] {
+  color: #fff !important;
+}
+
+.border-\[\#e8eaed\],
+.border-\[\#dadce0\],
+.border-\[\#ececec\] {
+  border-color: rgba(77, 163, 255, 0.35) !important;
+}
+
+.hover\:bg-\[\#f1f3f4\]:hover,
+.hover\:bg-gray-100:hover {
+  background-color: rgba(77, 163, 255, 0.14) !important;
+}
+
+.hover\:text-\[\#202124\]:hover {
+  color: #fff !important;
 }
 
 @layer utilities {
