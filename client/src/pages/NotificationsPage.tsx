@@ -49,7 +49,7 @@ export default function NotificationsPage() {
   };
 
   return (
-    <div className="space-y-5">
+    <div>
       {/* Header */}
       <div className="flex items-center justify-between border-b border-white/15 p-3">
         <h1 className="text-[20px] font-medium text-white">Notifications</h1>
