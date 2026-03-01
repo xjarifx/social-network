@@ -56,8 +56,8 @@ function AppLayout({ children }: { children: React.ReactNode }) {
       <div className="mx-auto w-full max-w-7xl px-0 sm:px-6 lg:px-8">
         <div className="lg:flex lg:items-start lg:gap-4 xl:gap-6">
           <TopNav onOpenPostComposer={() => setIsPostComposerOpen(true)} />
-          <div className="min-h-screen min-w-0 flex-1 border-white/15 pt-16 pb-20 lg:border-x lg:pt-0 lg:pb-8">
-            <div className="mx-auto w-full max-w-150">
+          <div className="min-h-screen min-w-0 flex-1 pt-16 pb-20 lg:pt-0 lg:pb-8">
+            <div className="mx-auto min-h-screen w-full max-w-150 border-x border-white/15">
               <main className="w-full">{children}</main>
             </div>
           </div>
