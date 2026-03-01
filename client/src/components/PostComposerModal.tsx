@@ -138,48 +138,44 @@ export function PostComposerModal({
             value={content}
             onChange={(event) => setContent(event.target.value)}
             placeholder="What's on your mind?"
-            className={`min-h-36 resize-none rounded-xl border-white/15 bg-white/5 text-[15px] shadow-none focus-visible:ring-1 ${isOverLimit ? "focus-visible:ring-[#d33b27]" : "focus-visible:ring-[#1a73e8]"}`}
+            className={`min-h-36 resize-none rounded-xl border-white/15 bg-white/5 text-[15px] text-white placeholder:text-white/45 caret-white shadow-none focus-visible:ring-1 ${isOverLimit ? "focus-visible:ring-[#d33b27]" : "focus-visible:ring-[#1a73e8]"}`}
             autoFocus
           />
 
-          <div className="flex flex-wrap items-center gap-3">
-            <label className="text-[12px] font-medium text-white/70">
-              Visibility
-            </label>
-            <select
-              value={visibility}
-              onChange={(event) =>
-                setVisibility(event.target.value as "PUBLIC" | "PRIVATE")
-              }
-              className="h-9 rounded-xl border border-white/20 bg-black px-3 text-[13px] text-white focus:outline-none focus:ring-1 focus:ring-[#1a73e8]"
-            >
-              <option value="PUBLIC">Public</option>
-              <option value="PRIVATE">Private</option>
-            </select>
-            <button
-              type="button"
-              onClick={() => fileInputRef.current?.click()}
-              className="flex items-center gap-2 rounded-full border border-white/20 bg-white/5 px-3 py-2 text-[13px] text-white/85 transition hover:bg-white/10"
-              aria-label="Upload media"
-              title="Upload media"
-            >
-              <Image className="h-4 w-4" />
-              <span>Media</span>
-            </button>
-            <span className="truncate text-[12px] text-white/60">
-              {mediaFile ? mediaFile.name : "Attach image or video"}
-            </span>
-            <input
-              type="file"
-              accept="image/*,video/*"
-              onChange={handleMediaChange}
-              ref={fileInputRef}
-              className="hidden"
-            />
+          <div>
+            <div className="flex flex-wrap items-center gap-2 sm:gap-3">
+              <select
+                value={visibility}
+                onChange={(event) =>
+                  setVisibility(event.target.value as "PUBLIC" | "PRIVATE")
+                }
+                className="h-9 min-w-27.5 rounded-xl border border-white/20 bg-black px-3 text-[13px] text-white focus:outline-none focus:ring-1 focus:ring-[#1a73e8]"
+              >
+                <option value="PUBLIC">Public</option>
+                <option value="PRIVATE">Private</option>
+              </select>
+              <button
+                type="button"
+                onClick={() => fileInputRef.current?.click()}
+                className="flex h-9 shrink-0 items-center gap-2 rounded-full border border-white/20 bg-white/5 px-3 text-[13px] text-white/90 transition hover:bg-white/10"
+                aria-label="Upload media"
+                title="Upload media"
+              >
+                <Image className="h-4 w-4" />
+                <span>Media</span>
+              </button>
+              <input
+                type="file"
+                accept="image/*,video/*"
+                onChange={handleMediaChange}
+                ref={fileInputRef}
+                className="hidden"
+              />
+            </div>
             {visibility === "PRIVATE" && (
-              <span className="text-[12px] text-white/60">
+              <p className="mt-2 text-[11px] text-white/55">
                 Only you can see this post
-              </span>
+              </p>
             )}
           </div>
 

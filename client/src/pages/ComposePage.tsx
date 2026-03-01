@@ -133,9 +133,7 @@ export default function ComposePage() {
 
         <div className="mt-4 space-y-3">
           <div className="flex flex-wrap items-center gap-3">
-            <label className="text-[12px] font-medium text-[#5f6368]">
-              Visibility
-            </label>
+            
             <select
               value={visibility}
               onChange={(event) =>
