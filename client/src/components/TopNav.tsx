@@ -55,14 +55,14 @@ export function TopNav() {
                 key={item.to}
                 onClick={() => navigate(item.to)}
                 className={cn(
-                  "flex w-fit items-center gap-4 rounded-full px-4 py-3 text-left text-[28px] leading-none transition cursor-pointer",
+                  "flex w-fit items-center gap-3 rounded-full px-4 py-3 text-left transition cursor-pointer",
                   isActive
                     ? "font-semibold text-white"
                     : "font-normal text-white hover:bg-white/10",
                 )}
               >
-                <item.icon className="h-7 w-7" />
-                <span className="text-[31px]">{item.label}</span>
+                <item.icon className="h-6 w-6" />
+                <span className="text-[21px] leading-none">{item.label}</span>
               </button>
             );
           })}
@@ -70,17 +70,17 @@ export function TopNav() {
 
         <button
           onClick={() => navigate("/compose")}
-          className="mt-4 w-full rounded-full bg-white px-6 py-3 text-[24px] font-semibold text-black transition hover:bg-white/90 cursor-pointer"
+          className="mt-4 w-full rounded-full bg-[#ffffff] px-6 py-3 text-[18px] font-semibold text-black transition hover:bg-[#f2f2f2] cursor-pointer"
         >
           Post
         </button>
 
         <button
           onClick={() => setShowLogoutConfirm(true)}
-          className="mt-auto flex items-center gap-3 rounded-full px-3 py-3 text-left text-[22px] text-white transition hover:bg-white/10 cursor-pointer"
+          className="mt-auto flex items-center gap-3 rounded-full px-3 py-3 text-left text-[17px] text-white transition hover:bg-white/10 cursor-pointer"
           title="Sign Out"
         >
-          <LogOut className="h-6 w-6" />
+          <LogOut className="h-5 w-5" />
           <span>Sign Out</span>
         </button>
       </aside>

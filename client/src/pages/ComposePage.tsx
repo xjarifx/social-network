@@ -127,7 +127,7 @@ export default function ComposePage() {
           value={content}
           onChange={(event) => setContent(event.target.value)}
           placeholder="What's on your mind?"
-          className={`min-h-[160px] border-none bg-[#f8f9fa] rounded-xl text-[15px] shadow-none focus-visible:ring-1 ${isOverLimit ? "focus-visible:ring-[#d33b27]" : "focus-visible:ring-[#1a73e8]"} resize-none`}
+          className={`min-h-40 border-none bg-[#f8f9fa] rounded-xl text-[15px] shadow-none focus-visible:ring-1 ${isOverLimit ? "focus-visible:ring-[#d33b27]" : "focus-visible:ring-[#1a73e8]"} resize-none`}
           autoFocus
         />
 
@@ -238,7 +238,7 @@ export default function ComposePage() {
           <Button
             onClick={handleSubmit}
             disabled={!canSubmit || isSubmitting || isOverLimit}
-            className="rounded-xl h-11 px-8"
+            className="h-11 rounded-xl bg-[#ffffff] px-8 text-black hover:bg-[#f2f2f2]"
             title={
               isOverLimit ? `Post exceeds ${charLimit} character limit` : "Post"
             }

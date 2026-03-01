@@ -3,13 +3,10 @@ import { Search } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 const demoTrends = [
-  { category: "Politics · Trending", title: "U.S. and Israel" },
-  { category: "Trending in Bangladesh", title: "#WorldWar3" },
-  { category: "Business & finance · Trending", title: "Strait of Hormuz" },
-  {
-    category: "Trending in Bangladesh",
-    title: "#الحرب_العالمية_الثالثة",
-  },
+  { category: "Technology · Trending", title: "AI tools for creators" },
+  { category: "Lifestyle · Trending", title: "Weekend travel ideas" },
+  { category: "Science · Trending", title: "New space telescope images" },
+  { category: "Culture · Trending", title: "Top movies this month" },
 ];
 
 export function RightSidebar() {
