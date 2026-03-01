@@ -138,7 +138,7 @@ export function PostComposerModal({
             value={content}
             onChange={(event) => setContent(event.target.value)}
             placeholder="What's on your mind?"
-            className={`min-h-36 resize-none rounded-xl border-white/15 bg-white/5 text-[15px] text-white placeholder:text-white/45 caret-white shadow-none focus-visible:ring-1 ${isOverLimit ? "focus-visible:ring-[#d33b27]" : "focus-visible:ring-[#1a73e8]"}`}
+            className={`min-h-36 resize-none rounded-xl border-white/15 bg-white/5 text-[15px] text-white caret-white shadow-none placeholder:text-white/45 focus-visible:ring-1 ${isOverLimit ? "focus-visible:ring-[#d33b27]" : "focus-visible:ring-[#1a73e8]"}`}
             autoFocus
           />
 
@@ -149,7 +149,7 @@ export function PostComposerModal({
                 onChange={(event) =>
                   setVisibility(event.target.value as "PUBLIC" | "PRIVATE")
                 }
-                className="h-9 min-w-27.5 rounded-xl border border-white/20 bg-black px-3 text-[13px] text-white focus:outline-none focus:ring-1 focus:ring-[#1a73e8]"
+                className="h-9 min-w-27.5 rounded-xl border border-white/20 bg-black px-3 text-[13px] text-white focus:ring-1 focus:ring-[#1a73e8] focus:outline-none"
               >
                 <option value="PUBLIC">Public</option>
                 <option value="PRIVATE">Private</option>

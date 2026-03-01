@@ -49,7 +49,7 @@ export default function FollowersPage() {
             <div key={i} className="border-b border-white/15 bg-white/5 p-5">
               <div className="flex items-center gap-3">
                 <div className="h-11 w-11 animate-pulse rounded-none bg-white/15" />
-                <div className="space-y-2 flex-1">
+                <div className="flex-1 space-y-2">
                   <div className="h-3 w-24 animate-pulse rounded bg-white/15" />
                   <div className="h-2.5 w-16 animate-pulse rounded bg-white/10" />
                 </div>

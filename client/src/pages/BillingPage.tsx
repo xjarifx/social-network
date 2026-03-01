@@ -173,7 +173,7 @@ export default function BillingPage() {
               </div>
             </div>
 
-            <div className="space-y-3 mb-8">
+            <div className="mb-8 space-y-3">
               <div className="flex items-center gap-2.5">
                 <div className="flex h-6 w-6 items-center justify-center rounded-lg bg-[#e8f0fe]">
                   <Check className="h-3.5 w-3.5 text-[#1a73e8]" />
@@ -226,7 +226,7 @@ export default function BillingPage() {
               </div>
             </div>
 
-            <div className="space-y-3 mb-8">
+            <div className="mb-8 space-y-3">
               <div className="flex items-center gap-2.5">
                 <div className="flex h-6 w-6 items-center justify-center rounded-lg bg-[#e8f0fe]">
                   <Check className="h-3.5 w-3.5 text-[#1a73e8]" />

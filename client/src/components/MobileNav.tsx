@@ -15,7 +15,7 @@ export function MobileNav() {
   const location = useLocation();
 
   return (
-    <div className="fixed bottom-4 left-4 right-4 z-40 lg:hidden">
+    <div className="fixed right-4 bottom-4 left-4 z-40 lg:hidden">
       <div className="mx-auto flex max-w-105 items-center justify-around rounded-2xl border border-[#1a73e8]/35 bg-black px-2 py-2 shadow-[0_0_0_1px_rgba(26,115,232,.12)]">
         {navItems.map((item) => {
           const isActive = location.pathname === item.to;
@@ -24,7 +24,7 @@ export function MobileNav() {
               key={item.to}
               onClick={() => navigate(item.to)}
               className={cn(
-                "relative flex h-10 w-10 items-center justify-center rounded-xl transition cursor-pointer",
+                "relative flex h-10 w-10 cursor-pointer items-center justify-center rounded-xl transition",
                 isActive
                   ? "bg-[#1a73e8]/25 text-[#4da3ff]"
                   : "text-white hover:bg-[#1a73e8]/15",

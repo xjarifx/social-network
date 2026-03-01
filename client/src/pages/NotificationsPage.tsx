@@ -80,7 +80,7 @@ export default function NotificationsPage() {
           ))}
         </div>
       ) : notifications.length === 0 ? (
-        <div className=" border border-white/15 bg-white/5 px-6 py-16 text-center">
+        <div className="border border-white/15 bg-white/5 px-6 py-16 text-center">
           <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-[#1a73e8]/20">
             <Bell className="h-7 w-7 text-[#1a73e8]" />
           </div>

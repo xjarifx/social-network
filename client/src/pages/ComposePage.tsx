@@ -109,7 +109,7 @@ export default function ComposePage() {
 
       <div className="rounded-2xl bg-white p-6">
         {/* Author header */}
-        <div className="flex items-center gap-3 mb-5">
+        <div className="mb-5 flex items-center gap-3">
           <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-[#1a73e8] text-[14px] font-medium text-white">
             {initials}
           </div>
@@ -127,19 +127,18 @@ export default function ComposePage() {
           value={content}
           onChange={(event) => setContent(event.target.value)}
           placeholder="What's on your mind?"
-          className={`min-h-40 border-none bg-[#f8f9fa] rounded-xl text-[15px] shadow-none focus-visible:ring-1 ${isOverLimit ? "focus-visible:ring-[#d33b27]" : "focus-visible:ring-[#1a73e8]"} resize-none`}
+          className={`min-h-40 rounded-xl border-none bg-[#f8f9fa] text-[15px] shadow-none focus-visible:ring-1 ${isOverLimit ? "focus-visible:ring-[#d33b27]" : "focus-visible:ring-[#1a73e8]"} resize-none`}
           autoFocus
         />
 
         <div className="mt-4 space-y-3">
           <div className="flex flex-wrap items-center gap-3">
-            
             <select
               value={visibility}
               onChange={(event) =>
                 setVisibility(event.target.value as "PUBLIC" | "PRIVATE")
               }
-              className="h-9 rounded-xl border border-[#e8eaed] bg-white px-3 text-[13px] text-[#202124] focus:outline-none focus:ring-1 focus:ring-[#1a73e8]"
+              className="h-9 rounded-xl border border-[#e8eaed] bg-white px-3 text-[13px] text-[#202124] focus:ring-1 focus:ring-[#1a73e8] focus:outline-none"
             >
               <option value="PUBLIC">Public</option>
               <option value="PRIVATE">Private</option>
@@ -189,7 +188,7 @@ export default function ComposePage() {
         {/* Character count and progress bar */}
         <div className="mt-4 space-y-2">
           {/* Progress bar */}
-          <div className="h-1.5 bg-[#e8eaed] rounded-full overflow-hidden">
+          <div className="h-1.5 overflow-hidden rounded-full bg-[#e8eaed]">
             <div
               className="h-full transition-all duration-200"
               style={{

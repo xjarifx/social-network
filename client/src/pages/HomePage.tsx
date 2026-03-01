@@ -335,7 +335,7 @@ export default function HomePage() {
             value={composerText}
             onChange={(event) => setComposerText(event.target.value)}
             placeholder="What's happening?"
-            className="h-16 w-full resize-none bg-transparent text-[18px] leading-6 text-white placeholder:text-white/45 outline-none"
+            className="h-16 w-full resize-none bg-transparent text-[18px] leading-6 text-white outline-none placeholder:text-white/45"
           />
 
           <div className="mt-2 flex items-center justify-between">
@@ -495,10 +495,10 @@ export default function HomePage() {
         </div>
       </div>
 
-      <div className="relative flex-1 min-h-0 overflow-hidden">
+      <div className="relative min-h-0 flex-1 overflow-hidden">
         <div
           ref={forYouScrollRef}
-          className={`absolute inset-0 overflow-y-auto border-t border-white/10 scrollbar-hidden ${
+          className={`scrollbar-hidden absolute inset-0 overflow-y-auto border-t border-white/10 ${
             activeTab === "forYou" ? "block" : "hidden"
           }`}
         >
@@ -525,7 +525,7 @@ export default function HomePage() {
         </div>
         <div
           ref={followingScrollRef}
-          className={`absolute inset-0 overflow-y-auto border-t border-white/10 scrollbar-hidden ${
+          className={`scrollbar-hidden absolute inset-0 overflow-y-auto border-t border-white/10 ${
             activeTab === "following" ? "block" : "hidden"
           }`}
         >

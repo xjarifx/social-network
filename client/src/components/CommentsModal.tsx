@@ -238,7 +238,7 @@ export function CommentsModal({
                     commentsApi.handleLoadMoreReplies(post.id, comment.id)
                   }
                   disabled={repliesMoreLoading}
-                  className="text-[12px] font-medium text-[#1a73e8] hover:underline disabled:opacity-50 cursor-pointer"
+                  className="cursor-pointer text-[12px] font-medium text-[#1a73e8] hover:underline disabled:opacity-50"
                 >
                   {repliesMoreLoading ? "Loading..." : "Show more replies"}
                 </button>
@@ -265,7 +265,7 @@ export function CommentsModal({
             onFollowToggle={onFollowToggle}
           />
           <div className="rounded-2xl border border-white/15 bg-white/5 p-4">
-            <p className="text-[12px] font-medium uppercase tracking-wide text-white/65">
+            <p className="text-[12px] font-medium tracking-wide text-white/65 uppercase">
               Comments
             </p>
             <div className="my-3 h-px bg-white/15" />
@@ -301,7 +301,7 @@ export function CommentsModal({
                   <button
                     onClick={() => commentsApi.handleLoadMoreComments(post.id)}
                     disabled={isMoreLoading}
-                    className="text-[13px] font-medium text-[#1a73e8] hover:underline disabled:opacity-50 cursor-pointer"
+                    className="cursor-pointer text-[13px] font-medium text-[#1a73e8] hover:underline disabled:opacity-50"
                   >
                     {isMoreLoading ? "Loading..." : "Show more comments"}
                   </button>

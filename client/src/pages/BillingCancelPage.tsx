@@ -20,7 +20,7 @@ export default function BillingCancelPage() {
           Your checkout was cancelled. No charges have been made to your
           account.
         </p>
-        <div className="flex gap-3 justify-center">
+        <div className="flex justify-center gap-3">
           <Button
             variant="secondary"
             onClick={() => navigate("/")}

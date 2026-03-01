@@ -170,7 +170,7 @@ function PostCardComponent({
           <DropdownMenu open={isMenuOpen} onOpenChange={setIsMenuOpen}>
             <DropdownMenuTrigger asChild>
               <button
-                className="cursor-pointer rounded-xl p-1.5 text-white/70 opacity-0 transition hover:bg-white/10 group-hover:opacity-100"
+                className="cursor-pointer rounded-xl p-1.5 text-white/70 opacity-0 transition group-hover:opacity-100 hover:bg-white/10"
                 aria-label="Post actions"
               >
                 <MoreHorizontal className="h-4 w-4" />
@@ -227,7 +227,7 @@ function PostCardComponent({
 
           <div className="min-w-0 flex-1">
             {/* Author + Timestamp on same line */}
-            <div className="flex items-center gap-2 flex-wrap">
+            <div className="flex flex-wrap items-center gap-2">
               {authorId && user?.id !== authorId ? (
                 <Link to={`/users/${authorId}`}>
                   <span className="inline-flex items-center gap-1 text-[14px] font-medium text-white hover:underline">
@@ -257,7 +257,7 @@ function PostCardComponent({
             {/* Content — directly under name, indented with avatar */}
             <div className="mt-2">
               {content.trim().length > 0 && (
-                <p className="whitespace-pre-wrap text-[14px] leading-5.5 text-white">
+                <p className="text-[14px] leading-5.5 whitespace-pre-wrap text-white">
                   {content}
                 </p>
               )}
@@ -274,13 +274,13 @@ function PostCardComponent({
                     <video
                       src={image}
                       controls
-                      className="h-auto w-full max-h-96 object-cover"
+                      className="h-auto max-h-96 w-full object-cover"
                     />
                   ) : (
                     <img
                       src={image}
                       alt="Post"
-                      className="h-auto w-full max-h-96 object-cover"
+                      className="h-auto max-h-96 w-full object-cover"
                     />
                   )}
                 </div>
@@ -291,7 +291,7 @@ function PostCardComponent({
             <div className="mt-3 flex items-center gap-2">
               <button
                 onClick={handleLike}
-                className={`cursor-pointer inline-flex items-center gap-1.5 rounded-xl px-3 py-1.5 text-[13px] font-medium transition ${
+                className={`inline-flex cursor-pointer items-center gap-1.5 rounded-xl px-3 py-1.5 text-[13px] font-medium transition ${
                   isLiked
                     ? "bg-red-500/20 text-red-400"
                     : "text-white/80 hover:bg-white/10"
@@ -302,7 +302,7 @@ function PostCardComponent({
               </button>
               <button
                 onClick={() => onReply?.(id)}
-                className="cursor-pointer inline-flex items-center gap-1.5 rounded-xl px-3 py-1.5 text-[13px] font-medium text-white/80 transition hover:bg-white/10"
+                className="inline-flex cursor-pointer items-center gap-1.5 rounded-xl px-3 py-1.5 text-[13px] font-medium text-white/80 transition hover:bg-white/10"
               >
                 <MessageCircle className="h-4 w-4" />
                 <span>{replies}</span>

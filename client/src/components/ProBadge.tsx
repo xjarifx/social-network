@@ -11,7 +11,7 @@ export function ProBadge({ isPro, className = "" }: ProBadgeProps) {
       src="/verify.png"
       alt="Pro user"
       title="Pro user"
-      className={`h-4 w-4 inline-block ${className}`}
+      className={`inline-block h-4 w-4 ${className}`}
     />
   );
 }

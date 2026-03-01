@@ -35,19 +35,19 @@ function FeedComponent({
         {[...Array(3)].map((_, i) => (
           <div key={i} className="border border-white/15 bg-black p-5">
             <div className="flex items-start gap-4">
-              <div className="h-12 w-12 rounded-2xl bg-white/10 animate-pulse" />
+              <div className="h-12 w-12 animate-pulse rounded-2xl bg-white/10" />
               <div className="flex-1 space-y-3">
                 <div className="flex gap-2">
-                  <div className="h-3 w-24 rounded-lg bg-white/10 animate-pulse" />
-                  <div className="h-3 w-16 rounded-lg bg-white/10 animate-pulse" />
+                  <div className="h-3 w-24 animate-pulse rounded-lg bg-white/10" />
+                  <div className="h-3 w-16 animate-pulse rounded-lg bg-white/10" />
                 </div>
                 <div className="space-y-2">
-                  <div className="h-3 w-full rounded-lg bg-white/10 animate-pulse" />
-                  <div className="h-3 w-4/5 rounded-lg bg-white/10 animate-pulse" />
+                  <div className="h-3 w-full animate-pulse rounded-lg bg-white/10" />
+                  <div className="h-3 w-4/5 animate-pulse rounded-lg bg-white/10" />
                 </div>
                 <div className="flex gap-2">
-                  <div className="h-7 w-16 rounded-xl bg-white/10 animate-pulse" />
-                  <div className="h-7 w-16 rounded-xl bg-white/10 animate-pulse" />
+                  <div className="h-7 w-16 animate-pulse rounded-xl bg-white/10" />
+                  <div className="h-7 w-16 animate-pulse rounded-xl bg-white/10" />
                 </div>
               </div>
             </div>

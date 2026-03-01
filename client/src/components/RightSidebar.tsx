@@ -21,7 +21,7 @@ export function RightSidebar() {
   };
 
   return (
-    <aside className="sticky top-2 hidden w-88 shrink-0 self-start space-y-4 xl:block">
+    <aside className="sticky top-2 hidden w-88 shrink-0 space-y-4 self-start xl:block">
       <form
         onSubmit={handleSubmit}
         className="flex items-center gap-2 rounded-full border border-white/15 bg-black px-4 py-2.5"
@@ -32,7 +32,7 @@ export function RightSidebar() {
           value={query}
           onChange={(event) => setQuery(event.target.value)}
           placeholder="Search"
-          className="w-full bg-transparent text-[15px] text-white placeholder:text-white/60 outline-none"
+          className="w-full bg-transparent text-[15px] text-white outline-none placeholder:text-white/60"
         />
       </form>
 
@@ -51,7 +51,7 @@ export function RightSidebar() {
         </p>
         <button
           onClick={() => navigate("/billing")}
-          className="rounded-full bg-[#1d9bf0] px-4 py-2 text-[15px] font-bold text-white transition hover:bg-[#1a8cd8] cursor-pointer"
+          className="cursor-pointer rounded-full bg-[#1d9bf0] px-4 py-2 text-[15px] font-bold text-white transition hover:bg-[#1a8cd8]"
         >
           Subscribe
         </button>
@@ -65,7 +65,7 @@ export function RightSidebar() {
           {demoTrends.map((trend) => (
             <button
               key={trend.title}
-              className="block w-full rounded-xl px-2 py-3 text-left transition hover:bg-white/5 cursor-pointer"
+              className="block w-full cursor-pointer rounded-xl px-2 py-3 text-left transition hover:bg-white/5"
             >
               <p className="text-[13px] text-white/60">{trend.category}</p>
               <p className="mt-0.5 text-[17px] leading-5 font-bold text-white">
@@ -74,7 +74,7 @@ export function RightSidebar() {
             </button>
           ))}
         </div>
-        <button className="mt-2 rounded-full px-3 py-1.5 text-[15px] text-[#1d9bf0] transition hover:bg-white/5 cursor-pointer">
+        <button className="mt-2 cursor-pointer rounded-full px-3 py-1.5 text-[15px] text-[#1d9bf0] transition hover:bg-white/5">
           Show more
         </button>
       </section>

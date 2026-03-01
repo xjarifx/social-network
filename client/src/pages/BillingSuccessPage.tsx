@@ -103,7 +103,7 @@ export default function BillingSuccessPage() {
     return (
       <div className="flex min-h-100 items-center justify-center space-y-6">
         <div className="text-center">
-          <div className="h-10 w-10 animate-spin rounded-full border-2 border-primary border-t-transparent mx-auto mb-4" />
+          <div className="border-primary mx-auto mb-4 h-10 w-10 animate-spin rounded-full border-2 border-t-transparent" />
           <p className="text-[15px] text-white/60">
             Confirming your payment...
           </p>
@@ -126,7 +126,7 @@ export default function BillingSuccessPage() {
               Payment Error
             </h1>
             <p className="mb-6 text-[15px] text-white/70">{error}</p>
-            <div className="flex gap-3 justify-center">
+            <div className="flex justify-center gap-3">
               <Button
                 onClick={() => navigate("/billing")}
                 className="h-11 rounded-none"

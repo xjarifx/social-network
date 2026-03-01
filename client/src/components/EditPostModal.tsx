@@ -56,13 +56,12 @@ export function EditPostModal({
           />
 
           <div className="flex flex-wrap items-center gap-3">
-            
             <select
               value={visibility}
               onChange={(event) =>
                 onVisibilityChange(event.target.value as "PUBLIC" | "PRIVATE")
               }
-              className="h-9 rounded-xl border border-[#e8eaed] bg-white px-3 text-[13px] text-[#202124] focus:outline-none focus:ring-1 focus:ring-[#1a73e8]"
+              className="h-9 rounded-xl border border-[#e8eaed] bg-white px-3 text-[13px] text-[#202124] focus:ring-1 focus:ring-[#1a73e8] focus:outline-none"
             >
               <option value="PUBLIC">Public</option>
               <option value="PRIVATE">Private</option>

@@ -46,7 +46,7 @@ export function TopNav({ onOpenPostComposer }: TopNavProps) {
       <aside className="sticky top-0 hidden h-screen w-64 shrink-0 bg-black px-3 py-2 lg:flex lg:flex-col">
         <button
           onClick={() => navigate("/")}
-          className="mb-3 flex h-12 w-12 items-center justify-center rounded-full text-left transition hover:bg-white/10 cursor-pointer"
+          className="mb-3 flex h-12 w-12 cursor-pointer items-center justify-center rounded-full text-left transition hover:bg-white/10"
         >
           <img src="/fire.png" alt="Social Network logo" className="h-7 w-7" />
         </button>
@@ -59,7 +59,7 @@ export function TopNav({ onOpenPostComposer }: TopNavProps) {
                 key={item.to}
                 onClick={() => navigate(item.to)}
                 className={cn(
-                  "flex w-fit items-center gap-3 rounded-full px-4 py-3 text-left transition cursor-pointer",
+                  "flex w-fit cursor-pointer items-center gap-3 rounded-full px-4 py-3 text-left transition",
                   isActive
                     ? "font-semibold text-white"
                     : "font-normal text-white hover:bg-white/10",
@@ -76,14 +76,14 @@ export function TopNav({ onOpenPostComposer }: TopNavProps) {
           onClick={() =>
             onOpenPostComposer ? onOpenPostComposer() : navigate("/compose")
           }
-          className="mt-4 w-full rounded-full bg-[#ffffff] px-6 py-3 text-[18px] font-semibold text-black transition hover:bg-[#f2f2f2] cursor-pointer"
+          className="mt-4 w-full cursor-pointer rounded-full bg-[#ffffff] px-6 py-3 text-[18px] font-semibold text-black transition hover:bg-[#f2f2f2]"
         >
           Post
         </button>
 
         <button
           onClick={() => setShowLogoutConfirm(true)}
-          className="mt-auto flex items-center gap-3 rounded-full px-3 py-3 text-left text-[17px] text-white transition hover:bg-white/10 cursor-pointer"
+          className="mt-auto flex cursor-pointer items-center gap-3 rounded-full px-3 py-3 text-left text-[17px] text-white transition hover:bg-white/10"
           title="Sign Out"
         >
           <LogOut className="h-5 w-5" />
@@ -91,11 +91,11 @@ export function TopNav({ onOpenPostComposer }: TopNavProps) {
         </button>
       </aside>
 
-      <header className="fixed left-0 right-0 top-0 z-50 border-b border-[#1a73e8]/35 bg-black/95 px-4 py-3 backdrop-blur-sm lg:hidden">
+      <header className="fixed top-0 right-0 left-0 z-50 border-b border-[#1a73e8]/35 bg-black/95 px-4 py-3 backdrop-blur-sm lg:hidden">
         <div className="flex items-center gap-2">
           <button
             onClick={() => navigate("/")}
-            className="flex items-center gap-2 shrink-0 cursor-pointer"
+            className="flex shrink-0 cursor-pointer items-center gap-2"
           >
             <img
               src="/fire.png"
@@ -109,7 +109,7 @@ export function TopNav({ onOpenPostComposer }: TopNavProps) {
 
           <button
             onClick={() => navigate("/search")}
-            className="ml-auto flex h-9 w-9 items-center justify-center rounded-full bg-[#1a73e8]/25 text-[#4da3ff] transition hover:bg-[#1a73e8]/35 cursor-pointer"
+            className="ml-auto flex h-9 w-9 cursor-pointer items-center justify-center rounded-full bg-[#1a73e8]/25 text-[#4da3ff] transition hover:bg-[#1a73e8]/35"
             title="Search"
           >
             <Search className="h-5 w-5" />
@@ -117,7 +117,7 @@ export function TopNav({ onOpenPostComposer }: TopNavProps) {
 
           <button
             onClick={() => setShowLogoutConfirm(true)}
-            className="flex h-9 w-9 items-center justify-center rounded-full text-white transition hover:bg-[#1a73e8]/15 cursor-pointer"
+            className="flex h-9 w-9 cursor-pointer items-center justify-center rounded-full text-white transition hover:bg-[#1a73e8]/15"
             title="Sign Out"
           >
             <LogOut className="h-4.5 w-4.5" />

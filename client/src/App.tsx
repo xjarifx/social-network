@@ -26,8 +26,8 @@ const SearchPage = lazy(() => import("./pages/SearchPage"));
 
 function PageFallback() {
   return (
-    <div className="min-h-screen flex items-center justify-center">
-      <div className="h-10 w-10 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+    <div className="flex min-h-screen items-center justify-center">
+      <div className="border-primary h-10 w-10 animate-spin rounded-full border-2 border-t-transparent" />
     </div>
   );
 }
@@ -56,7 +56,7 @@ function AppLayout({ children }: { children: React.ReactNode }) {
       <div className="mx-auto w-full max-w-7xl px-0 sm:px-6 lg:px-8">
         <div className="lg:flex lg:items-start lg:gap-4 xl:gap-6">
           <TopNav onOpenPostComposer={() => setIsPostComposerOpen(true)} />
-          <div className="min-h-screen min-w-0 flex-1 border-white/15 pb-20 pt-16 lg:border-x lg:pb-8 lg:pt-0">
+          <div className="min-h-screen min-w-0 flex-1 border-white/15 pt-16 pb-20 lg:border-x lg:pt-0 lg:pb-8">
             <div className="mx-auto w-full max-w-150">
               <main className="w-full">{children}</main>
             </div>
