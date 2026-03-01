@@ -26,18 +26,20 @@ export default function BlocksPage() {
     loadBlocked();
   }, []);
 
-  const handleUnblock = async (userId: string) => {
+  const handleUnblock = async (username: string) => {
     try {
-      await blocksAPI.unblockUser(userId);
-      setBlocked((prev) => prev.filter((item) => item.user.id !== userId));
+      await blocksAPI.unblockUser(username);
+      setBlocked((prev) =>
+        prev.filter((item) => item.user.username !== username),
+      );
     } catch (err) {
       console.error("Failed to unblock user:", err);
     }
   };
 
   return (
-    <div className="space-y-5">
-      <h1 className="border-b border-white/15 pb-3 text-[20px] font-medium text-white">
+    <div>
+      <h1 className="border-b border-white/15 p-3 text-[20px] font-medium text-white">
         Blocked users
       </h1>
 
@@ -53,7 +55,7 @@ export default function BlocksPage() {
             <div key={i} className="border-b border-white/15 bg-white/5 p-5">
               <div className="flex items-center gap-3">
                 <div className="h-10 w-10 animate-pulse rounded-none bg-white/15" />
-                <div className="space-y-2 flex-1">
+                <div className="flex-1 space-y-2">
                   <div className="h-3 w-24 animate-pulse rounded bg-white/15" />
                   <div className="h-2.5 w-16 animate-pulse rounded bg-white/10" />
                 </div>
@@ -93,7 +95,7 @@ export default function BlocksPage() {
                 </div>
               </div>
               <button
-                onClick={() => handleUnblock(item.user.id)}
+                onClick={() => handleUnblock(item.user.username)}
                 className="cursor-pointer rounded-none px-4 py-1.5 text-[13px] font-medium text-[#ea4335] transition hover:bg-[#ea4335]/15"
               >
                 Unblock

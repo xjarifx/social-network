@@ -119,17 +119,17 @@ function PostCardComponent({
   }, [canActOnUser, authorId, isFollowing, onFollowToggle, user?.id]);
 
   const handleBlock = useCallback(async () => {
-    if (!canActOnUser || !authorId) return;
+    if (!canActOnUser || !author.handle) return;
     try {
       setIsActionLoading(true);
-      await blocksAPI.blockUser(authorId);
+      await blocksAPI.blockUser(author.handle);
       setIsMenuOpen(false);
     } catch (err) {
       console.error("Failed to block user:", err);
     } finally {
       setIsActionLoading(false);
     }
-  }, [canActOnUser, authorId]);
+  }, [canActOnUser, author.handle]);
 
   const handleDelete = useCallback(async () => {
     if (!onDelete) return;

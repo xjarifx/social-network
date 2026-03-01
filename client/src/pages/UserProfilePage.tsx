@@ -134,10 +134,10 @@ export default function UserProfilePage() {
   };
 
   const handleBlock = async () => {
-    if (!userId) return;
+    if (!profile?.username) return;
     try {
       setIsBlocking(true);
-      await blocksAPI.blockUser(userId);
+      await blocksAPI.blockUser(profile.username);
     } catch (err) {
       console.error("Failed to block user:", err);
     } finally {

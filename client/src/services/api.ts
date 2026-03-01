@@ -98,6 +98,10 @@ export interface BlockedUser {
   user: UserSummary;
 }
 
+type RawBlockedUser =
+  | BlockedUser
+  | (UserSummary & { blockedAt?: string; createdAt?: string });
+
 export interface BillingStatus {
   id: string;
   email: string;
@@ -570,18 +574,102 @@ export const notificationsAPI = {
 
 export const blocksAPI = {
   list: async (limit = 20, offset = 0): Promise<BlocksResponse> => {
-    return apiRequest(`/blocks?limit=${limit}&offset=${offset}`);
+    const response = await apiRequest<
+      | BlocksResponse
+      | RawBlockedUser[]
+      | {
+          blocked: RawBlockedUser[];
+          total?: number;
+          limit?: number;
+          offset?: number;
+        }
+    >(`/blocks?limit=${limit}&offset=${offset}`);
+
+    const rawBlocked = Array.isArray(response)
+      ? response
+      : Array.isArray(response?.blocked)
+        ? response.blocked
+        : [];
+
+    const blocked: BlockedUser[] = rawBlocked
+      .map((entry) => {
+        if (
+          entry &&
+          typeof entry === "object" &&
+          "user" in entry &&
+          entry.user
+        ) {
+          return {
+            id: entry.id,
+            blockedAt: entry.blockedAt,
+            user: entry.user,
+          } as BlockedUser;
+        }
+
+        if (
+          entry &&
+          typeof entry === "object" &&
+          "id" in entry &&
+          "username" in entry &&
+          "firstName" in entry &&
+          "lastName" in entry
+        ) {
+          const userSummary = entry as UserSummary & {
+            blockedAt?: string;
+            createdAt?: string;
+          };
+          return {
+            id: userSummary.id,
+            blockedAt:
+              userSummary.blockedAt ||
+              userSummary.createdAt ||
+              new Date(0).toISOString(),
+            user: {
+              id: userSummary.id,
+              username: userSummary.username,
+              firstName: userSummary.firstName,
+              lastName: userSummary.lastName,
+              plan: userSummary.plan,
+            },
+          };
+        }
+
+        return null;
+      })
+      .filter((entry): entry is BlockedUser => entry !== null);
+
+    return {
+      blocked,
+      total: Array.isArray(response)
+        ? blocked.length
+        : typeof response?.total === "number"
+          ? response.total
+          : blocked.length,
+      limit: Array.isArray(response)
+        ? limit
+        : typeof response?.limit === "number"
+          ? response.limit
+          : limit,
+      offset: Array.isArray(response)
+        ? offset
+        : typeof response?.offset === "number"
+          ? response.offset
+          : offset,
+    };
   },
 
-  blockUser: async (blockedId: string): Promise<BlockedUser> => {
+  blockUser: async (username: string): Promise<BlockedUser> => {
     return apiRequest(`/blocks`, {
       method: "POST",
-      body: JSON.stringify({ blockedId }),
+      body: JSON.stringify({ username }),
     });
   },
 
-  unblockUser: async (userId: string): Promise<void> => {
-    return apiRequest(`/blocks/${userId}`, { method: "DELETE" });
+  unblockUser: async (username: string): Promise<void> => {
+    return apiRequest(`/blocks`, {
+      method: "DELETE",
+      body: JSON.stringify({ username }),
+    });
   },
 };
 
