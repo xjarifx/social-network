@@ -1,4 +1,4 @@
-import { lazy, Suspense } from "react";
+import { lazy, Suspense, useEffect, useState } from "react";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { Toaster } from "sonner";
 import { AuthProvider } from "./context/AuthContext";
@@ -7,6 +7,7 @@ import { TopNav } from "./components/TopNav";
 import { RightSidebar } from "./components/RightSidebar";
 import { MobileNav } from "./components";
 import { ProtectedRoute } from "./components/ProtectedRoute";
+import { PostComposerModal } from "./components/PostComposerModal";
 
 // Route-level code splitting
 const LoginPage = lazy(() => import("./pages/LoginPage"));
@@ -22,7 +23,6 @@ const BlocksPage = lazy(() => import("./pages/BlocksPage"));
 const FollowersPage = lazy(() => import("./pages/FollowersPage"));
 const FollowingPage = lazy(() => import("./pages/FollowingPage"));
 const SearchPage = lazy(() => import("./pages/SearchPage"));
-const ComposePage = lazy(() => import("./pages/ComposePage"));
 
 function PageFallback() {
   return (
@@ -33,12 +33,30 @@ function PageFallback() {
 }
 
 function AppLayout({ children }: { children: React.ReactNode }) {
+  const [isPostComposerOpen, setIsPostComposerOpen] = useState(false);
+  const [mediaPickerRequestId, setMediaPickerRequestId] = useState(0);
+
+  useEffect(() => {
+    const handleOpenComposer = (event: Event) => {
+      setIsPostComposerOpen(true);
+      const detail = (event as CustomEvent<{ openMediaPicker?: boolean }>)
+        .detail;
+      if (detail?.openMediaPicker) {
+        setMediaPickerRequestId((prev) => prev + 1);
+      }
+    };
+    window.addEventListener("open-post-composer", handleOpenComposer);
+    return () => {
+      window.removeEventListener("open-post-composer", handleOpenComposer);
+    };
+  }, []);
+
   return (
     <div className="min-h-screen bg-black text-white">
       <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="lg:flex lg:items-start lg:gap-4 xl:gap-6">
-          <TopNav />
-          <div className="min-w-0 flex-1 pb-20 pt-16 lg:pb-8 lg:pt-0">
+          <TopNav onOpenPostComposer={() => setIsPostComposerOpen(true)} />
+          <div className="min-w-0 flex-1 border-x border-white/15 pb-20 pt-16 lg:pb-8 lg:pt-0">
             <div className="mx-auto w-full max-w-150">
               <main className="w-full">{children}</main>
             </div>
@@ -46,6 +64,11 @@ function AppLayout({ children }: { children: React.ReactNode }) {
           <RightSidebar />
         </div>
       </div>
+      <PostComposerModal
+        open={isPostComposerOpen}
+        onOpenChange={setIsPostComposerOpen}
+        mediaPickerRequestId={mediaPickerRequestId}
+      />
       <MobileNav />
     </div>
   );
@@ -230,11 +253,7 @@ function AppRoutes() {
         path="/compose"
         element={
           <ProtectedRoute>
-            <AppLayout>
-              <Suspense fallback={<PageFallback />}>
-                <ComposePage />
-              </Suspense>
-            </AppLayout>
+            <Navigate to="/" replace />
           </ProtectedRoute>
         }
       />

@@ -13,7 +13,11 @@ import {
 } from "./ui/dialog";
 import { Button } from "./ui/button";
 
-export function TopNav() {
+interface TopNavProps {
+  onOpenPostComposer?: () => void;
+}
+
+export function TopNav({ onOpenPostComposer }: TopNavProps) {
   const { logout } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
@@ -69,7 +73,9 @@ export function TopNav() {
         </nav>
 
         <button
-          onClick={() => navigate("/compose")}
+          onClick={() =>
+            onOpenPostComposer ? onOpenPostComposer() : navigate("/compose")
+          }
           className="mt-4 w-full rounded-full bg-[#ffffff] px-6 py-3 text-[18px] font-semibold text-black transition hover:bg-[#f2f2f2] cursor-pointer"
         >
           Post

@@ -108,7 +108,7 @@ export default function ProfilePage() {
       .then(([f, g, b]) => {
         setFollowers(Array.isArray(f) ? f : []);
         setFollowing(Array.isArray(g) ? g : []);
-        setBlocked(Array.isArray(b) ? b : b?.blocked ?? []);
+        setBlocked(Array.isArray(b) ? b : (b?.blocked ?? []));
       })
       .catch((err) =>
         console.error("Failed to load followers/following:", err),
@@ -185,10 +185,10 @@ export default function ProfilePage() {
         prev.map((p) =>
           p.id === editingPostId
             ? {
-              ...p,
-              content: editingContent.trim(),
-              visibility: editingVisibility,
-            }
+                ...p,
+                content: editingContent.trim(),
+                visibility: editingVisibility,
+              }
             : p,
         ),
       );
@@ -222,20 +222,20 @@ export default function ProfilePage() {
   return (
     <div className="space-y-6">
       {/* Profile Hero Card */}
-      <div className="overflow-hidden rounded-2xl bg-white">
+      <div className="border-y border-white/15 bg-black">
         {/* Profile Info */}
         <div className="px-6 py-5">
           <div className="flex items-end gap-5">
-            <div className="flex h-20 w-20 shrink-0 items-center justify-center rounded-2xl border-4 border-white bg-[#1a73e8] text-[24px] font-medium text-white shadow-lg">
+            <div className="flex h-20 w-20 shrink-0 items-center justify-center rounded-2xl border-4 border-white/20 bg-[#1a73e8] text-[24px] font-medium text-white shadow-lg">
               {user?.firstName?.[0]}
               {user?.lastName?.[0]}
             </div>
             <div className="min-w-0 pb-1">
-              <h2 className="text-[20px] font-medium text-[#202124] flex items-center gap-2">
+              <h2 className="flex items-center gap-2 text-[20px] font-medium text-white">
                 {profile?.firstName} {profile?.lastName}
                 <ProBadge isPro={profile?.plan === "PRO"} />
               </h2>
-              <p className="text-[13px] text-[#5f6368]">@{profile?.username}</p>
+              <p className="text-[13px] text-white/65">@{profile?.username}</p>
             </div>
           </div>
 
@@ -243,38 +243,38 @@ export default function ProfilePage() {
           <div className="mt-5 flex gap-2">
             <button
               onClick={() => navigate("/followers")}
-              className="flex-1 rounded-xl bg-[#f8f9fa] px-4 py-3 text-center transition hover:bg-[#f1f3f4] cursor-pointer"
+              className="flex-1 cursor-pointer border border-white/15 bg-white/5 px-4 py-3 text-center transition hover:bg-white/10"
             >
-              <p className="text-[20px] font-medium text-[#202124]">
+              <p className="text-[20px] font-medium text-white">
                 {followers.length}
               </p>
-              <p className="text-[12px] text-[#5f6368]">Followers</p>
+              <p className="text-[12px] text-white/65">Followers</p>
             </button>
             <button
               onClick={() => navigate("/following")}
-              className="flex-1 rounded-xl bg-[#f8f9fa] px-4 py-3 text-center transition hover:bg-[#f1f3f4] cursor-pointer"
+              className="flex-1 cursor-pointer border border-white/15 bg-white/5 px-4 py-3 text-center transition hover:bg-white/10"
             >
-              <p className="text-[20px] font-medium text-[#202124]">
+              <p className="text-[20px] font-medium text-white">
                 {following.length}
               </p>
-              <p className="text-[12px] text-[#5f6368]">Following</p>
+              <p className="text-[12px] text-white/65">Following</p>
             </button>
             <button
               onClick={() => navigate("/blocks")}
-              className="flex-1 rounded-xl bg-[#f8f9fa] px-4 py-3 text-center transition hover:bg-[#f1f3f4] cursor-pointer"
+              className="flex-1 cursor-pointer border border-white/15 bg-white/5 px-4 py-3 text-center transition hover:bg-white/10"
             >
-              <p className="text-[20px] font-medium text-[#202124]">
+              <p className="text-[20px] font-medium text-white">
                 {blocked.length}
               </p>
-              <p className="text-[12px] text-[#5f6368]">Blocked</p>
+              <p className="text-[12px] text-white/65">Blocked</p>
             </button>
           </div>
         </div>
       </div>
 
       {/* Edit Profile Card */}
-      <div className="rounded-2xl bg-white p-6">
-        <h3 className="text-[15px] font-medium text-[#202124]">Edit profile</h3>
+      <div className="border-b border-white/15 bg-black p-6">
+        <h3 className="text-[15px] font-medium text-white">Edit profile</h3>
 
         <div className="mt-4 space-y-4">
           {error && (
@@ -284,51 +284,51 @@ export default function ProfilePage() {
           )}
 
           {isLoading ? (
-            <p className="text-[13px] text-[#5f6368]">Loading profile...</p>
+            <p className="text-[13px] text-white/65">Loading profile...</p>
           ) : (
             <>
               <div className="grid gap-4 sm:grid-cols-2">
                 <div>
-                  <label className="mb-1.5 block text-[12px] font-medium text-[#5f6368]">
+                  <label className="mb-1.5 block text-[12px] font-medium text-white/65">
                     Username
                   </label>
                   <Input
                     value={profile?.username ?? ""}
                     disabled
-                    className="h-11 rounded-xl"
+                    className="h-11 rounded-xl border-white/20 bg-white/5 text-white placeholder:text-white/45"
                   />
                 </div>
                 <div>
-                  <label className="mb-1.5 block text-[12px] font-medium text-[#5f6368]">
+                  <label className="mb-1.5 block text-[12px] font-medium text-white/65">
                     Email
                   </label>
                   <Input
                     value={profile?.email ?? ""}
                     disabled
-                    className="h-11 rounded-xl"
+                    className="h-11 rounded-xl border-white/20 bg-white/5 text-white placeholder:text-white/45"
                   />
                 </div>
               </div>
 
               <div className="grid gap-4 sm:grid-cols-2">
                 <div>
-                  <label className="mb-1.5 block text-[12px] font-medium text-[#5f6368]">
+                  <label className="mb-1.5 block text-[12px] font-medium text-white/65">
                     First name
                   </label>
                   <Input
                     value={firstName}
                     onChange={(e) => setFirstName(e.target.value)}
-                    className="h-11 rounded-xl"
+                    className="h-11 rounded-xl border-white/20 bg-white/5 text-white placeholder:text-white/45"
                   />
                 </div>
                 <div>
-                  <label className="mb-1.5 block text-[12px] font-medium text-[#5f6368]">
+                  <label className="mb-1.5 block text-[12px] font-medium text-white/65">
                     Last name
                   </label>
                   <Input
                     value={lastName}
                     onChange={(e) => setLastName(e.target.value)}
-                    className="h-11 rounded-xl"
+                    className="h-11 rounded-xl border-white/20 bg-white/5 text-white placeholder:text-white/45"
                   />
                 </div>
               </div>
@@ -347,7 +347,7 @@ export default function ProfilePage() {
 
       {/* Posts Section */}
       <div>
-        <h3 className="mb-4 text-[15px] font-medium text-[#202124] px-1">
+        <h3 className="mb-4 px-1 text-[15px] font-medium text-white">
           Your posts
         </h3>
         {postsError && (

@@ -163,17 +163,14 @@ function PostCardComponent({
   const showPrivateBadge = visibility === "PRIVATE" && user?.id === authorId;
 
   return (
-    <article className="group relative rounded-2xl bg-white transition-shadow hover:shadow-[0_1px_3px_0_rgba(60,64,67,.3),0_4px_8px_3px_rgba(60,64,67,.15)] overflow-hidden">
-      {/* Top colored accent bar */}
-      <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-[#1a73e8] to-[#8ab4f8] opacity-0 group-hover:opacity-100 transition-opacity duration-200" />
-
+    <article className="group relative overflow-hidden border border-white/15 bg-black text-white transition-shadow hover:shadow-[0_1px_3px_0_rgba(0,0,0,.5),0_4px_8px_3px_rgba(0,0,0,.35)]">
       {/* Three-dot menu in top right */}
       {showPostMenu && (
         <div className="absolute top-3 right-3 z-10">
           <DropdownMenu open={isMenuOpen} onOpenChange={setIsMenuOpen}>
             <DropdownMenuTrigger asChild>
               <button
-                className="rounded-xl p-1.5 text-[#80868b] opacity-0 group-hover:opacity-100 transition hover:bg-[#f1f3f4] cursor-pointer"
+                className="cursor-pointer rounded-xl p-1.5 text-white/70 opacity-0 transition hover:bg-white/10 group-hover:opacity-100"
                 aria-label="Post actions"
               >
                 <MoreHorizontal className="h-4 w-4" />
@@ -224,7 +221,7 @@ function PostCardComponent({
         {/* Header Row */}
         <div className="flex items-start gap-4">
           {/* Large square avatar with rounded corners */}
-          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-[#e8f0fe] text-[15px] font-medium text-[#1a73e8]">
+          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-white/10 text-[15px] font-medium text-white">
             {initials}
           </div>
 
@@ -233,24 +230,24 @@ function PostCardComponent({
             <div className="flex items-center gap-2 flex-wrap">
               {authorId && user?.id !== authorId ? (
                 <Link to={`/users/${authorId}`}>
-                  <span className="text-[14px] font-medium text-[#202124] hover:underline inline-flex items-center gap-1">
+                  <span className="inline-flex items-center gap-1 text-[14px] font-medium text-white hover:underline">
                     {author.name}
                     <ProBadge isPro={authorPlan === "PRO"} />
                   </span>
                 </Link>
               ) : (
-                <span className="text-[14px] font-medium text-[#202124] inline-flex items-center gap-1">
+                <span className="inline-flex items-center gap-1 text-[14px] font-medium text-white">
                   {author.name}
                   <ProBadge isPro={authorPlan === "PRO"} />
                 </span>
               )}
-              <span className="text-[12px] text-[#80868b]">
+              <span className="text-[12px] text-white/60">
                 @{author.handle}
               </span>
-              <span className="text-[12px] text-[#80868b]">&middot;</span>
-              <span className="text-[12px] text-[#80868b]">{timestamp}</span>
+              <span className="text-[12px] text-white/60">&middot;</span>
+              <span className="text-[12px] text-white/60">{timestamp}</span>
               {showPrivateBadge && (
-                <span className="inline-flex items-center gap-1 rounded-full bg-[#f1f3f4] px-2 py-0.5 text-[11px] font-medium text-[#5f6368]">
+                <span className="inline-flex items-center gap-1 rounded-full bg-white/10 px-2 py-0.5 text-[11px] font-medium text-white/80">
                   <Lock className="h-3 w-3" />
                   Private
                 </span>
@@ -260,7 +257,7 @@ function PostCardComponent({
             {/* Content — directly under name, indented with avatar */}
             <div className="mt-2">
               {content.trim().length > 0 && (
-                <p className="text-[14px] leading-[22px] text-[#3c4043] whitespace-pre-wrap">
+                <p className="whitespace-pre-wrap text-[14px] leading-5.5 text-white">
                   {content}
                 </p>
               )}
@@ -294,10 +291,10 @@ function PostCardComponent({
             <div className="mt-3 flex items-center gap-2">
               <button
                 onClick={handleLike}
-                className={`inline-flex items-center gap-1.5 rounded-xl px-3 py-1.5 text-[13px] font-medium transition cursor-pointer ${
+                className={`cursor-pointer inline-flex items-center gap-1.5 rounded-xl px-3 py-1.5 text-[13px] font-medium transition ${
                   isLiked
-                    ? "text-[#ea4335] bg-red-50"
-                    : "text-[#5f6368] hover:bg-[#f1f3f4]"
+                    ? "bg-red-500/20 text-red-400"
+                    : "text-white/80 hover:bg-white/10"
                 }`}
               >
                 <Heart className={`h-4 w-4 ${isLiked ? "fill-current" : ""}`} />
@@ -305,7 +302,7 @@ function PostCardComponent({
               </button>
               <button
                 onClick={() => onReply?.(id)}
-                className="inline-flex items-center gap-1.5 rounded-xl px-3 py-1.5 text-[13px] font-medium text-[#5f6368] transition hover:bg-[#f1f3f4] cursor-pointer"
+                className="cursor-pointer inline-flex items-center gap-1.5 rounded-xl px-3 py-1.5 text-[13px] font-medium text-white/80 transition hover:bg-white/10"
               >
                 <MessageCircle className="h-4 w-4" />
                 <span>{replies}</span>

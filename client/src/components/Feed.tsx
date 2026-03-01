@@ -31,23 +31,23 @@ function FeedComponent({
 }: FeedProps) {
   if (isLoading) {
     return (
-      <div className="space-y-4">
+      <div className="space-y-0">
         {[...Array(3)].map((_, i) => (
-          <div key={i} className="rounded-2xl bg-white p-5">
+          <div key={i} className="border border-white/15 bg-black p-5">
             <div className="flex items-start gap-4">
-              <div className="h-12 w-12 rounded-2xl bg-[#f1f3f4] animate-pulse" />
+              <div className="h-12 w-12 rounded-2xl bg-white/10 animate-pulse" />
               <div className="flex-1 space-y-3">
                 <div className="flex gap-2">
-                  <div className="h-3 w-24 rounded-lg bg-[#f1f3f4] animate-pulse" />
-                  <div className="h-3 w-16 rounded-lg bg-[#f1f3f4] animate-pulse" />
+                  <div className="h-3 w-24 rounded-lg bg-white/10 animate-pulse" />
+                  <div className="h-3 w-16 rounded-lg bg-white/10 animate-pulse" />
                 </div>
                 <div className="space-y-2">
-                  <div className="h-3 w-full rounded-lg bg-[#f1f3f4] animate-pulse" />
-                  <div className="h-3 w-4/5 rounded-lg bg-[#f1f3f4] animate-pulse" />
+                  <div className="h-3 w-full rounded-lg bg-white/10 animate-pulse" />
+                  <div className="h-3 w-4/5 rounded-lg bg-white/10 animate-pulse" />
                 </div>
                 <div className="flex gap-2">
-                  <div className="h-7 w-16 rounded-xl bg-[#f1f3f4] animate-pulse" />
-                  <div className="h-7 w-16 rounded-xl bg-[#f1f3f4] animate-pulse" />
+                  <div className="h-7 w-16 rounded-xl bg-white/10 animate-pulse" />
+                  <div className="h-7 w-16 rounded-xl bg-white/10 animate-pulse" />
                 </div>
               </div>
             </div>
@@ -58,7 +58,7 @@ function FeedComponent({
   }
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-0">
       {posts.map((post, index) => (
         <div key={`${post.id}-${index}`}>
           <PostCard
@@ -75,12 +75,12 @@ function FeedComponent({
       ))}
 
       {posts.length === 0 && (
-        <div className="rounded-2xl bg-white px-6 py-16 text-center">
-          <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-[#e8f0fe]">
-            <MessageCircle className="h-7 w-7 text-[#1a73e8]" />
+        <div className="border border-white/15 bg-black px-6 py-16 text-center">
+          <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-white/10">
+            <MessageCircle className="h-7 w-7 text-white" />
           </div>
-          <p className="text-[15px] font-medium text-[#202124]">No posts yet</p>
-          <p className="mt-1 text-[13px] text-[#5f6368]">
+          <p className="text-[15px] font-medium text-white">No posts yet</p>
+          <p className="mt-1 text-[13px] text-white/70">
             Your feed is empty. Follow people to see their posts here.
           </p>
         </div>

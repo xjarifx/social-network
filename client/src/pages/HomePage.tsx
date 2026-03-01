@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo, useCallback, useRef } from "react";
+import { Image, Globe, Lock } from "lucide-react";
 import { postsAPI, likesAPI, followsAPI } from "../services/api";
 import { Feed, CommentsModal } from "../components";
 import type { PostProps } from "../components";
@@ -22,10 +23,18 @@ export default function HomePage() {
   const [forYouOffset, setForYouOffset] = useState(0);
   const [hasMoreFollowing, setHasMoreFollowing] = useState(true);
   const [hasMoreForYou, setHasMoreForYou] = useState(true);
+  const [composerText, setComposerText] = useState("");
+  const [composerVisibility, setComposerVisibility] = useState<
+    "PUBLIC" | "PRIVATE"
+  >("PUBLIC");
+  const [isInlinePosting, setIsInlinePosting] = useState(false);
+  const [inlinePostError, setInlinePostError] = useState<string | null>(null);
+  const [inlineMediaFile, setInlineMediaFile] = useState<File | null>(null);
   const forYouScrollRef = useRef<HTMLDivElement | null>(null);
   const followingScrollRef = useRef<HTMLDivElement | null>(null);
   const forYouSentinelRef = useRef<HTMLDivElement | null>(null);
   const followingSentinelRef = useRef<HTMLDivElement | null>(null);
+  const maxUploadBytes = 50 * 1024 * 1024;
 
   const comments = useComments();
 
@@ -64,32 +73,33 @@ export default function HomePage() {
     };
   }, []);
 
+  const refreshFeeds = useCallback(async () => {
+    try {
+      setIsLoading(true);
+      setError(null);
+      const [followingResponse, forYouResponse] = await Promise.all([
+        postsAPI.getFeed(pageSize, 0),
+        postsAPI.getForYouFeed(pageSize, 0),
+      ]);
+      setFollowingPosts(
+        followingResponse.map((p) => transformPost(p, user?.id)),
+      );
+      setForYouPosts(forYouResponse.map((p) => transformPost(p, user?.id)));
+      setFollowingOffset(followingResponse.length);
+      setForYouOffset(forYouResponse.length);
+      setHasMoreFollowing(followingResponse.length === pageSize);
+      setHasMoreForYou(forYouResponse.length === pageSize);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to load posts");
+    } finally {
+      setIsLoading(false);
+    }
+  }, [pageSize, user?.id]);
+
   // Load posts
   useEffect(() => {
-    const loadPosts = async () => {
-      try {
-        setIsLoading(true);
-        setError(null);
-        const [followingResponse, forYouResponse] = await Promise.all([
-          postsAPI.getFeed(pageSize, 0),
-          postsAPI.getForYouFeed(pageSize, 0),
-        ]);
-        setFollowingPosts(
-          followingResponse.map((p) => transformPost(p, user?.id)),
-        );
-        setForYouPosts(forYouResponse.map((p) => transformPost(p, user?.id)));
-        setFollowingOffset(followingResponse.length);
-        setForYouOffset(forYouResponse.length);
-        setHasMoreFollowing(followingResponse.length === pageSize);
-        setHasMoreForYou(forYouResponse.length === pageSize);
-      } catch (err) {
-        setError(err instanceof Error ? err.message : "Failed to load posts");
-      } finally {
-        setIsLoading(false);
-      }
-    };
-    loadPosts();
-  }, [user?.id]);
+    void refreshFeeds();
+  }, [refreshFeeds]);
 
   // Load following IDs
   useEffect(() => {
@@ -232,6 +242,184 @@ export default function HomePage() {
       ) ?? null)
     : null;
 
+  const initials = `${user?.firstName?.[0] ?? ""}${user?.lastName?.[0] ?? ""}`;
+  const charLimit = user?.plan === "PRO" ? 100 : 20;
+  const charCount = composerText.length;
+  const progressPercent = Math.min((charCount / charLimit) * 100, 100);
+  const isOverCharLimit = charCount > charLimit;
+  const canInlinePost =
+    (composerText.trim().length > 0 || Boolean(inlineMediaFile)) &&
+    !isInlinePosting &&
+    !isOverCharLimit;
+
+  const handleInlineMediaChange = useCallback(
+    (event: React.ChangeEvent<HTMLInputElement>) => {
+      const file = event.target.files?.[0] ?? null;
+      if (!file) {
+        return;
+      }
+
+      if (!file.type.startsWith("image/") && !file.type.startsWith("video/")) {
+        setInlinePostError("Please select an image or video file");
+        event.target.value = "";
+        return;
+      }
+
+      if (file.size > maxUploadBytes) {
+        setInlinePostError("File size exceeds 50 MB limit");
+        event.target.value = "";
+        return;
+      }
+
+      setInlinePostError(null);
+      setInlineMediaFile(file);
+      event.target.value = "";
+    },
+    [maxUploadBytes],
+  );
+
+  const handleRemoveInlineMedia = useCallback(() => {
+    setInlineMediaFile(null);
+  }, []);
+
+  const toggleComposerVisibility = useCallback(() => {
+    setComposerVisibility((prev) => (prev === "PUBLIC" ? "PRIVATE" : "PUBLIC"));
+  }, []);
+
+  const handleInlinePost = useCallback(async () => {
+    if (
+      (!composerText.trim() && !inlineMediaFile) ||
+      isOverCharLimit ||
+      isInlinePosting
+    ) {
+      return;
+    }
+    try {
+      setIsInlinePosting(true);
+      setInlinePostError(null);
+      await postsAPI.create(
+        composerText.trim(),
+        inlineMediaFile,
+        composerVisibility,
+      );
+      setComposerText("");
+      setInlineMediaFile(null);
+      setComposerVisibility("PUBLIC");
+      window.dispatchEvent(new Event("post-created"));
+      await refreshFeeds();
+    } catch (err) {
+      setInlinePostError(
+        err instanceof Error ? err.message : "Failed to create post",
+      );
+    } finally {
+      setIsInlinePosting(false);
+    }
+  }, [
+    composerText,
+    composerVisibility,
+    inlineMediaFile,
+    isInlinePosting,
+    isOverCharLimit,
+    refreshFeeds,
+  ]);
+
+  const renderComposerSection = () => (
+    <section className="border-b border-white/15 px-4 py-3">
+      <div className="flex items-start gap-3">
+        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-white/10 text-[14px] font-semibold text-white">
+          {initials || "U"}
+        </div>
+
+        <div className="min-w-0 flex-1">
+          <textarea
+            value={composerText}
+            onChange={(event) => setComposerText(event.target.value)}
+            placeholder="What's happening?"
+            className="h-16 w-full resize-none bg-transparent text-[18px] leading-6 text-white placeholder:text-white/45 outline-none"
+          />
+
+          <div className="mt-2 flex items-center justify-between">
+            <div className="flex items-center gap-3 text-[#1d9bf0]">
+              <label
+                className="cursor-pointer"
+                aria-label="Upload media"
+                title="Upload media"
+              >
+                <Image className="h-4 w-4" />
+                <input
+                  type="file"
+                  accept="image/*,video/*"
+                  className="hidden"
+                  onChange={handleInlineMediaChange}
+                />
+              </label>
+              <button
+                type="button"
+                onClick={toggleComposerVisibility}
+                className="cursor-pointer"
+                aria-label="Change visibility"
+                title={`Visibility: ${composerVisibility.toLowerCase()}`}
+              >
+                {composerVisibility === "PUBLIC" ? (
+                  <Globe className="h-4 w-4" />
+                ) : (
+                  <Lock className="h-4 w-4" />
+                )}
+              </button>
+            </div>
+
+            <button
+              type="button"
+              onClick={handleInlinePost}
+              disabled={!canInlinePost}
+              className={`rounded-full px-4 py-1.5 text-[15px] font-semibold text-black transition ${
+                canInlinePost
+                  ? "cursor-pointer bg-white hover:bg-white/85"
+                  : "cursor-not-allowed bg-white/55"
+              }`}
+            >
+              {isInlinePosting ? "Posting..." : "Post"}
+            </button>
+          </div>
+
+          {inlineMediaFile && (
+            <div className="mt-2 flex items-center justify-between rounded-lg border border-white/15 bg-white/5 px-3 py-2">
+              <p className="truncate text-[12px] text-white/80">
+                {inlineMediaFile.name}
+              </p>
+              <button
+                type="button"
+                onClick={handleRemoveInlineMedia}
+                className="ml-3 shrink-0 text-[12px] text-[#1d9bf0] hover:text-[#59b8f5]"
+              >
+                Remove
+              </button>
+            </div>
+          )}
+
+          <div className="mt-2 h-1 w-full overflow-hidden rounded-full bg-white/15">
+            <div
+              className={`h-full transition-all ${
+                isOverCharLimit ? "bg-red-500" : "bg-[#1d9bf0]"
+              }`}
+              style={{ width: `${progressPercent}%` }}
+            />
+          </div>
+          <p
+            className={`mt-1 text-[11px] ${
+              isOverCharLimit ? "text-red-400" : "text-white/60"
+            }`}
+          >
+            {charCount}/{charLimit} characters
+          </p>
+          {inlinePostError && (
+            <p className="mt-1 text-[11px] text-red-400">{inlinePostError}</p>
+          )}
+        </div>
+      </div>
+    </section>
+  );
+
   useEffect(() => {
     const sentinel =
       activeTab === "following"
@@ -261,17 +449,27 @@ export default function HomePage() {
     return () => observer.disconnect();
   }, [activeTab, handleLoadMore]);
 
+  useEffect(() => {
+    const handlePostCreated = () => {
+      void refreshFeeds();
+    };
+    window.addEventListener("post-created", handlePostCreated);
+    return () => {
+      window.removeEventListener("post-created", handlePostCreated);
+    };
+  }, [refreshFeeds]);
+
   return (
     <div className="flex min-h-[calc(100dvh-60px)] flex-col">
       {/* Tab Navigation */}
-      <div className="sticky top-[60px] z-10 mb-4 border-b border-[#ececec] bg-white/80 backdrop-blur-sm">
-        <div className="flex">
+      <div className="sticky top-0 z-10 mb-4 border-b border-white/15 bg-black/85 backdrop-blur-sm">
+        <div className="flex divide-x divide-white/10 border-b border-white/10">
           <button
             onClick={() => setActiveTab("forYou")}
             className={`flex-1 px-4 py-3 text-center font-medium transition-colors ${
               activeTab === "forYou"
-                ? "text-[#1a73e8]"
-                : "text-[#5f6368] hover:text-[#202124]"
+                ? "text-white"
+                : "text-white/65 hover:text-white"
             }`}
           >
             For you
@@ -280,17 +478,17 @@ export default function HomePage() {
             onClick={() => setActiveTab("following")}
             className={`flex-1 px-4 py-3 text-center font-medium transition-colors ${
               activeTab === "following"
-                ? "text-[#1a73e8]"
-                : "text-[#5f6368] hover:text-[#202124]"
+                ? "text-white"
+                : "text-white/65 hover:text-white"
             }`}
           >
             Following
           </button>
         </div>
         {/* Underline indicator */}
-        <div className="relative h-1 bg-[#e8e8e8]">
+        <div className="relative h-1 bg-white/10">
           <div
-            className={`absolute top-0 h-full w-1/2 bg-[#1a73e8] transition-all duration-300 ${
+            className={`absolute top-0 h-full w-1/2 bg-white transition-all duration-300 ${
               activeTab === "following" ? "translate-x-full" : ""
             }`}
           />
@@ -300,10 +498,12 @@ export default function HomePage() {
       <div className="relative flex-1 min-h-0 overflow-hidden">
         <div
           ref={forYouScrollRef}
-          className={`absolute inset-0 overflow-y-auto scrollbar-hidden ${
+          className={`absolute inset-0 overflow-y-auto border-t border-white/10 scrollbar-hidden ${
             activeTab === "forYou" ? "block" : "hidden"
           }`}
         >
+          {renderComposerSection()}
+
           {error && (
             <div className="mb-4 rounded-lg border border-[#ea4335]/30 bg-[#fce8e6] px-4 py-3 text-[13px] text-[#c5221f]">
               {error}
@@ -325,10 +525,12 @@ export default function HomePage() {
         </div>
         <div
           ref={followingScrollRef}
-          className={`absolute inset-0 overflow-y-auto scrollbar-hidden ${
+          className={`absolute inset-0 overflow-y-auto border-t border-white/10 scrollbar-hidden ${
             activeTab === "following" ? "block" : "hidden"
           }`}
         >
+          {renderComposerSection()}
+
           {error && (
             <div className="mb-4 rounded-lg border border-[#ea4335]/30 bg-[#fce8e6] px-4 py-3 text-[13px] text-[#c5221f]">
               {error}
