@@ -51,9 +51,9 @@ export default function SearchPage() {
   };
 
   return (
-    <div className="space-y-5">
+    <div>
       {/* Header */}
-      <div className="flex items-center gap-3 border-b border-white/15 pb-3">
+      <div className="flex items-center gap-3 border-b border-white/15 p-3">
         <button
           onClick={() => navigate("/")}
           className="flex h-9 w-9 cursor-pointer items-center justify-center rounded-none text-white/60 transition hover:bg-white/10 hover:text-white"

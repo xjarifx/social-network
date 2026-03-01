@@ -32,8 +32,8 @@ export default function FollowingPage() {
   }, [user?.id]);
 
   return (
-    <div className="space-y-5">
-      <h1 className="border-b border-white/15 pb-3 text-[20px] font-medium text-white">
+    <div>
+      <h1 className="border-b border-white/15 p-3 text-[20px] font-medium text-white">
         Following
       </h1>
 
