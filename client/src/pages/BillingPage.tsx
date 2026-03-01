@@ -125,19 +125,17 @@ export default function BillingPage() {
   const isPro = currentPlan === "PRO";
 
   return (
-    <div className="space-y-6">
+    <div>
       {/* Header */}
-      <div className="text-center">
-        <h1 className="text-[24px] font-normal text-[#202124]">
-          Choose Your Plan
-        </h1>
-        <p className="mt-2 text-[15px] text-[#5f6368]">
+      <div className="border-b border-white/15 p-3 text-center">
+        <h1 className="text-[24px] font-normal text-white">Choose Your Plan</h1>
+        <p className="mt-2 text-[15px] text-white/60">
           Select the plan that works best for you
         </p>
       </div>
 
       {error && (
-        <div className="rounded-xl border border-[#ea4335]/30 bg-[#fce8e6] px-4 py-3 text-[13px] text-[#c5221f] flex items-center justify-between">
+        <div className="flex items-center justify-between border border-[#ea4335]/30 bg-[#fce8e6] px-4 py-3 text-[13px] text-[#c5221f]">
           <span>{error}</span>
           <Button
             variant="ghost"
@@ -152,37 +150,26 @@ export default function BillingPage() {
       )}
 
       {isLoading ? (
-        <div className="grid gap-5 sm:grid-cols-2">
+        <div className="space-y-5">
           {[0, 1].map((i) => (
-            <div key={i} className="rounded-2xl bg-white p-8">
+            <div key={i} className="border border-white/15 bg-white/5 p-8">
               <div className="space-y-3">
-                <div className="h-4 w-16 rounded-lg bg-[#f1f3f4] animate-pulse" />
-                <div className="h-8 w-20 rounded-lg bg-[#f1f3f4] animate-pulse" />
-                <div className="h-3 w-28 rounded-lg bg-[#f1f3f4] animate-pulse" />
+                <div className="h-4 w-16 animate-pulse rounded bg-white/15" />
+                <div className="h-8 w-20 animate-pulse rounded bg-white/15" />
+                <div className="h-3 w-28 animate-pulse rounded bg-white/10" />
               </div>
             </div>
           ))}
         </div>
       ) : (
-        <div className="grid gap-5 sm:grid-cols-2">
+        <div>
           {/* Free Plan */}
-          <div
-            className={`relative overflow-hidden rounded-2xl bg-white p-7 transition-shadow ${
-              !isPro
-                ? "ring-2 ring-[#1a73e8] shadow-[0_1px_3px_0_rgba(60,64,67,.3),0_4px_8px_3px_rgba(60,64,67,.15)]"
-                : "hover:shadow-[0_1px_3px_0_rgba(60,64,67,.3),0_4px_8px_3px_rgba(60,64,67,.15)]"
-            }`}
-          >
-            {!isPro && (
-              <div className="absolute top-0 left-0 right-0 h-1 bg-[#1a73e8]" />
-            )}
+          <div className="relative overflow-hidden border border-white/15 bg-white/5 p-7">
             <div className="mb-6">
-              <h3 className="text-[18px] font-medium text-[#202124]">Free</h3>
+              <h3 className="text-[18px] font-medium text-white">Free</h3>
               <div className="mt-2 flex items-baseline gap-1">
-                <span className="text-[36px] font-normal text-[#202124]">
-                  $0
-                </span>
-                <span className="text-[14px] text-[#5f6368]">/forever</span>
+                <span className="text-[36px] font-normal text-white">$0</span>
+                <span className="text-[14px] text-white/60">/forever</span>
               </div>
             </div>
 
@@ -191,7 +178,7 @@ export default function BillingPage() {
                 <div className="flex h-6 w-6 items-center justify-center rounded-lg bg-[#e8f0fe]">
                   <Check className="h-3.5 w-3.5 text-[#1a73e8]" />
                 </div>
-                <p className="text-[14px] text-[#3c4043]">
+                <p className="text-[14px] text-white/85">
                   Posts up to 20 characters
                 </p>
               </div>
@@ -199,7 +186,7 @@ export default function BillingPage() {
                 <div className="flex h-6 w-6 items-center justify-center rounded-lg bg-[#e8f0fe]">
                   <Check className="h-3.5 w-3.5 text-[#1a73e8]" />
                 </div>
-                <p className="text-[14px] text-[#3c4043]">Unlimited follows</p>
+                <p className="text-[14px] text-white/85">Unlimited follows</p>
               </div>
             </div>
 
@@ -207,23 +194,18 @@ export default function BillingPage() {
               variant="secondary"
               disabled={!isPro || isDowngrading}
               onClick={isPro ? handleDowngradeToFree : undefined}
-              className="w-full rounded-xl h-11"
+              className="h-11 w-full rounded-none"
             >
-              {!isPro ? "Current Plan" : isDowngrading ? "Downgrading..." : "Downgrade"}
+              {!isPro
+                ? "Current Plan"
+                : isDowngrading
+                  ? "Downgrading..."
+                  : "Downgrade"}
             </Button>
           </div>
 
           {/* Pro Plan */}
-          <div
-            className={`relative overflow-hidden rounded-2xl bg-white p-7 transition-shadow ${
-              isPro
-                ? "ring-2 ring-[#1a73e8] shadow-[0_1px_3px_0_rgba(60,64,67,.3),0_4px_8px_3px_rgba(60,64,67,.15)]"
-                : "hover:shadow-[0_1px_3px_0_rgba(60,64,67,.3),0_4px_8px_3px_rgba(60,64,67,.15)]"
-            }`}
-          >
-            {isPro && (
-              <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-[#1a73e8] to-[#8ab4f8]" />
-            )}
+          <div className="relative overflow-hidden border border-white/15 bg-white/5 p-7">
             {/* Popular badge */}
             {!isPro && (
               <div className="absolute top-4 right-4">
@@ -235,12 +217,12 @@ export default function BillingPage() {
             )}
 
             <div className="mb-6">
-              <h3 className="text-[18px] font-medium text-[#202124]">Pro</h3>
+              <h3 className="text-[18px] font-medium text-white">Pro</h3>
               <div className="mt-2 flex items-baseline gap-1">
-                <span className="text-[36px] font-normal text-[#202124]">
+                <span className="text-[36px] font-normal text-white">
                   $9.99
                 </span>
-                <span className="text-[14px] text-[#5f6368]">/month</span>
+                <span className="text-[14px] text-white/60">/month</span>
               </div>
             </div>
 
@@ -249,7 +231,7 @@ export default function BillingPage() {
                 <div className="flex h-6 w-6 items-center justify-center rounded-lg bg-[#e8f0fe]">
                   <Check className="h-3.5 w-3.5 text-[#1a73e8]" />
                 </div>
-                <p className="text-[14px] text-[#3c4043]">
+                <p className="text-[14px] text-white/85">
                   Posts up to 100 characters
                 </p>
               </div>
@@ -257,7 +239,7 @@ export default function BillingPage() {
                 <div className="flex h-6 w-6 items-center justify-center rounded-lg bg-[#e8f0fe]">
                   <Check className="h-3.5 w-3.5 text-[#1a73e8]" />
                 </div>
-                <p className="text-[14px] text-[#3c4043]">
+                <p className="text-[14px] text-white/85">
                   Pro badge beside your name
                 </p>
               </div>
@@ -265,17 +247,17 @@ export default function BillingPage() {
                 <div className="flex h-6 w-6 items-center justify-center rounded-lg bg-[#e8f0fe]">
                   <Check className="h-3.5 w-3.5 text-[#1a73e8]" />
                 </div>
-                <p className="text-[14px] text-[#3c4043]">Priority support</p>
+                <p className="text-[14px] text-white/85">Priority support</p>
               </div>
             </div>
 
             {isPro ? (
-              <Button disabled className="w-full rounded-xl h-11">
+              <Button disabled className="h-11 w-full rounded-none">
                 Current Plan
               </Button>
             ) : (
               <Button
-                className="w-full rounded-xl h-11"
+                className="h-11 w-full rounded-none"
                 onClick={handleUpgradeToPro}
                 disabled={isRedirecting}
               >

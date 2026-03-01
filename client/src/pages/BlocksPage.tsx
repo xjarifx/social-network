@@ -37,64 +37,64 @@ export default function BlocksPage() {
 
   return (
     <div className="space-y-5">
-      <h1 className="text-[20px] font-medium text-[#202124]">Blocked users</h1>
+      <h1 className="border-b border-white/15 pb-3 text-[20px] font-medium text-white">
+        Blocked users
+      </h1>
 
       {error && (
-        <div className="rounded-xl border border-[#ea4335]/30 bg-[#fce8e6] px-4 py-3 text-[13px] text-[#c5221f]">
+        <div className="rounded-none border border-[#ea4335]/30 bg-[#fce8e6] px-4 py-3 text-[13px] text-[#c5221f]">
           {error}
         </div>
       )}
 
       {isLoading ? (
-        <div className="grid gap-3 sm:grid-cols-2">
+        <div>
           {[0, 1].map((i) => (
-            <div key={i} className="rounded-2xl bg-white p-5">
+            <div key={i} className="border-b border-white/15 bg-white/5 p-5">
               <div className="flex items-center gap-3">
-                <div className="h-10 w-10 rounded-2xl bg-[#f1f3f4] animate-pulse" />
+                <div className="h-10 w-10 animate-pulse rounded-none bg-white/15" />
                 <div className="space-y-2 flex-1">
-                  <div className="h-3 w-24 rounded bg-[#f1f3f4] animate-pulse" />
-                  <div className="h-2.5 w-16 rounded bg-[#f1f3f4] animate-pulse" />
+                  <div className="h-3 w-24 animate-pulse rounded bg-white/15" />
+                  <div className="h-2.5 w-16 animate-pulse rounded bg-white/10" />
                 </div>
               </div>
             </div>
           ))}
         </div>
       ) : blocked.length === 0 ? (
-        <div className="rounded-2xl bg-white px-6 py-16 text-center">
-          <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-[#f1f3f4]">
-            <ShieldOff className="h-7 w-7 text-[#5f6368]" />
+        <div className="rounded-none border border-white/15 bg-white/5 px-6 py-16 text-center">
+          <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-none bg-white/10">
+            <ShieldOff className="h-7 w-7 text-white/70" />
           </div>
-          <p className="text-[15px] font-medium text-[#202124]">
-            No blocked users
-          </p>
-          <p className="mt-1 text-[13px] text-[#5f6368]">
+          <p className="text-[15px] font-medium text-white">No blocked users</p>
+          <p className="mt-1 text-[13px] text-white/60">
             Users you block will appear here.
           </p>
         </div>
       ) : (
-        <div className="grid gap-3 sm:grid-cols-2">
+        <div>
           {blocked.map((item) => (
             <div
               key={item.id}
-              className="flex items-center justify-between rounded-2xl bg-white p-4 transition-shadow hover:shadow-[0_1px_3px_0_rgba(60,64,67,.3),0_4px_8px_3px_rgba(60,64,67,.15)]"
+              className="flex items-center justify-between border-b border-white/15 bg-white/5 p-4 transition hover:bg-white/[0.07]"
             >
               <div className="flex items-center gap-3">
-                <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-red-50 text-[12px] font-medium text-[#ea4335]">
+                <div className="flex h-10 w-10 items-center justify-center rounded-none bg-[#ea4335]/15 text-[12px] font-medium text-[#ea4335]">
                   {item.user.firstName[0]}
                   {item.user.lastName[0]}
                 </div>
                 <div>
-                  <p className="text-[14px] font-medium text-[#202124]">
+                  <p className="text-[14px] font-medium text-white">
                     {item.user.firstName} {item.user.lastName}
                   </p>
-                  <p className="text-[12px] text-[#5f6368]">
+                  <p className="text-[12px] text-white/60">
                     @{item.user.username}
                   </p>
                 </div>
               </div>
               <button
                 onClick={() => handleUnblock(item.user.id)}
-                className="rounded-xl px-4 py-1.5 text-[13px] font-medium text-[#ea4335] hover:bg-red-50 cursor-pointer transition"
+                className="cursor-pointer rounded-none px-4 py-1.5 text-[13px] font-medium text-[#ea4335] transition hover:bg-[#ea4335]/15"
               >
                 Unblock
               </button>

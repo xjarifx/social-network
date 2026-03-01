@@ -101,10 +101,10 @@ export default function BillingSuccessPage() {
 
   if (isLoading) {
     return (
-      <div className="space-y-6 min-h-[400px] flex items-center justify-center">
+      <div className="flex min-h-100 items-center justify-center space-y-6">
         <div className="text-center">
           <div className="h-10 w-10 animate-spin rounded-full border-2 border-primary border-t-transparent mx-auto mb-4" />
-          <p className="text-[15px] text-[#5f6368]">
+          <p className="text-[15px] text-white/60">
             Confirming your payment...
           </p>
         </div>
@@ -114,22 +114,22 @@ export default function BillingSuccessPage() {
 
   return (
     <div className="space-y-6">
-      <div className="rounded-2xl bg-white p-8 text-center">
+      <div className="border border-white/15 bg-white/5 p-8 text-center">
         {error ? (
           <>
             <div className="mb-4 flex justify-center">
-              <div className="h-16 w-16 rounded-full bg-[#fce8e6] flex items-center justify-center">
+              <div className="flex h-16 w-16 items-center justify-center rounded-none bg-[#fce8e6]">
                 <span className="text-2xl">⚠️</span>
               </div>
             </div>
-            <h1 className="text-[24px] font-medium text-[#202124] mb-2">
+            <h1 className="mb-2 text-[24px] font-medium text-white">
               Payment Error
             </h1>
-            <p className="text-[15px] text-[#5f6368] mb-6">{error}</p>
+            <p className="mb-6 text-[15px] text-white/70">{error}</p>
             <div className="flex gap-3 justify-center">
               <Button
                 onClick={() => navigate("/billing")}
-                className="rounded-xl h-11"
+                className="h-11 rounded-none"
               >
                 Back to Billing
               </Button>
@@ -138,21 +138,21 @@ export default function BillingSuccessPage() {
         ) : paymentStatus === "succeeded" || paymentStatus === "paid" ? (
           <>
             <div className="mb-4 flex justify-center">
-              <div className="h-16 w-16 rounded-full bg-[#e6f4ea] flex items-center justify-center">
+              <div className="flex h-16 w-16 items-center justify-center rounded-none bg-[#e6f4ea]">
                 <Check className="h-8 w-8 text-[#0d9488]" />
               </div>
             </div>
-            <h1 className="text-[24px] font-medium text-[#202124] mb-2">
+            <h1 className="mb-2 text-[24px] font-medium text-white">
               {plan === "PRO" ? "Welcome to Pro!" : "Payment Received!"}
             </h1>
-            <p className="text-[15px] text-[#5f6368] mb-6">
+            <p className="mb-6 text-[15px] text-white/70">
               {plan === "PRO"
                 ? "Your subscription is now active. Enjoy all the premium features!"
                 : "Your payment was successful. Your account will be upgraded shortly."}
             </p>
             <Button
               onClick={() => navigate("/billing")}
-              className="rounded-xl h-11"
+              className="h-11 rounded-none"
             >
               View Billing Details
             </Button>
@@ -160,19 +160,19 @@ export default function BillingSuccessPage() {
         ) : (
           <>
             <div className="mb-4 flex justify-center">
-              <div className="h-16 w-16 rounded-full bg-[#fce8e6] flex items-center justify-center">
+              <div className="flex h-16 w-16 items-center justify-center rounded-none bg-[#fce8e6]">
                 <span className="text-2xl">⚠️</span>
               </div>
             </div>
-            <h1 className="text-[24px] font-medium text-[#202124] mb-2">
+            <h1 className="mb-2 text-[24px] font-medium text-white">
               Payment Incomplete
             </h1>
-            <p className="text-[15px] text-[#5f6368] mb-6">
+            <p className="mb-6 text-[15px] text-white/70">
               Your payment could not be completed. Please try again.
             </p>
             <Button
               onClick={() => navigate("/billing")}
-              className="rounded-xl h-11"
+              className="h-11 rounded-none"
             >
               Try Again
             </Button>

@@ -7,16 +7,16 @@ export default function BillingCancelPage() {
 
   return (
     <div className="space-y-6">
-      <div className="rounded-2xl bg-white p-8 text-center">
+      <div className="border border-white/15 bg-white/5 p-8 text-center">
         <div className="mb-4 flex justify-center">
-          <div className="h-16 w-16 rounded-full bg-[#fce8e6] flex items-center justify-center">
+          <div className="flex h-16 w-16 items-center justify-center rounded-none bg-[#fce8e6]">
             <X className="h-8 w-8 text-[#d33b27]" />
           </div>
         </div>
-        <h1 className="text-[24px] font-medium text-[#202124] mb-2">
+        <h1 className="mb-2 text-[24px] font-medium text-white">
           Checkout Cancelled
         </h1>
-        <p className="text-[15px] text-[#5f6368] mb-6">
+        <p className="mb-6 text-[15px] text-white/70">
           Your checkout was cancelled. No charges have been made to your
           account.
         </p>
@@ -24,13 +24,13 @@ export default function BillingCancelPage() {
           <Button
             variant="secondary"
             onClick={() => navigate("/")}
-            className="rounded-xl h-11"
+            className="h-11 rounded-none"
           >
             Back to Home
           </Button>
           <Button
             onClick={() => navigate("/billing")}
-            className="rounded-xl h-11"
+            className="h-11 rounded-none"
           >
             Try Again
           </Button>

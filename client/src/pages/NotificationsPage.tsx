@@ -69,15 +69,12 @@ export default function NotificationsPage() {
       )}
 
       {isLoading ? (
-        <div className="space-y-3">
+        <div>
           {[...Array(3)].map((_, i) => (
-            <div
-              key={i}
-              className="rounded-2xl border border-white/15 bg-white/5 p-5"
-            >
+            <div key={i} className="border-b border-white/15 bg-white/5 p-5">
               <div className="space-y-2">
-                <div className="h-3 w-3/4 animate-pulse rounded-lg bg-white/15" />
-                <div className="h-2.5 w-1/3 animate-pulse rounded-lg bg-white/10" />
+                <div className="h-3 w-3/4 animate-pulse rounded bg-white/15" />
+                <div className="h-2.5 w-1/3 animate-pulse rounded bg-white/10" />
               </div>
             </div>
           ))}
@@ -93,11 +90,11 @@ export default function NotificationsPage() {
           </p>
         </div>
       ) : (
-        <div className="space-y-3">
+        <div>
           {notifications.map((notification) => (
             <div
               key={notification.id}
-              className={`rounded-2xl border border-white/15 bg-white/5 p-4 transition hover:bg-white/[0.07] ${
+              className={`border-b border-white/15 bg-white/5 p-4 transition hover:bg-white/[0.07] ${
                 !notification.read ? "border-l-4 border-l-[#1a73e8]" : ""
               }`}
             >
@@ -125,14 +122,14 @@ export default function NotificationsPage() {
                   {!notification.read && (
                     <button
                       onClick={() => handleMarkRead(notification.id)}
-                      className="cursor-pointer rounded-xl px-3 py-1.5 text-[12px] font-medium text-[#1a73e8] transition hover:bg-[#1a73e8]/20"
+                      className="cursor-pointer rounded-none px-3 py-1.5 text-[12px] font-medium text-[#1a73e8] transition hover:bg-[#1a73e8]/20"
                     >
                       Mark read
                     </button>
                   )}
                   <button
                     onClick={() => handleDelete(notification.id)}
-                    className="cursor-pointer rounded-xl px-3 py-1.5 text-[12px] font-medium text-[#ea4335] transition hover:bg-[#ea4335]/15"
+                    className="cursor-pointer rounded-none px-3 py-1.5 text-[12px] font-medium text-[#ea4335] transition hover:bg-[#ea4335]/15"
                   >
                     Delete
                   </button>

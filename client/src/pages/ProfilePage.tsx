@@ -220,7 +220,7 @@ export default function ProfilePage() {
     : null;
 
   return (
-    <div className="space-y-6">
+    <div>
       {/* Profile Hero Card */}
       <div className="border-y border-white/15 bg-black">
         {/* Profile Info */}
@@ -347,9 +347,7 @@ export default function ProfilePage() {
 
       {/* Posts Section */}
       <div>
-        <h3 className="mb-4 px-1 text-[15px] font-medium text-white">
-          Your posts
-        </h3>
+        <h3 className="p-4 text-[15px] font-medium text-white">Your posts</h3>
         {postsError && (
           <div className="mb-4 rounded-xl border border-[#ea4335]/30 bg-[#fce8e6] px-4 py-3 text-[13px] text-[#c5221f]">
             {postsError}

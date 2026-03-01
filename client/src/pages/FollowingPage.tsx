@@ -33,57 +33,59 @@ export default function FollowingPage() {
 
   return (
     <div className="space-y-5">
-      <h1 className="text-[20px] font-medium text-[#202124]">Following</h1>
+      <h1 className="border-b border-white/15 pb-3 text-[20px] font-medium text-white">
+        Following
+      </h1>
 
       {error && (
-        <div className="rounded-xl border border-[#ea4335]/30 bg-[#fce8e6] px-4 py-3 text-[13px] text-[#c5221f]">
+        <div className="rounded-none border border-[#ea4335]/30 bg-[#fce8e6] px-4 py-3 text-[13px] text-[#c5221f]">
           {error}
         </div>
       )}
 
       {isLoading ? (
-        <div className="grid gap-3 sm:grid-cols-2">
+        <div>
           {[0, 1, 2, 3].map((i) => (
-            <div key={i} className="rounded-2xl bg-white p-5">
+            <div key={i} className="border-b border-white/15 bg-white/5 p-5">
               <div className="flex items-center gap-3">
-                <div className="h-11 w-11 rounded-2xl bg-[#f1f3f4] animate-pulse" />
+                <div className="h-11 w-11 animate-pulse rounded-none bg-white/15" />
                 <div className="space-y-2 flex-1">
-                  <div className="h-3 w-24 rounded bg-[#f1f3f4] animate-pulse" />
-                  <div className="h-2.5 w-16 rounded bg-[#f1f3f4] animate-pulse" />
+                  <div className="h-3 w-24 animate-pulse rounded bg-white/15" />
+                  <div className="h-2.5 w-16 animate-pulse rounded bg-white/10" />
                 </div>
               </div>
             </div>
           ))}
         </div>
       ) : following.length === 0 ? (
-        <div className="rounded-2xl bg-white px-6 py-16 text-center">
-          <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-[#e8f0fe]">
+        <div className="rounded-none border border-white/15 bg-white/5 px-6 py-16 text-center">
+          <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-none bg-[#1a73e8]/20">
             <UserCheck className="h-7 w-7 text-[#1a73e8]" />
           </div>
-          <p className="text-[15px] font-medium text-[#202124]">
+          <p className="text-[15px] font-medium text-white">
             Not following anyone yet
           </p>
-          <p className="mt-1 text-[13px] text-[#5f6368]">
+          <p className="mt-1 text-[13px] text-white/60">
             People you follow will appear here.
           </p>
         </div>
       ) : (
-        <div className="grid gap-3 sm:grid-cols-2">
+        <div>
           {following.map((item) => (
             <div
               key={item.id}
-              className="flex items-center justify-between rounded-2xl bg-white p-4 transition-shadow hover:shadow-[0_1px_3px_0_rgba(60,64,67,.3),0_4px_8px_3px_rgba(60,64,67,.15)]"
+              className="flex items-center justify-between border-b border-white/15 bg-white/5 p-4 transition hover:bg-white/[0.07]"
             >
               <div className="flex items-center gap-3">
-                <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-[#e8f0fe] text-[13px] font-medium text-[#1a73e8]">
+                <div className="flex h-11 w-11 items-center justify-center rounded-none bg-[#1a73e8]/20 text-[13px] font-medium text-[#1a73e8]">
                   {item.user?.firstName?.[0] || ""}
                   {item.user?.lastName?.[0] || ""}
                 </div>
                 <div>
-                  <p className="text-[14px] font-medium text-[#202124]">
+                  <p className="text-[14px] font-medium text-white">
                     {item.user?.firstName} {item.user?.lastName}
                   </p>
-                  <p className="text-[12px] text-[#5f6368]">
+                  <p className="text-[12px] text-white/60">
                     @{item.user?.username}
                   </p>
                 </div>
@@ -92,7 +94,7 @@ export default function FollowingPage() {
                 variant="outline"
                 size="sm"
                 onClick={() => navigate(`/users/${item.user?.id}`)}
-                className="rounded-xl"
+                className="rounded-none border-white/20 bg-transparent text-white/85 hover:bg-white/10 hover:text-white"
               >
                 View
               </Button>
