@@ -27,10 +27,37 @@ async function main() {
   const app = express();
   const PORT = Number(process.env.PORT);
 
+  const configuredFrontendOrigins = (process.env.FRONTEND_URL || "")
+    .split(",")
+    .map((origin) => origin.trim())
+    .filter(Boolean);
+
+  const isAllowedOrigin = (origin: string): boolean => {
+    if (configuredFrontendOrigins.includes(origin)) {
+      return true;
+    }
+
+    return /^https:\/\/social-network(?:-[a-z0-9-]+)?\.vercel\.app$/i.test(
+      origin,
+    );
+  };
+
   // CORS Configuration
   app.use(
     cors({
-      origin: process.env.FRONTEND_URL || "",
+      origin: (origin, callback) => {
+        if (!origin) {
+          callback(null, true);
+          return;
+        }
+
+        if (isAllowedOrigin(origin)) {
+          callback(null, true);
+          return;
+        }
+
+        callback(new Error("Not allowed by CORS"));
+      },
       credentials: true,
       methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
       allowedHeaders: ["Content-Type", "Authorization"],
