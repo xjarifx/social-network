@@ -74,9 +74,54 @@ async function main() {
     optionsSuccessStatus: 204,
   };
 
+  const applyCorsHeaders = (
+    res: import("express").Response,
+    origin: string | undefined,
+  ): void => {
+    if (origin && isAllowedOrigin(origin)) {
+      res.setHeader("Access-Control-Allow-Origin", origin);
+      res.setHeader("Vary", "Origin");
+    }
+
+    res.setHeader("Access-Control-Allow-Credentials", "true");
+    res.setHeader(
+      "Access-Control-Allow-Methods",
+      "GET,POST,PUT,PATCH,DELETE,OPTIONS",
+    );
+    res.setHeader(
+      "Access-Control-Allow-Headers",
+      "Content-Type,Authorization,X-Requested-With,Accept,Origin",
+    );
+  };
+
+  app.use(
+    (
+      req: import("express").Request,
+      res: import("express").Response,
+      next: import("express").NextFunction,
+    ) => {
+      if (req.method !== "OPTIONS") {
+        next();
+        return;
+      }
+
+      const origin = req.headers.origin;
+
+      if (origin && !isAllowedOrigin(origin)) {
+        console.warn(`Blocked preflight by CORS: ${origin}`);
+        res
+          .status(403)
+          .json({ success: false, data: {}, error: "Not allowed by CORS" });
+        return;
+      }
+
+      applyCorsHeaders(res, origin);
+      res.sendStatus(204);
+    },
+  );
+
   // CORS Configuration
   app.use(cors(corsOptions));
-  app.options(/.*/, cors(corsOptions));
 
   app.use(
     express.json({
