@@ -1,12 +1,8 @@
-import dotenv from "dotenv";
 import path from "path";
 import fs from "fs";
-import { fileURLToPath } from "url";
+import { bootstrapEnv } from "./config/env.js";
 
-// Configure dotenv before any imports that need environment variables
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const envPath = path.resolve(__dirname, "../.env");
-dotenv.config({ path: envPath, debug: false });
+bootstrapEnv();
 
 // Now dynamically import the rest of the application
 async function main() {

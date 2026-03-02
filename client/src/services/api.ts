@@ -1,6 +1,11 @@
 // API configuration
-const API_BASE_URL =
-  import.meta.env.VITE_API_URL || "http://localhost:3000/api/v1";
+const appEnv = (import.meta.env.VITE_APP_ENV || "development").toLowerCase();
+const selectedApiUrl =
+  appEnv === "production"
+    ? import.meta.env.VITE_API_URL_PROD || import.meta.env.VITE_API_URL
+    : import.meta.env.VITE_API_URL_DEV || import.meta.env.VITE_API_URL;
+
+const API_BASE_URL = selectedApiUrl || "http://localhost:3000/api/v1";
 export const API_ROOT_URL = API_BASE_URL.replace(/\/api\/v1\/?$/, "");
 
 // Storage keys
