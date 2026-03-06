@@ -9,6 +9,18 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 dotenv.config({ path: path.resolve(__dirname, "../.env") });
 
+// Process environment switches before importing prisma
+const shouldUseProd = (switchName: string): boolean => {
+  const value = process.env[switchName]?.toLowerCase().trim();
+  return value === "true" || value === "1" || value === "yes";
+};
+
+const useProdDb = shouldUseProd("USE_PROD_DATABASE");
+const dbUrl = useProdDb ? process.env.DATABASE_URL_PROD : process.env.DATABASE_URL_DEV;
+if (dbUrl) {
+  process.env.DATABASE_URL = dbUrl;
+}
+
 const firstNames = [
   "Alice",
   "Bob",
@@ -305,7 +317,7 @@ async function main() {
   await prisma.user.deleteMany();
 
   const passwordHash = await bcrypt.hash("Password123!", 10);
-  const TARGET_USERS = 100;
+  const TARGET_USERS = 20; // Reduced from 100
 
   console.log(`👥 Creating ${TARGET_USERS} users...`);
   const usersData = [] as Array<{
@@ -362,7 +374,7 @@ async function main() {
     createdAt: Date;
   }>;
   for (const user of users) {
-    const numPosts = getRandomInt(2, 8);
+    const numPosts = getRandomInt(1, 3); // Reduced from 2-8
     for (let j = 0; j < numPosts; j++) {
       postsData.push({
         authorId: user.id,
@@ -389,7 +401,7 @@ async function main() {
   const likesData = [] as Array<{ userId: string; postId: string }>;
   const postLikeCounts = new Map<string, number>();
   for (const post of posts) {
-    const numLikes = getRandomInt(5, 30);
+    const numLikes = getRandomInt(2, 10); // Reduced from 5-30
     const likerIndices = new Set<number>();
 
     while (likerIndices.size < Math.min(numLikes, users.length - 1)) {
@@ -422,7 +434,7 @@ async function main() {
   const postCommentCounts = new Map<string, number>();
 
   for (const post of posts) {
-    const topLevelCount = getRandomInt(2, 8);
+    const topLevelCount = getRandomInt(1, 3); // Reduced from 2-8
     const topLevel = [] as typeof allComments;
 
     for (let i = 0; i < topLevelCount; i++) {
@@ -453,7 +465,7 @@ async function main() {
     }
 
     for (const parent of topLevel) {
-      const replyCount = getRandomInt(0, 4);
+      const replyCount = getRandomInt(0, 2); // Reduced from 0-4
       for (let j = 0; j < replyCount; j++) {
         const author = getRandomItem(users);
         if (author.id === parent.authorId) continue;
@@ -548,7 +560,7 @@ async function main() {
     followingId: string;
   }>;
   for (let i = 0; i < users.length; i++) {
-    const numFollowing = getRandomInt(10, 40);
+    const numFollowing = getRandomInt(5, 15); // Reduced from 10-40
     const followingIndices = new Set<number>();
 
     while (followingIndices.size < Math.min(numFollowing, users.length - 1)) {
@@ -577,7 +589,7 @@ async function main() {
   console.log("🚫 Creating blocks...");
   const blockPairs = [] as Array<{ blockerId: string; blockedId: string }>;
   for (let i = 0; i < users.length; i++) {
-    const numBlocks = getRandomInt(2, 10);
+    const numBlocks = getRandomInt(1, 3); // Reduced from 2-10
     const blockedIndices = new Set<number>();
 
     while (blockedIndices.size < Math.min(numBlocks, users.length - 1)) {

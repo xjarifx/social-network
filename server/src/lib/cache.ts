@@ -10,14 +10,20 @@ let clientReady = false;
 export const buildCacheKey = (...parts: unknown[]): string =>
   parts.map(p => String(p ?? "").trim()).filter(Boolean).join(":");
 
-// Parse Redis URL to avoid deprecation warning
+// Parse Redis URL to avoid deprecation warning and handle SSL
 const parseRedisUrl = (urlString: string) => {
   try {
     const url = new URL(urlString);
+    const isSecure = url.protocol === 'rediss:';
+    
     return {
       socket: {
         host: url.hostname,
         port: parseInt(url.port) || 6379,
+        ...(isSecure && {
+          tls: true,
+          rejectUnauthorized: false, // For self-signed certificates
+        }),
       },
       password: url.password || undefined,
       username: url.username || undefined,

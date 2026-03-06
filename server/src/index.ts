@@ -87,6 +87,57 @@ async function main() {
   // Apply rate limiting to all API routes
   app.use("/api", generalLimiter);
 
+  // Cache health check endpoint
+  app.get("/api/v1/health/cache", async (req, res) => {
+    const { cacheGet, cacheSet, getCacheEnabled } = await import("./lib/cache.js");
+    
+    try {
+      const testKey = "health:cache:test";
+      const testValue = { timestamp: Date.now(), test: "cache-working" };
+      
+      // Determine which Redis is being used
+      const redisUrl = process.env.REDIS_URL || "";
+      const isProduction = redisUrl.includes("valkey-jarif") || redisUrl.includes("aivencloud");
+      const redisHost = redisUrl.split("@")[1]?.split(":")[0] || "unknown";
+      
+      // Try to set a value
+      await cacheSet(testKey, testValue, 10);
+      
+      // Try to get it back
+      const retrieved = await cacheGet(testKey);
+      
+      const isWorking = retrieved !== null && 
+                       typeof retrieved === 'object' && 
+                       'test' in retrieved &&
+                       retrieved.test === "cache-working";
+      
+      res.json({
+        enabled: getCacheEnabled(),
+        working: isWorking,
+        environment: isProduction ? "PRODUCTION" : "DEVELOPMENT",
+        host: redisHost,
+        message: isWorking 
+          ? `✅ ${isProduction ? "Production" : "Development"} cache is working correctly` 
+          : `⚠️ ${isProduction ? "Production" : "Development"} cache is enabled but not working`,
+        test: {
+          written: testValue,
+          retrieved: retrieved,
+        }
+      });
+    } catch (error) {
+      const redisUrl = process.env.REDIS_URL || "";
+      const isProduction = redisUrl.includes("valkey-jarif") || redisUrl.includes("aivencloud");
+      
+      res.status(500).json({
+        enabled: getCacheEnabled(),
+        working: false,
+        environment: isProduction ? "PRODUCTION" : "DEVELOPMENT",
+        message: `❌ ${isProduction ? "Production" : "Development"} cache test failed`,
+        error: error instanceof Error ? error.message : String(error),
+      });
+    }
+  });
+
   // Auth
   app.use("/api/v1/auth", authRouter);
   // Users & followers
