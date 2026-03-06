@@ -10,10 +10,34 @@ let clientReady = false;
 export const buildCacheKey = (...parts: unknown[]): string =>
   parts.map(p => String(p ?? "").trim()).filter(Boolean).join(":");
 
+// Parse Redis URL to avoid deprecation warning
+const parseRedisUrl = (urlString: string) => {
+  try {
+    const url = new URL(urlString);
+    return {
+      socket: {
+        host: url.hostname,
+        port: parseInt(url.port) || 6379,
+      },
+      password: url.password || undefined,
+      username: url.username || undefined,
+    };
+  } catch {
+    // Fallback to default
+    return {
+      socket: {
+        host: 'localhost',
+        port: 6379,
+      },
+    };
+  }
+};
+
 export const initRedis = async (): Promise<void> => {
   if (!cacheEnabled || client) return;
 
-  client = createClient({ url: redisUrl });
+  const config = parseRedisUrl(redisUrl);
+  client = createClient(config);
 
   client.on("error", (err) => {
     clientReady = false;
