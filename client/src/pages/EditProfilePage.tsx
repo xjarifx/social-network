@@ -1,12 +1,12 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
+import { ChevronLeft } from "lucide-react";
 import { usersAPI } from "../services/api";
 import type { User } from "../services/api";
 import { useAuth } from "../context/auth-context";
 import { Button } from "../components/ui/button";
 import { Input } from "../components/ui/input";
-import { PageHeader } from "../components/common";
 import { PageTransition } from "../components/common";
 
 export default function EditProfilePage() {
@@ -57,11 +57,15 @@ export default function EditProfilePage() {
 
   return (
     <PageTransition>
-      <PageHeader 
-        title="Edit profile" 
-        showBackButton 
-        backPath="/profile"
-      />
+      <div className="flex h-[53px] items-center border-b border-border bg-background px-4">
+        <button
+          onClick={() => navigate("/profile")}
+          className="flex h-9 w-9 cursor-pointer items-center justify-center rounded-full text-text-primary transition-colors duration-base hover:bg-surface-hover"
+          title="Back"
+        >
+          <ChevronLeft className="h-5 w-5" />
+        </button>
+      </div>
 
       <div className="mx-auto max-w-2xl p-4">
         {/* Profile Preview */}

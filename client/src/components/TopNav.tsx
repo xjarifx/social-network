@@ -1,5 +1,5 @@
 import { useNavigate, useLocation } from "react-router-dom";
-import { Home, Bell, Search, User, LogOut, MoreHorizontal, Bookmark, List } from "lucide-react";
+import { Home, Bell, Search, User, LogOut, MoreHorizontal, Bookmark, List, CreditCard } from "lucide-react";
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { useAuth } from "../context/auth-context";
@@ -28,10 +28,8 @@ export function TopNav({ onOpenPostComposer }: TopNavProps) {
     { icon: Home, label: "Home", to: "/" },
     { icon: Search, label: "Explore", to: "/search" },
     { icon: Bell, label: "Notifications", to: "/notifications" },
-    { icon: Bookmark, label: "Bookmarks", to: "/bookmarks" },
-    { icon: List, label: "Lists", to: "/lists" },
+    { icon: CreditCard, label: "Subscription", to: "/billing" },
     { icon: User, label: "Profile", to: "/profile" },
-    { icon: MoreHorizontal, label: "More", to: "/more" },
   ];
 
   const handleConfirmLogout = async () => {
@@ -151,14 +149,6 @@ export function TopNav({ onOpenPostComposer }: TopNavProps) {
           </button>
 
           <div className="flex items-center gap-2">
-            <button
-              onClick={() => navigate("/search")}
-              className="flex h-9 w-9 cursor-pointer items-center justify-center rounded-full text-text-primary transition-colors duration-base hover:bg-surface-hover"
-              title="Search"
-            >
-              <Search className="h-5 w-5" />
-            </button>
-
             <button
               onClick={() => setShowLogoutConfirm(true)}
               className="flex h-9 w-9 cursor-pointer items-center justify-center rounded-full text-text-primary transition-colors duration-base hover:bg-surface-hover"

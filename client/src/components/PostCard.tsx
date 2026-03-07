@@ -8,9 +8,6 @@ import {
   Edit,
   Trash2,
   Lock,
-  Repeat2,
-  BarChart3,
-  Bookmark,
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
@@ -294,33 +291,7 @@ function PostCardComponent({
           )}
 
           {/* Action Buttons */}
-          <div className="mt-3 flex max-w-md items-center justify-between">
-            <button
-              onClick={() => onReply?.(id)}
-              className="group/btn flex items-center gap-1 transition-colors duration-base"
-            >
-              <motion.div 
-                className="flex h-[34px] w-[34px] items-center justify-center rounded-full transition-colors duration-base group-hover/btn:bg-accent/10"
-                whileTap={{ scale: 0.9 }}
-              >
-                <MessageCircle className="h-[18px] w-[18px] text-text-secondary transition-colors duration-base group-hover/btn:text-accent" />
-              </motion.div>
-              {replies > 0 && (
-                <span className="text-xs text-text-secondary transition-colors duration-base group-hover/btn:text-accent">
-                  {replies}
-                </span>
-              )}
-            </button>
-
-            <button className="group/btn flex items-center gap-1 transition-colors duration-base">
-              <motion.div 
-                className="flex h-[34px] w-[34px] items-center justify-center rounded-full transition-colors duration-base group-hover/btn:bg-green-500/10"
-                whileTap={{ scale: 0.9 }}
-              >
-                <Repeat2 className="h-[18px] w-[18px] text-text-secondary transition-colors duration-base group-hover/btn:text-green-500" />
-              </motion.div>
-            </button>
-
+          <div className="mt-3 flex items-center gap-4">
             <button
               onClick={handleLike}
               className="group/btn flex items-center gap-1 transition-colors duration-base"
@@ -362,22 +333,21 @@ function PostCardComponent({
               </AnimatePresence>
             </button>
 
-            <button className="group/btn flex items-center gap-1 transition-colors duration-base">
+            <button
+              onClick={() => onReply?.(id)}
+              className="group/btn flex items-center gap-1 transition-colors duration-base"
+            >
               <motion.div 
                 className="flex h-[34px] w-[34px] items-center justify-center rounded-full transition-colors duration-base group-hover/btn:bg-accent/10"
                 whileTap={{ scale: 0.9 }}
               >
-                <BarChart3 className="h-[18px] w-[18px] text-text-secondary transition-colors duration-base group-hover/btn:text-accent" />
+                <MessageCircle className="h-[18px] w-[18px] text-text-secondary transition-colors duration-base group-hover/btn:text-accent" />
               </motion.div>
-            </button>
-
-            <button className="group/btn flex items-center gap-1 transition-colors duration-base">
-              <motion.div 
-                className="flex h-[34px] w-[34px] items-center justify-center rounded-full transition-colors duration-base group-hover/btn:bg-accent/10"
-                whileTap={{ scale: 0.9 }}
-              >
-                <Bookmark className="h-[18px] w-[18px] text-text-secondary transition-colors duration-base group-hover/btn:text-accent" />
-              </motion.div>
+              {replies > 0 && (
+                <span className="text-xs text-text-secondary transition-colors duration-base group-hover/btn:text-accent">
+                  {replies}
+                </span>
+              )}
             </button>
           </div>
         </div>

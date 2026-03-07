@@ -56,14 +56,15 @@ export default function NotificationsPage() {
 
   return (
     <div>
-      <PageHeader
-        title="Notifications"
-        action={{
-          icon: RefreshCw,
-          onClick: loadNotifications,
-          label: "Refresh",
-        }}
-      />
+      <div className="flex h-[53px] items-center justify-end border-b border-border bg-background px-4">
+        <button
+          onClick={loadNotifications}
+          className="flex h-9 w-9 cursor-pointer items-center justify-center rounded-full text-text-primary transition-colors duration-base hover:bg-surface-hover"
+          title="Refresh"
+        >
+          <RefreshCw className="h-5 w-5" />
+        </button>
+      </div>
 
       {error && <ErrorMessage message={error} />}
 

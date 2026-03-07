@@ -24,7 +24,11 @@ export default function HomePage() {
   const [forYouOffset, setForYouOffset] = useState(0);
   const [hasMoreFollowing, setHasMoreFollowing] = useState(true);
   const [hasMoreForYou, setHasMoreForYou] = useState(true);
-  const { draft: composerText, setDraft: setComposerText, clearDraft: clearComposerDraft } = useDraft('homepage-composer-draft');
+  const {
+    draft: composerText,
+    setDraft: setComposerText,
+    clearDraft: clearComposerDraft,
+  } = useDraft("homepage-composer-draft");
   const [composerVisibility, setComposerVisibility] = useState<
     "PUBLIC" | "PRIVATE"
   >("PUBLIC");
@@ -326,9 +330,9 @@ export default function HomePage() {
   ]);
 
   const renderComposerSection = () => (
-    <section className="border-b border-border px-4 py-3">
+    <section className="border-border border-b px-4 py-3">
       <div className="flex items-start gap-3">
-        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border-2 border-accent bg-accent text-sm font-semibold text-white">
+        <div className="border-accent bg-accent flex h-10 w-10 shrink-0 items-center justify-center rounded-full border-2 text-sm font-semibold text-white">
           {initials || "U"}
         </div>
 
@@ -337,13 +341,13 @@ export default function HomePage() {
             value={composerText}
             onChange={(event) => setComposerText(event.target.value)}
             placeholder="What is happening?!"
-            className="h-16 w-full resize-none bg-transparent text-lg text-text-primary outline-none placeholder:text-text-secondary"
+            className="text-text-primary placeholder:text-text-secondary h-16 w-full resize-none bg-transparent text-lg outline-none"
           />
 
           <div className="mt-2 flex items-center justify-between">
-            <div className="flex items-center gap-1 text-accent">
+            <div className="text-accent flex items-center gap-1">
               <label
-                className="flex h-[34px] w-[34px] cursor-pointer items-center justify-center rounded-full transition-colors duration-base hover:bg-accent/10"
+                className="duration-base hover:bg-accent/10 flex h-[34px] w-[34px] cursor-pointer items-center justify-center rounded-full transition-colors"
                 aria-label="Upload media"
                 title="Upload media"
               >
@@ -358,7 +362,7 @@ export default function HomePage() {
               <button
                 type="button"
                 onClick={toggleComposerVisibility}
-                className="flex h-[34px] w-[34px] cursor-pointer items-center justify-center rounded-full transition-colors duration-base hover:bg-accent/10"
+                className="duration-base hover:bg-accent/10 flex h-[34px] w-[34px] cursor-pointer items-center justify-center rounded-full transition-colors"
                 aria-label="Change visibility"
                 title={`Visibility: ${composerVisibility.toLowerCase()}`}
               >
@@ -380,21 +384,21 @@ export default function HomePage() {
           </div>
 
           {inlineMediaFile && (
-            <div className="mt-2 flex items-center justify-between rounded-lg border border-border bg-surface px-3 py-2">
-              <p className="truncate text-xs text-text-primary">
+            <div className="border-border bg-surface mt-2 flex items-center justify-between rounded-lg border px-3 py-2">
+              <p className="text-text-primary truncate text-xs">
                 {inlineMediaFile.name}
               </p>
               <button
                 type="button"
                 onClick={handleRemoveInlineMedia}
-                className="ml-3 shrink-0 text-xs text-accent hover:text-accent-hover"
+                className="text-accent hover:text-accent-hover ml-3 shrink-0 text-xs"
               >
                 Remove
               </button>
             </div>
           )}
 
-          <div className="mt-2 h-1 w-full overflow-hidden rounded-full bg-border">
+          <div className="bg-border mt-2 h-1 w-full overflow-hidden rounded-full">
             <div
               className={`h-full transition-all ${
                 isOverCharLimit ? "bg-red-500" : "bg-accent"
@@ -459,37 +463,33 @@ export default function HomePage() {
   return (
     <div className="flex min-h-screen flex-col">
       {/* Sticky Header with Tabs */}
-      <div className="sticky top-0 z-10 border-b border-border bg-background/80 backdrop-blur-md">
-        <div className="flex h-[53px] items-center px-4">
-          <h1 className="text-lg font-bold text-text-primary">Home</h1>
-        </div>
-        
+      <div className="border-border bg-background/80 sticky top-0 z-[0] border-b backdrop-blur-md">
         {/* Tab Navigation */}
-        <div className="flex border-b border-border">
+        <div className="flex">
           <button
             onClick={() => setActiveTab("forYou")}
-            className={`relative flex-1 px-4 py-4 text-center text-base font-medium transition-colors duration-base hover:bg-surface-hover ${
+            className={`hover:bg-surface-hover relative flex-1 px-4 py-4 text-center text-base font-medium transition-colors duration-150 ${
               activeTab === "forYou"
-                ? "font-bold text-text-primary"
+                ? "text-text-primary font-bold"
                 : "text-text-secondary"
             }`}
           >
             For you
             {activeTab === "forYou" && (
-              <div className="absolute bottom-0 left-0 right-0 h-1 rounded-full bg-accent" />
+              <div className="absolute bottom-0 left-1/2 h-1 w-16 -translate-x-1/2 rounded-full bg-blue-500" />
             )}
           </button>
           <button
             onClick={() => setActiveTab("following")}
-            className={`relative flex-1 px-4 py-4 text-center text-base font-medium transition-colors duration-base hover:bg-surface-hover ${
+            className={`hover:bg-surface-hover relative flex-1 px-4 py-4 text-center text-base font-medium transition-colors duration-150 ${
               activeTab === "following"
-                ? "font-bold text-text-primary"
+                ? "text-text-primary font-bold"
                 : "text-text-secondary"
             }`}
           >
             Following
             {activeTab === "following" && (
-              <div className="absolute bottom-0 left-0 right-0 h-1 rounded-full bg-accent" />
+              <div className="absolute bottom-0 left-1/2 h-1 w-20 -translate-x-1/2 rounded-full bg-blue-500" />
             )}
           </button>
         </div>
@@ -519,7 +519,7 @@ export default function HomePage() {
           />
           <div ref={forYouSentinelRef} className="h-6" />
           {isLoadingMore && activeTab === "forYou" && (
-            <div className="pb-6 text-center text-sm text-text-secondary">
+            <div className="text-text-secondary pb-6 text-center text-sm">
               Loading...
             </div>
           )}
@@ -546,7 +546,7 @@ export default function HomePage() {
           />
           <div ref={followingSentinelRef} className="h-6" />
           {isLoadingMore && activeTab === "following" && (
-            <div className="pb-6 text-center text-sm text-text-secondary">
+            <div className="text-text-secondary pb-6 text-center text-sm">
               Loading...
             </div>
           )}

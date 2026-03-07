@@ -259,9 +259,6 @@ export default function ProfilePage() {
 
       {/* Posts Section */}
       <div>
-        <h3 className="border-b border-border bg-background/90 backdrop-blur-sm p-4 text-base font-bold text-text-primary sticky top-0 z-10">
-          Your posts
-        </h3>
         {postsError && (
           <div className="mb-4 rounded-xl border border-[#ea4335]/30 bg-[#fce8e6] px-4 py-3 text-[13px] text-[#c5221f]">
             {postsError}
