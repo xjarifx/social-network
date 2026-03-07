@@ -1,6 +1,7 @@
 import { useNavigate, useLocation } from "react-router-dom";
-import { Home, Bell, Search, User, CreditCard, LogOut } from "lucide-react";
+import { Home, Bell, Search, User, LogOut, MoreHorizontal, Bookmark, List } from "lucide-react";
 import { useState } from "react";
+import { motion } from "framer-motion";
 import { useAuth } from "../context/auth-context";
 import { cn } from "../lib/utils";
 import {
@@ -18,16 +19,19 @@ interface TopNavProps {
 }
 
 export function TopNav({ onOpenPostComposer }: TopNavProps) {
-  const { logout } = useAuth();
+  const { logout, user } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
 
   const navItems = [
     { icon: Home, label: "Home", to: "/" },
+    { icon: Search, label: "Explore", to: "/search" },
     { icon: Bell, label: "Notifications", to: "/notifications" },
-    { icon: CreditCard, label: "Subscription", to: "/billing" },
+    { icon: Bookmark, label: "Bookmarks", to: "/bookmarks" },
+    { icon: List, label: "Lists", to: "/lists" },
     { icon: User, label: "Profile", to: "/profile" },
+    { icon: MoreHorizontal, label: "More", to: "/more" },
   ];
 
   const handleConfirmLogout = async () => {
@@ -41,61 +45,100 @@ export function TopNav({ onOpenPostComposer }: TopNavProps) {
     }
   };
 
+  const initials = `${user?.firstName?.[0] ?? ""}${user?.lastName?.[0] ?? ""}`;
+  const displayName = user?.firstName && user?.lastName 
+    ? `${user.firstName} ${user.lastName}` 
+    : "User";
+  const handle = user?.username ?? "user";
+
   return (
     <>
-      <aside className="sticky top-0 hidden h-screen w-64 shrink-0 bg-black px-3 py-2 lg:flex lg:flex-col">
-        <button
-          onClick={() => navigate("/")}
-          className="mb-3 flex w-fit cursor-pointer items-center gap-2 rounded-full px-3 py-2 text-left transition hover:bg-white/10"
-        >
-          <img src="/fire.png" alt="Social Network logo" className="h-7 w-7" />
-          <span className="text-[18px] font-semibold text-white">
-            Social Network
-          </span>
-        </button>
+      {/* Desktop Sidebar */}
+      <aside className="sticky top-0 hidden h-screen w-[275px] shrink-0 px-2 lg:flex lg:flex-col">
+        {/* Logo */}
+        <div className="flex h-[53px] items-center px-3">
+          <button
+            onClick={() => navigate("/")}
+            className="flex h-[50px] w-[50px] cursor-pointer items-center justify-center rounded-full text-white transition-colors duration-base hover:bg-surface-hover"
+            aria-label="Home"
+          >
+            <img src="/fire.png" alt="Logo" className="h-[30px] w-[30px]" />
+          </button>
+        </div>
 
-        <nav className="space-y-0.5">
+        {/* Navigation */}
+        <nav className="mt-1 flex-1">
           {navItems.map((item) => {
             const isActive = location.pathname === item.to;
             return (
-              <button
+              <motion.button
                 key={item.to}
                 onClick={() => navigate(item.to)}
                 className={cn(
-                  "flex w-fit cursor-pointer items-center gap-3 rounded-full px-4 py-3 text-left transition",
-                  isActive
-                    ? "font-semibold text-white"
-                    : "font-normal text-white hover:bg-white/10",
+                  "group flex w-fit cursor-pointer items-center gap-5 rounded-full px-4 py-3 text-left transition-colors duration-base hover:bg-surface-hover",
+                  "text-text-primary"
                 )}
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                transition={{ duration: 0.15 }}
               >
-                <item.icon className="h-6 w-6" />
-                <span className="text-[21px] leading-none">{item.label}</span>
-              </button>
+                <motion.div
+                  animate={isActive ? { scale: [1, 1.1, 1] } : {}}
+                  transition={{ duration: 0.3 }}
+                >
+                  <item.icon 
+                    className="h-[26px] w-[26px]" 
+                    strokeWidth={isActive ? 2.5 : 2}
+                  />
+                </motion.div>
+                <span className={cn(
+                  "text-xl",
+                  isActive ? "font-bold" : "font-normal"
+                )}>
+                  {item.label}
+                </span>
+              </motion.button>
             );
           })}
         </nav>
 
-        <button
-          onClick={() =>
-            onOpenPostComposer ? onOpenPostComposer() : navigate("/compose")
-          }
-          className="mt-4 w-full cursor-pointer rounded-full bg-[#ffffff] px-6 py-3 text-[18px] font-semibold text-black transition hover:bg-[#f2f2f2]"
-        >
-          Post
-        </button>
+        {/* Post Button */}
+        <div className="mb-4 px-3">
+          <Button
+            onClick={() =>
+              onOpenPostComposer ? onOpenPostComposer() : navigate("/compose")
+            }
+            className="w-full rounded-full px-8 py-3 text-base font-bold"
+          >
+            Post
+          </Button>
+        </div>
 
-        <button
-          onClick={() => setShowLogoutConfirm(true)}
-          className="mt-auto flex cursor-pointer items-center gap-3 rounded-full px-3 py-3 text-left text-[17px] text-white transition hover:bg-white/10"
-          title="Sign Out"
-        >
-          <LogOut className="h-5 w-5" />
-          <span>Sign Out</span>
-        </button>
+        {/* User Profile Button */}
+        <div className="mb-4 px-3">
+          <button
+            onClick={() => setShowLogoutConfirm(true)}
+            className="group flex w-full cursor-pointer items-center gap-3 rounded-full p-3 transition-colors duration-base hover:bg-surface-hover"
+          >
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border-2 border-accent bg-accent text-sm font-semibold text-white">
+              {initials || "U"}
+            </div>
+            <div className="min-w-0 flex-1 text-left">
+              <div className="truncate text-base font-bold text-text-primary">
+                {displayName}
+              </div>
+              <div className="truncate text-base text-text-secondary">
+                @{handle}
+              </div>
+            </div>
+            <MoreHorizontal className="h-5 w-5 text-text-primary" />
+          </button>
+        </div>
       </aside>
 
-      <header className="fixed top-0 right-0 left-0 z-50 border-b border-[#1a73e8]/35 bg-black/95 px-4 py-3 backdrop-blur-sm lg:hidden">
-        <div className="flex items-center gap-2">
+      {/* Mobile Header */}
+      <header className="fixed top-0 right-0 left-0 z-50 border-b border-border bg-background/90 backdrop-blur-md lg:hidden">
+        <div className="flex h-[53px] items-center justify-between px-4">
           <button
             onClick={() => navigate("/")}
             className="flex shrink-0 cursor-pointer items-center gap-2"
@@ -105,34 +148,34 @@ export function TopNav({ onOpenPostComposer }: TopNavProps) {
               alt="Social Network logo"
               className="h-8 w-8"
             />
-            <span className="text-[16px] font-medium text-white">
-              Social Network
-            </span>
           </button>
 
-          <button
-            onClick={() => navigate("/search")}
-            className="ml-auto flex h-9 w-9 cursor-pointer items-center justify-center rounded-full bg-[#1a73e8]/25 text-[#4da3ff] transition hover:bg-[#1a73e8]/35"
-            title="Search"
-          >
-            <Search className="h-5 w-5" />
-          </button>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => navigate("/search")}
+              className="flex h-9 w-9 cursor-pointer items-center justify-center rounded-full text-text-primary transition-colors duration-base hover:bg-surface-hover"
+              title="Search"
+            >
+              <Search className="h-5 w-5" />
+            </button>
 
-          <button
-            onClick={() => setShowLogoutConfirm(true)}
-            className="flex h-9 w-9 cursor-pointer items-center justify-center rounded-full text-white transition hover:bg-[#1a73e8]/15"
-            title="Sign Out"
-          >
-            <LogOut className="h-4.5 w-4.5" />
-          </button>
+            <button
+              onClick={() => setShowLogoutConfirm(true)}
+              className="flex h-9 w-9 cursor-pointer items-center justify-center rounded-full text-text-primary transition-colors duration-base hover:bg-surface-hover"
+              title="Sign Out"
+            >
+              <LogOut className="h-5 w-5" />
+            </button>
+          </div>
         </div>
       </header>
 
+      {/* Logout Confirmation Dialog */}
       <Dialog open={showLogoutConfirm} onOpenChange={setShowLogoutConfirm}>
-        <DialogContent className="max-w-md">
+        <DialogContent className="max-w-md bg-background border-border">
           <DialogHeader>
-            <DialogTitle>Sign out?</DialogTitle>
-            <DialogDescription>
+            <DialogTitle className="text-text-primary">Sign out?</DialogTitle>
+            <DialogDescription className="text-text-secondary">
               You will need to log in again to access your account.
             </DialogDescription>
           </DialogHeader>
@@ -140,10 +183,15 @@ export function TopNav({ onOpenPostComposer }: TopNavProps) {
             <Button
               variant="outline"
               onClick={() => setShowLogoutConfirm(false)}
+              className="border-border text-text-primary hover:bg-surface-hover"
             >
               Cancel
             </Button>
-            <Button variant="destructive" onClick={handleConfirmLogout}>
+            <Button 
+              variant="destructive" 
+              onClick={handleConfirmLogout}
+              className="bg-red-600 hover:bg-red-700"
+            >
               Sign out
             </Button>
           </DialogFooter>

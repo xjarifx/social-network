@@ -23,7 +23,7 @@ export function UserCard({ user, currentUserId, action }: UserCardProps) {
   const initials = `${user.firstName[0]}${user.lastName[0]}`;
 
   return (
-    <div className="flex items-center justify-between border-b border-white/15 bg-white/5 p-4 transition hover:bg-white/[0.07]">
+    <div className="flex items-center justify-between border-b border-border bg-background p-4 transition-colors duration-base hover:bg-surface-hover">
       <div className="flex items-center gap-3">
         <Avatar initials={initials} size="lg" variant="secondary" />
         <div>
@@ -43,7 +43,6 @@ export function UserCard({ user, currentUserId, action }: UserCardProps) {
           size="sm"
           onClick={action.onClick}
           disabled={action.disabled || currentUserId === user.id}
-          className="rounded-xl border-white/20 bg-transparent text-white/85 hover:bg-white/10 hover:text-white"
         >
           {currentUserId === user.id ? "You" : action.label}
         </Button>

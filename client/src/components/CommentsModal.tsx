@@ -77,8 +77,8 @@ export function CommentsModal({
       >
         <div className={`flex items-start gap-3 ${isRoot ? "py-4" : "py-3"}`}>
           <div
-            className={`flex shrink-0 items-center justify-center rounded-full bg-[#e8f0fe] font-medium text-[#1a73e8] ${
-              isRoot ? "h-9 w-9 text-[12px]" : "h-7 w-7 text-[10px]"
+            className={`flex shrink-0 items-center justify-center rounded-full border-2 border-accent bg-accent font-medium text-white ${
+              isRoot ? "h-9 w-9 text-xs" : "h-7 w-7 text-[10px]"
             }`}
           >
             {initials || "U"}
@@ -86,8 +86,8 @@ export function CommentsModal({
           <div className="min-w-0 flex-1">
             <div className="flex flex-wrap items-center justify-between gap-2">
               <p
-                className={`inline-flex items-center gap-1 font-semibold text-white ${
-                  isRoot ? "text-[13px]" : "text-[12px]"
+                className={`inline-flex items-center gap-1 font-semibold text-text-primary ${
+                  isRoot ? "text-sm" : "text-xs"
                 }`}
               >
                 {authorName}
@@ -98,7 +98,7 @@ export function CommentsModal({
                   <Button
                     variant="ghost"
                     size="sm"
-                    className="h-6 px-2 text-[11px] text-white/70 hover:bg-white/10 hover:text-white"
+                    className="h-6 px-2 text-xs text-text-secondary hover:bg-surface-hover hover:text-text-primary"
                     onClick={() =>
                       commentsApi.handleStartEditComment(post.id, comment)
                     }
@@ -108,7 +108,7 @@ export function CommentsModal({
                   <Button
                     variant="ghost"
                     size="sm"
-                    className="h-6 px-2 text-[11px] text-[#ea4335] hover:text-[#d93025]"
+                    className="h-6 px-2 text-xs text-danger hover:text-danger-hover"
                     onClick={() =>
                       commentsApi.handleDeleteComment(post.id, comment.id)
                     }
@@ -125,11 +125,7 @@ export function CommentsModal({
                   onChange={(e) =>
                     commentsApi.setCommentEditDraft(comment.id, e.target.value)
                   }
-                  className={
-                    isRoot
-                      ? "h-9 border-white/20 bg-black text-white placeholder:text-white/45"
-                      : "h-8 border-white/20 bg-black text-[12px] text-white placeholder:text-white/45"
-                  }
+                  className={isRoot ? "h-10" : "h-9 text-sm"}
                 />
                 <div className="flex items-center gap-2">
                   <Button
@@ -143,7 +139,7 @@ export function CommentsModal({
                   <Button
                     size="sm"
                     variant="ghost"
-                    className="text-white/70 hover:bg-white/10 hover:text-white"
+                    className="text-text-secondary hover:bg-surface-hover hover:text-text-primary"
                     onClick={() =>
                       commentsApi.handleCancelEditComment(post.id, comment.id)
                     }
@@ -154,8 +150,8 @@ export function CommentsModal({
               </div>
             ) : (
               <p
-                className={`mt-1 leading-5 text-white/90 ${
-                  isRoot ? "text-[14px]" : "text-[13px]"
+                className={`mt-1 leading-5 text-text-primary ${
+                  isRoot ? "text-sm" : "text-xs"
                 }`}
               >
                 {comment.content}
@@ -163,14 +159,14 @@ export function CommentsModal({
             )}
 
             {!isEditing && (
-              <div className="mt-1.5 flex flex-wrap items-center gap-1 text-white/60">
+              <div className="mt-1.5 flex flex-wrap items-center gap-1 text-text-secondary">
                 <Button
                   variant="ghost"
                   size="sm"
-                  className={`h-7 px-2 text-[12px] ${
+                  className={`h-7 px-2 text-xs ${
                     isLiked
-                      ? "text-[#ea4335] hover:text-[#ea4335]"
-                      : "text-white/70 hover:bg-white/10 hover:text-white"
+                      ? "text-danger hover:text-danger"
+                      : "text-text-secondary hover:bg-surface-hover hover:text-text-primary"
                   }`}
                   onClick={() =>
                     commentsApi.handleToggleCommentLike(post.id, comment.id)
@@ -184,7 +180,7 @@ export function CommentsModal({
                 <Button
                   variant="ghost"
                   size="sm"
-                  className="h-7 px-2 text-[12px] text-white/70 hover:bg-white/10 hover:text-white"
+                  className="h-7 px-2 text-xs text-text-secondary hover:bg-surface-hover hover:text-text-primary"
                   onClick={() => commentsApi.toggleReplies(post.id, comment.id)}
                 >
                   <MessageCircle className={actionIconSize} />
@@ -198,9 +194,9 @@ export function CommentsModal({
         </div>
 
         {repliesExpanded && (
-          <div className="ml-10 space-y-3 border-l border-white/15 pl-4">
-            <div className="rounded-xl border border-white/15 bg-white/5 px-3 py-2">
-              <p className="mb-2 text-[11px] font-medium text-white/65">
+          <div className="ml-10 space-y-3 border-l border-border pl-4">
+            <div className="rounded-xl border-2 border-border bg-surface/90 backdrop-blur-sm px-3 py-2">
+              <p className="mb-2 text-xs font-medium text-text-secondary">
                 Reply to {authorName}
               </p>
               <div className="flex flex-wrap items-center gap-2">
@@ -210,7 +206,7 @@ export function CommentsModal({
                     commentsApi.setReplyDraft(comment.id, e.target.value)
                   }
                   placeholder="Write a reply..."
-                  className="h-8 flex-1 border-white/20 bg-black text-[12px] text-white placeholder:text-white/45"
+                  className="h-9 flex-1 text-sm"
                 />
                 <Button
                   onClick={() =>
@@ -224,11 +220,11 @@ export function CommentsModal({
             </div>
 
             {repliesLoading ? (
-              <p className="text-[12px] text-white/60">Loading replies...</p>
+              <p className="text-xs text-text-muted">Loading replies...</p>
             ) : replies.length > 0 ? (
               replies.map((reply) => renderComment(reply, depth + 1))
             ) : (
-              <p className="text-[12px] text-white/60">No replies yet.</p>
+              <p className="text-xs text-text-muted">No replies yet.</p>
             )}
 
             {repliesHasMore && (
@@ -238,7 +234,7 @@ export function CommentsModal({
                     commentsApi.handleLoadMoreReplies(post.id, comment.id)
                   }
                   disabled={repliesMoreLoading}
-                  className="cursor-pointer text-[12px] font-medium text-[#1a73e8] hover:underline disabled:opacity-50"
+                  className="cursor-pointer text-xs font-medium text-accent hover:underline disabled:opacity-50"
                 >
                   {repliesMoreLoading ? "Loading..." : "Show more replies"}
                 </button>
@@ -252,23 +248,24 @@ export function CommentsModal({
 
   return (
     <Dialog onOpenChange={(open: boolean) => !open && onClose()} open>
-      <DialogContent className="scrollbar-hidden max-h-[90vh] max-w-2xl overflow-y-auto border-white/15 bg-black text-white">
-        <DialogHeader>
-          <DialogTitle>Post</DialogTitle>
-        </DialogHeader>
+      <DialogContent className="max-h-[90vh] max-w-2xl overflow-hidden border-border bg-background text-text-primary p-0">
+        <div className="flex flex-col max-h-[90vh]">
+          <DialogHeader className="px-6 pt-6 pb-4 shrink-0">
+            <DialogTitle>Post</DialogTitle>
+          </DialogHeader>
 
-        <div className="space-y-4 px-6 pb-6">
+          <div className="space-y-4 px-6 pb-6 overflow-y-auto scrollbar-hidden flex-1">
           <PostCard
             {...post}
             showPostMenu={false}
             onLike={onLike}
             onFollowToggle={onFollowToggle}
           />
-          <div className="rounded-2xl border border-white/15 bg-white/5 p-4">
-            <p className="text-[12px] font-medium tracking-wide text-white/65 uppercase">
+          <div className="rounded-2xl border-2 border-border bg-surface/90 backdrop-blur-sm p-4">
+            <p className="text-xs font-medium tracking-wide text-text-secondary uppercase">
               Comments
             </p>
-            <div className="my-3 h-px bg-white/15" />
+            <div className="my-3 h-px bg-border" />
 
             <div className="flex flex-wrap items-center gap-2">
               <Input
@@ -277,7 +274,7 @@ export function CommentsModal({
                   commentsApi.setCommentDraft(post.id, e.target.value)
                 }
                 placeholder="Write a comment..."
-                className="h-10 flex-1 border-white/20 bg-black text-white placeholder:text-white/45"
+                className="h-10 flex-1"
               />
               <Button
                 onClick={() => commentsApi.handleAddComment(post.id)}
@@ -289,11 +286,11 @@ export function CommentsModal({
 
             <div className="mt-4 space-y-2">
               {isLoading ? (
-                <p className="text-[13px] text-white/60">Loading comments...</p>
+                <p className="text-sm text-text-muted">Loading comments...</p>
               ) : comments.length > 0 ? (
                 comments.map((comment) => renderComment(comment))
               ) : (
-                <p className="text-[13px] text-white/60">No comments yet.</p>
+                <p className="text-sm text-text-muted">No comments yet.</p>
               )}
 
               {hasMore && (
@@ -301,7 +298,7 @@ export function CommentsModal({
                   <button
                     onClick={() => commentsApi.handleLoadMoreComments(post.id)}
                     disabled={isMoreLoading}
-                    className="cursor-pointer text-[13px] font-medium text-[#1a73e8] hover:underline disabled:opacity-50"
+                    className="cursor-pointer text-sm font-medium text-accent hover:underline disabled:opacity-50"
                   >
                     {isMoreLoading ? "Loading..." : "Show more comments"}
                   </button>
@@ -309,6 +306,7 @@ export function CommentsModal({
               )}
             </div>
           </div>
+        </div>
         </div>
       </DialogContent>
     </Dialog>

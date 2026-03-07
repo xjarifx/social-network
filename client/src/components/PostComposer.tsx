@@ -10,6 +10,7 @@ import {
   MediaPreview,
   ErrorMessage,
 } from "./common";
+import { Button } from "./ui/button";
 
 interface PostComposerProps {
   onPostCreated?: () => void;
@@ -69,7 +70,7 @@ export function PostComposer({
   }, []);
 
   return (
-    <section className={`border-b border-white/15 px-4 py-3 ${className}`}>
+    <section className={`border-b border-border bg-background px-4 py-3 ${className}`}>
       <div className="flex items-start gap-3">
         <Avatar initials={initials || "U"} size="md" />
 
@@ -78,11 +79,11 @@ export function PostComposer({
             value={composerText}
             onChange={(e) => setComposerText(e.target.value)}
             placeholder={placeholder}
-            className="h-16 w-full resize-none bg-transparent text-[18px] leading-6 text-white outline-none placeholder:text-white/45"
+            className="h-16 w-full resize-none bg-transparent text-lg leading-6 text-text-primary outline-none placeholder:text-text-muted"
           />
 
           <div className="mt-2 flex items-center justify-between">
-            <div className="flex items-center gap-3 text-[#1d9bf0]">
+            <div className="flex items-center gap-3 text-accent">
               <MediaUpload onFileSelect={setMediaFile} />
               <VisibilityToggle
                 visibility={composerVisibility}
@@ -90,18 +91,13 @@ export function PostComposer({
               />
             </div>
 
-            <button
-              type="button"
+            <Button
               onClick={handlePost}
               disabled={!canPost}
-              className={`rounded-full px-4 py-1.5 text-[15px] font-semibold text-black transition ${
-                canPost
-                  ? "cursor-pointer bg-white hover:bg-white/85"
-                  : "cursor-not-allowed bg-white/55"
-              }`}
+              className="rounded-full px-4 py-1.5 text-base font-bold"
             >
               {isPosting ? "Posting..." : "Post"}
-            </button>
+            </Button>
           </div>
 
           {mediaFile && (

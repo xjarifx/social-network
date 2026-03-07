@@ -24,26 +24,26 @@ export function PageHeader({
   const navigate = useNavigate();
 
   return (
-    <div className="flex items-center justify-between border-b border-white/15 p-3">
+    <div className="sticky top-0 z-10 flex items-center justify-between border-b border-border bg-background/90 backdrop-blur-sm p-3">
       <div className="flex items-center gap-3">
         {showBackButton && (
           <button
             onClick={() => navigate(backPath)}
-            className="flex h-9 w-9 cursor-pointer items-center justify-center rounded-xl text-white/60 transition hover:bg-white/10 hover:text-white"
+            className="flex h-9 w-9 cursor-pointer items-center justify-center rounded-xl text-text-secondary transition-colors duration-base hover:bg-surface-hover hover:text-text-primary"
             aria-label="Go back"
           >
             <ChevronLeft size={20} />
           </button>
         )}
         <div>
-          <h1 className="text-[20px] font-medium text-white">{title}</h1>
-          {subtitle && <p className="text-[13px] text-white/60">{subtitle}</p>}
+          <h1 className="text-xl font-medium text-text-primary">{title}</h1>
+          {subtitle && <p className="text-sm text-text-secondary">{subtitle}</p>}
         </div>
       </div>
       {action && (
         <button
           onClick={action.onClick}
-          className="flex h-9 w-9 cursor-pointer items-center justify-center rounded-xl text-white/60 transition hover:bg-white/10 hover:text-white"
+          className="flex h-9 w-9 cursor-pointer items-center justify-center rounded-xl text-text-secondary transition-colors duration-base hover:bg-surface-hover hover:text-text-primary"
           title={action.label}
         >
           <action.icon className="h-4.5 w-4.5" />

@@ -1,14 +1,2 @@
 @import "tailwindcss";
-
-/* remove scrollbar from for-you and following section */
-@layer utilities {
-  .scrollbar-hidden {
-    scrollbar-width: none;
-    -ms-overflow-style: none;
-  }
-
-  .scrollbar-hidden::-webkit-scrollbar {
-    width: 0;
-    height: 0;
-  }
-}
+@import "./styles/theme.css";

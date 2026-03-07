@@ -73,7 +73,7 @@ export default function LoginPage() {
   return (
     <div className="flex min-h-screen bg-black text-white">
       {/* Left Panel — Brand / Illustration */}
-      <div className="hidden shrink-0 flex-col items-center justify-center border-r border-white/10 bg-[#0f1419] px-12 lg:flex lg:w-120 xl:w-140">
+      <div className="hidden shrink-0 flex-col items-center justify-center border-r border-[#2f3336] bg-[#16181c] px-12 lg:flex lg:w-120 xl:w-140">
         <div className="max-w-85 text-center">
           <img
             src="/fire.png"
@@ -126,7 +126,7 @@ export default function LoginPage() {
           </p>
 
           {error && (
-            <div className="mt-6 rounded-xl border border-[#ea4335]/50 bg-[#2b1215] px-4 py-3 text-[13px] text-[#ff8380]">
+            <div className="mt-6 rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-[13px] text-red-400">
               {error}
             </div>
           )}

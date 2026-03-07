@@ -6,6 +6,7 @@ import type { PostProps } from "../components";
 import { useAuth } from "../context/auth-context";
 import { useComments, useDraft } from "../hooks";
 import { transformPost } from "../utils";
+import { Button } from "../components/ui/button";
 
 type FeedTab = "following" | "forYou";
 
@@ -325,9 +326,9 @@ export default function HomePage() {
   ]);
 
   const renderComposerSection = () => (
-    <section className="border-b border-white/15 px-4 py-3">
+    <section className="border-b border-border px-4 py-3">
       <div className="flex items-start gap-3">
-        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-white/10 text-[14px] font-semibold text-white">
+        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border-2 border-accent bg-accent text-sm font-semibold text-white">
           {initials || "U"}
         </div>
 
@@ -335,18 +336,18 @@ export default function HomePage() {
           <textarea
             value={composerText}
             onChange={(event) => setComposerText(event.target.value)}
-            placeholder="What's happening?"
-            className="h-16 w-full resize-none bg-transparent text-[18px] leading-6 text-white outline-none placeholder:text-white/45"
+            placeholder="What is happening?!"
+            className="h-16 w-full resize-none bg-transparent text-lg text-text-primary outline-none placeholder:text-text-secondary"
           />
 
           <div className="mt-2 flex items-center justify-between">
-            <div className="flex items-center gap-3 text-[#1d9bf0]">
+            <div className="flex items-center gap-1 text-accent">
               <label
-                className="cursor-pointer"
+                className="flex h-[34px] w-[34px] cursor-pointer items-center justify-center rounded-full transition-colors duration-base hover:bg-accent/10"
                 aria-label="Upload media"
                 title="Upload media"
               >
-                <Image className="h-4 w-4" />
+                <Image className="h-5 w-5" />
                 <input
                   type="file"
                   accept="image/*,video/*"
@@ -357,64 +358,59 @@ export default function HomePage() {
               <button
                 type="button"
                 onClick={toggleComposerVisibility}
-                className="cursor-pointer"
+                className="flex h-[34px] w-[34px] cursor-pointer items-center justify-center rounded-full transition-colors duration-base hover:bg-accent/10"
                 aria-label="Change visibility"
                 title={`Visibility: ${composerVisibility.toLowerCase()}`}
               >
                 {composerVisibility === "PUBLIC" ? (
-                  <Globe className="h-4 w-4" />
+                  <Globe className="h-5 w-5" />
                 ) : (
-                  <Lock className="h-4 w-4" />
+                  <Lock className="h-5 w-5" />
                 )}
               </button>
             </div>
 
-            <button
-              type="button"
+            <Button
               onClick={handleInlinePost}
               disabled={!canInlinePost}
-              className={`rounded-full px-4 py-1.5 text-[15px] font-semibold text-black transition ${
-                canInlinePost
-                  ? "cursor-pointer bg-white hover:bg-white/85"
-                  : "cursor-not-allowed bg-white/55"
-              }`}
+              className="rounded-full px-4 py-1.5 text-base font-bold"
             >
               {isInlinePosting ? "Posting..." : "Post"}
-            </button>
+            </Button>
           </div>
 
           {inlineMediaFile && (
-            <div className="mt-2 flex items-center justify-between rounded-lg border border-white/15 bg-white/5 px-3 py-2">
-              <p className="truncate text-[12px] text-white/80">
+            <div className="mt-2 flex items-center justify-between rounded-lg border border-border bg-surface px-3 py-2">
+              <p className="truncate text-xs text-text-primary">
                 {inlineMediaFile.name}
               </p>
               <button
                 type="button"
                 onClick={handleRemoveInlineMedia}
-                className="ml-3 shrink-0 text-[12px] text-[#1d9bf0] hover:text-[#59b8f5]"
+                className="ml-3 shrink-0 text-xs text-accent hover:text-accent-hover"
               >
                 Remove
               </button>
             </div>
           )}
 
-          <div className="mt-2 h-1 w-full overflow-hidden rounded-full bg-white/15">
+          <div className="mt-2 h-1 w-full overflow-hidden rounded-full bg-border">
             <div
               className={`h-full transition-all ${
-                isOverCharLimit ? "bg-red-500" : "bg-[#1d9bf0]"
+                isOverCharLimit ? "bg-red-500" : "bg-accent"
               }`}
               style={{ width: `${progressPercent}%` }}
             />
           </div>
           <p
-            className={`mt-1 text-[11px] ${
-              isOverCharLimit ? "text-red-400" : "text-white/60"
+            className={`mt-1 text-xs ${
+              isOverCharLimit ? "text-red-400" : "text-text-secondary"
             }`}
           >
             {charCount}/{charLimit} characters
           </p>
           {inlinePostError && (
-            <p className="mt-1 text-[11px] text-red-400">{inlinePostError}</p>
+            <p className="mt-1 text-xs text-red-400">{inlinePostError}</p>
           )}
         </div>
       </div>
@@ -461,52 +457,56 @@ export default function HomePage() {
   }, [refreshFeeds]);
 
   return (
-    <div className="flex min-h-[calc(100dvh-60px)] flex-col">
-      {/* Tab Navigation */}
-      <div className="sticky top-0 z-10 border-b border-white/15 bg-black/85 backdrop-blur-sm">
-        <div className="flex divide-x divide-white/10 border-b border-white/10">
+    <div className="flex min-h-screen flex-col">
+      {/* Sticky Header with Tabs */}
+      <div className="sticky top-0 z-10 border-b border-border bg-background/80 backdrop-blur-md">
+        <div className="flex h-[53px] items-center px-4">
+          <h1 className="text-lg font-bold text-text-primary">Home</h1>
+        </div>
+        
+        {/* Tab Navigation */}
+        <div className="flex border-b border-border">
           <button
             onClick={() => setActiveTab("forYou")}
-            className={`flex-1 px-4 py-3 text-center font-medium transition-colors ${
+            className={`relative flex-1 px-4 py-4 text-center text-base font-medium transition-colors duration-base hover:bg-surface-hover ${
               activeTab === "forYou"
-                ? "text-white"
-                : "text-white/65 hover:text-white"
+                ? "font-bold text-text-primary"
+                : "text-text-secondary"
             }`}
           >
             For you
+            {activeTab === "forYou" && (
+              <div className="absolute bottom-0 left-0 right-0 h-1 rounded-full bg-accent" />
+            )}
           </button>
           <button
             onClick={() => setActiveTab("following")}
-            className={`flex-1 px-4 py-3 text-center font-medium transition-colors ${
+            className={`relative flex-1 px-4 py-4 text-center text-base font-medium transition-colors duration-base hover:bg-surface-hover ${
               activeTab === "following"
-                ? "text-white"
-                : "text-white/65 hover:text-white"
+                ? "font-bold text-text-primary"
+                : "text-text-secondary"
             }`}
           >
             Following
+            {activeTab === "following" && (
+              <div className="absolute bottom-0 left-0 right-0 h-1 rounded-full bg-accent" />
+            )}
           </button>
-        </div>
-        {/* Underline indicator */}
-        <div className="relative h-1 bg-white/10">
-          <div
-            className={`absolute top-0 h-full w-1/2 bg-blue-400 transition-all duration-300 ${
-              activeTab === "following" ? "translate-x-full" : ""
-            }`}
-          />
         </div>
       </div>
 
+      {/* Feed Content */}
       <div className="relative min-h-0 flex-1 overflow-hidden">
         <div
           ref={forYouScrollRef}
-          className={`scrollbar-hidden absolute inset-0 overflow-y-auto border-t border-white/10 ${
+          className={`scrollbar-thin absolute inset-0 overflow-y-auto ${
             activeTab === "forYou" ? "block" : "hidden"
           }`}
         >
           {renderComposerSection()}
 
           {error && (
-            <div className="mb-4 rounded-lg border border-[#ea4335]/30 bg-[#fce8e6] px-4 py-3 text-[13px] text-[#c5221f]">
+            <div className="mx-4 my-4 rounded-lg border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-400">
               {error}
             </div>
           )}
@@ -519,21 +519,21 @@ export default function HomePage() {
           />
           <div ref={forYouSentinelRef} className="h-6" />
           {isLoadingMore && activeTab === "forYou" && (
-            <div className="pb-6 text-center text-[13px] text-[#5f6368]">
+            <div className="pb-6 text-center text-sm text-text-secondary">
               Loading...
             </div>
           )}
         </div>
         <div
           ref={followingScrollRef}
-          className={`scrollbar-hidden absolute inset-0 overflow-y-auto border-t border-white/10 ${
+          className={`scrollbar-thin absolute inset-0 overflow-y-auto ${
             activeTab === "following" ? "block" : "hidden"
           }`}
         >
           {renderComposerSection()}
 
           {error && (
-            <div className="mb-4 rounded-lg border border-[#ea4335]/30 bg-[#fce8e6] px-4 py-3 text-[13px] text-[#c5221f]">
+            <div className="mx-4 my-4 rounded-lg border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-400">
               {error}
             </div>
           )}
@@ -546,7 +546,7 @@ export default function HomePage() {
           />
           <div ref={followingSentinelRef} className="h-6" />
           {isLoadingMore && activeTab === "following" && (
-            <div className="pb-6 text-center text-[13px] text-[#5f6368]">
+            <div className="pb-6 text-center text-sm text-text-secondary">
               Loading...
             </div>
           )}

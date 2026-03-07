@@ -14,14 +14,14 @@ export function ActionButton({
   count,
   isActive = false,
   onClick,
-  activeColor = "bg-red-500/20 text-red-400",
+  activeColor = "bg-danger/20 text-danger",
   className = "",
 }: ActionButtonProps) {
   return (
     <button
       onClick={onClick}
-      className={`inline-flex cursor-pointer items-center gap-1.5 rounded-xl px-3 py-1.5 text-[13px] font-medium transition ${
-        isActive ? activeColor : "text-white/80 hover:bg-white/10"
+      className={`inline-flex cursor-pointer items-center gap-1.5 rounded-xl px-3 py-1.5 text-sm font-medium transition-colors duration-base ${
+        isActive ? activeColor : "text-text-secondary hover:bg-surface-hover"
       } ${className}`}
     >
       <Icon className={`h-4 w-4 ${isActive ? "fill-current" : ""}`} />

@@ -61,20 +61,20 @@ export function EditPostModal({
               onChange={(event) =>
                 onVisibilityChange(event.target.value as "PUBLIC" | "PRIVATE")
               }
-              className="h-9 rounded-xl border border-[#e8eaed] bg-white px-3 text-[13px] text-[#202124] focus:ring-1 focus:ring-[#1a73e8] focus:outline-none"
+              className="h-9 rounded-xl border border-border bg-white px-3 text-[13px] text-text-primary focus:ring-1 focus:ring-accent focus:outline-none"
             >
               <option value="PUBLIC">Public</option>
               <option value="PRIVATE">Private</option>
             </select>
             {visibility === "PRIVATE" && (
-              <span className="text-[12px] text-[#5f6368]">
+              <span className="text-[12px] text-text-secondary">
                 Only you can see this post
               </span>
             )}
           </div>
 
           {error && (
-            <div className="rounded-xl bg-[#fce8e6] px-4 py-3 text-[13px] text-[#c5221f]">
+            <div className="rounded-xl border border-danger/30 bg-danger/10 px-4 py-3 text-sm text-danger">
               {error}
             </div>
           )}

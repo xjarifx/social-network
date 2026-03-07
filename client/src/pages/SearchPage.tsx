@@ -83,15 +83,15 @@ export default function SearchPage() {
 
       <form
         onSubmit={handleSearchSubmit}
-        className="flex items-center gap-2 border-b border-white/15 bg-white/5 px-4 py-3"
+        className="flex items-center gap-3 border-b-2 border-border bg-surface-hover px-4 py-3 transition-all duration-150 focus-within:border-accent"
       >
-        <Search className="h-4 w-4 text-white/60" />
+        <Search className="h-5 w-5 text-text-secondary" />
         <input
           type="text"
           value={searchInput}
           onChange={(event) => setSearchInput(event.target.value)}
           placeholder="Search users"
-          className="w-full bg-transparent text-[15px] text-white outline-none placeholder:text-white/60"
+          className="w-full bg-transparent text-base text-text-primary outline-none placeholder:text-text-muted"
         />
       </form>
 

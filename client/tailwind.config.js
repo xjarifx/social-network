@@ -4,59 +4,168 @@ export default {
   content: ["./index.html", "./src/**/*.{js,ts,jsx,tsx}"],
   theme: {
     extend: {
+      /**
+       * SEMANTIC COLOR TOKENS
+       * All colors reference CSS variables from theme.css
+       * Use semantic names, not color names (e.g., 'background' not 'black')
+       */
       colors: {
-        border: "hsl(var(--border))",
-        input: "hsl(var(--input))",
-        ring: "hsl(var(--ring))",
-        background: "hsl(var(--background))",
-        foreground: "hsl(var(--foreground))",
-        primary: {
-          DEFAULT: "hsl(var(--primary))",
-          foreground: "hsl(var(--primary-foreground))",
+        // Background Colors
+        background: {
+          DEFAULT: "rgb(var(--background) / <alpha-value>)",
+          secondary: "rgb(var(--background-secondary) / <alpha-value>)",
         },
-        secondary: {
-          DEFAULT: "hsl(var(--secondary))",
-          foreground: "hsl(var(--secondary-foreground))",
+        
+        // Surface Colors
+        surface: {
+          DEFAULT: "rgb(var(--surface) / <alpha-value>)",
+          hover: "rgb(var(--surface-hover) / <alpha-value>)",
+          elevated: "rgb(var(--surface-elevated) / <alpha-value>)",
         },
-        destructive: {
-          DEFAULT: "hsl(var(--destructive))",
-          foreground: "hsl(var(--destructive-foreground))",
+        
+        // Border Colors
+        border: {
+          DEFAULT: "rgb(var(--border) / <alpha-value>)",
+          subtle: "rgb(var(--border-subtle) / <alpha-value>)",
+          strong: "rgb(var(--border-strong) / <alpha-value>)",
         },
-        muted: {
-          DEFAULT: "hsl(var(--muted))",
-          foreground: "hsl(var(--muted-foreground))",
+        
+        // Text Colors
+        text: {
+          primary: "rgb(var(--text-primary) / <alpha-value>)",
+          secondary: "rgb(var(--text-secondary) / <alpha-value>)",
+          muted: "rgb(var(--text-muted) / <alpha-value>)",
+          inverse: "rgb(var(--text-inverse) / <alpha-value>)",
         },
+        
+        // Accent Colors
         accent: {
-          DEFAULT: "hsl(var(--accent))",
-          foreground: "hsl(var(--accent-foreground))",
+          DEFAULT: "rgb(var(--accent) / <alpha-value>)",
+          hover: "rgb(var(--accent-hover) / <alpha-value>)",
+          muted: "rgb(var(--accent-muted) / <alpha-value>)",
         },
-        popover: {
-          DEFAULT: "hsl(var(--popover))",
-          foreground: "hsl(var(--popover-foreground))",
+        
+        // Status Colors
+        success: {
+          DEFAULT: "rgb(var(--success) / <alpha-value>)",
+          hover: "rgb(var(--success-hover) / <alpha-value>)",
+          muted: "rgb(var(--success-muted) / <alpha-value>)",
         },
-        card: {
-          DEFAULT: "hsl(var(--card))",
-          foreground: "hsl(var(--card-foreground))",
+        danger: {
+          DEFAULT: "rgb(var(--danger) / <alpha-value>)",
+          hover: "rgb(var(--danger-hover) / <alpha-value>)",
+          muted: "rgb(var(--danger-muted) / <alpha-value>)",
+        },
+        warning: {
+          DEFAULT: "rgb(var(--warning) / <alpha-value>)",
+          hover: "rgb(var(--warning-hover) / <alpha-value>)",
+          muted: "rgb(var(--warning-muted) / <alpha-value>)",
+        },
+        info: {
+          DEFAULT: "rgb(var(--info) / <alpha-value>)",
+          hover: "rgb(var(--info-hover) / <alpha-value>)",
+        },
+        
+        // Interactive States
+        interactive: {
+          hover: "rgb(var(--interactive-hover) / <alpha-value>)",
+          active: "rgb(var(--interactive-active) / <alpha-value>)",
+          focus: "rgb(var(--interactive-focus) / <alpha-value>)",
+        },
+        
+        // Overlay
+        overlay: {
+          DEFAULT: "rgb(var(--overlay) / <alpha-value>)",
+          hover: "rgb(var(--overlay-hover) / <alpha-value>)",
         },
       },
+      
+      /**
+       * TYPOGRAPHY
+       */
       fontFamily: {
-        sans: [
-          "SF Pro Display",
-          "SF Pro Text",
-          "Neue Haas Grotesk Display",
-          "Helvetica Neue",
-          "sans-serif",
-        ],
+        sans: ["var(--font-sans)"],
+        mono: ["var(--font-mono)"],
       },
+      
+      fontSize: {
+        xs: ["var(--text-xs)", { lineHeight: "var(--leading-normal)" }],
+        sm: ["var(--text-sm)", { lineHeight: "var(--leading-normal)" }],
+        base: ["var(--text-base)", { lineHeight: "var(--leading-normal)" }],
+        lg: ["var(--text-lg)", { lineHeight: "var(--leading-normal)" }],
+        xl: ["var(--text-xl)", { lineHeight: "var(--leading-tight)" }],
+        "2xl": ["var(--text-2xl)", { lineHeight: "var(--leading-tight)" }],
+        "3xl": ["var(--text-3xl)", { lineHeight: "var(--leading-tight)" }],
+        "4xl": ["var(--text-4xl)", { lineHeight: "var(--leading-tight)" }],
+      },
+      
+      fontWeight: {
+        normal: "var(--font-normal)",
+        medium: "var(--font-medium)",
+        semibold: "var(--font-semibold)",
+        bold: "var(--font-bold)",
+      },
+      
+      lineHeight: {
+        tight: "var(--leading-tight)",
+        normal: "var(--leading-normal)",
+        relaxed: "var(--leading-relaxed)",
+      },
+      
+      /**
+       * SPACING
+       * 8px grid system
+       */
+      spacing: {
+        0: "var(--spacing-0)",
+        1: "var(--spacing-1)",
+        2: "var(--spacing-2)",
+        3: "var(--spacing-3)",
+        4: "var(--spacing-4)",
+        5: "var(--spacing-5)",
+        6: "var(--spacing-6)",
+        8: "var(--spacing-8)",
+        10: "var(--spacing-10)",
+        12: "var(--spacing-12)",
+        16: "var(--spacing-16)",
+        20: "var(--spacing-20)",
+        24: "var(--spacing-24)",
+      },
+      
+      /**
+       * BORDER RADIUS
+       */
       borderRadius: {
-        lg: "var(--radius)",
-        md: "calc(var(--radius) - 2px)",
-        sm: "calc(var(--radius) - 4px)",
+        sm: "var(--radius-sm)",
+        md: "var(--radius-md)",
+        lg: "var(--radius-lg)",
+        xl: "var(--radius-xl)",
+        "2xl": "var(--radius-2xl)",
+        full: "var(--radius-full)",
       },
+      
+      /**
+       * SHADOWS
+       */
       boxShadow: {
-        soft: "0 12px 35px -18px rgba(15, 23, 42, 0.35)",
-        glass: "0 12px 30px -20px rgba(15, 23, 42, 0.5)",
+        soft: "var(--shadow-soft)",
+        card: "var(--shadow-card)",
+        elevated: "var(--shadow-elevated)",
+        overlay: "var(--shadow-overlay)",
       },
+      
+      /**
+       * TRANSITIONS
+       */
+      transitionDuration: {
+        fast: "var(--transition-fast)",
+        base: "var(--transition-base)",
+        slow: "var(--transition-slow)",
+      },
+      
+      /**
+       * ANIMATIONS
+       */
       keyframes: {
         "fade-in": {
           from: { opacity: "0" },
@@ -66,15 +175,40 @@ export default {
           from: { opacity: "0", transform: "translateY(-12px)" },
           to: { opacity: "1", transform: "translateY(0)" },
         },
+        "slide-up": {
+          from: { opacity: "0", transform: "translateY(12px)" },
+          to: { opacity: "1", transform: "translateY(0)" },
+        },
         "scale-in": {
-          from: { opacity: "0", transform: "scale(0.98)" },
+          from: { opacity: "0", transform: "scale(0.95)" },
           to: { opacity: "1", transform: "scale(1)" },
         },
+        "scale-out": {
+          from: { opacity: "1", transform: "scale(1)" },
+          to: { opacity: "0", transform: "scale(0.95)" },
+        },
       },
+      
       animation: {
-        "fade-in": "fade-in 220ms ease-out",
-        "slide-down": "slide-down 240ms ease-out",
-        "scale-in": "scale-in 200ms ease-out",
+        "fade-in": "fade-in var(--transition-base) ease-out",
+        "slide-down": "slide-down var(--transition-base) ease-out",
+        "slide-up": "slide-up var(--transition-base) ease-out",
+        "scale-in": "scale-in var(--transition-base) ease-out",
+        "scale-out": "scale-out var(--transition-base) ease-out",
+      },
+      
+      /**
+       * Z-INDEX
+       */
+      zIndex: {
+        base: "var(--z-base)",
+        dropdown: "var(--z-dropdown)",
+        sticky: "var(--z-sticky)",
+        fixed: "var(--z-fixed)",
+        "modal-backdrop": "var(--z-modal-backdrop)",
+        modal: "var(--z-modal)",
+        popover: "var(--z-popover)",
+        tooltip: "var(--z-tooltip)",
       },
     },
   },

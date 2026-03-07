@@ -1,5 +1,6 @@
 import { memo } from "react";
 import { MessageCircle } from "lucide-react";
+import { motion } from "framer-motion";
 import { PostCard } from "./PostCard";
 import type { PostProps } from "./PostCard";
 import { LoadingSkeleton, EmptyState } from "./common";
@@ -35,7 +36,18 @@ function FeedComponent({
   }
 
   return (
-    <div className="space-y-0">
+    <motion.div 
+      className="space-y-0"
+      initial="hidden"
+      animate="visible"
+      variants={{
+        visible: {
+          transition: {
+            staggerChildren: 0.05
+          }
+        }
+      }}
+    >
       {posts.map((post, index) => (
         <div key={`${post.id}-${index}`}>
           <PostCard
@@ -52,13 +64,19 @@ function FeedComponent({
       ))}
 
       {posts.length === 0 && (
-        <EmptyState
-          icon={MessageCircle}
-          title="No posts yet"
-          description="Your feed is empty. Follow people to see their posts here."
-        />
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3 }}
+        >
+          <EmptyState
+            icon={MessageCircle}
+            title="No posts yet"
+            description="Your feed is empty. Follow people to see their posts here."
+          />
+        </motion.div>
       )}
-    </div>
+    </motion.div>
   );
 }
 

@@ -2,12 +2,13 @@ import { useState } from "react";
 import type { FormEvent } from "react";
 import { Search } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { Button } from "./ui/button";
 
 const demoTrends = [
-  { category: "Technology · Trending", title: "AI tools for creators" },
-  { category: "Lifestyle · Trending", title: "Weekend travel ideas" },
-  { category: "Science · Trending", title: "New space telescope images" },
-  { category: "Culture · Trending", title: "Top movies this month" },
+  { category: "Technology · Trending", title: "AI tools for creators", posts: "12.5K" },
+  { category: "Lifestyle · Trending", title: "Weekend travel ideas", posts: "8.2K" },
+  { category: "Science · Trending", title: "New space telescope images", posts: "15.3K" },
+  { category: "Culture · Trending", title: "Top movies this month", posts: "9.7K" },
 ];
 
 export function RightSidebar() {
@@ -21,63 +22,84 @@ export function RightSidebar() {
   };
 
   return (
-    <aside className="sticky top-2 hidden w-88 shrink-0 space-y-4 self-start xl:block">
-      <form
-        onSubmit={handleSubmit}
-        className="flex items-center gap-2 rounded-full border border-white/15 bg-black px-4 py-2.5"
-      >
-        <Search className="h-4 w-4 text-white/60" />
-        <input
-          type="text"
-          value={query}
-          onChange={(event) => setQuery(event.target.value)}
-          placeholder="Search"
-          className="w-full bg-transparent text-[15px] text-white outline-none placeholder:text-white/60"
-        />
-      </form>
+    <aside className="sticky top-0 hidden w-[350px] shrink-0 space-y-4 self-start py-1 xl:block">
+      {/* Search Bar */}
+      <div className="px-4">
+        <form
+          onSubmit={handleSubmit}
+          className="group flex items-center gap-4 rounded-full border-2 border-border bg-surface-hover px-4 py-3 transition-all duration-150 hover:border-border-hover focus-within:border-accent"
+        >
+          <Search className="h-5 w-5 text-text-secondary" />
+          <input
+            type="text"
+            value={query}
+            onChange={(event) => setQuery(event.target.value)}
+            placeholder="Search"
+            className="w-full bg-transparent text-base text-text-primary outline-none placeholder:text-text-secondary"
+          />
+        </form>
+      </div>
 
-      <section className="rounded-2xl border border-white/15 bg-[#16181c] p-4">
-        <div className="mb-2 flex items-start justify-between gap-2">
-          <h3 className="text-[20px] leading-tight font-extrabold text-white">
+      {/* Subscribe to Premium Card */}
+      <section className="mx-4 overflow-hidden rounded-2xl border border-border bg-surface">
+        <div className="p-4">
+          <h3 className="mb-1 text-xl font-extrabold text-text-primary">
             Subscribe to Premium
           </h3>
-          <span className="rounded-md bg-[#00ba7c] px-2 py-0.5 text-[13px] font-bold text-white">
-            50% off
-          </span>
+          <p className="mb-3 text-sm text-text-primary">
+            Subscribe to unlock new features and if eligible, receive a share of ads revenue.
+          </p>
+          <Button
+            onClick={() => navigate("/billing")}
+            className="rounded-full px-4 py-2 text-base font-bold"
+          >
+            Subscribe
+          </Button>
         </div>
-        <p className="mb-4 text-[15px] leading-5 text-white/90">
-          Get rid of ads, see your analytics, boost your replies and unlock 20+
-          features.
-        </p>
-        <button
-          onClick={() => navigate("/billing")}
-          className="cursor-pointer rounded-full bg-[#1d9bf0] px-4 py-2 text-[15px] font-bold text-white transition hover:bg-[#1a8cd8]"
-        >
-          Subscribe
-        </button>
       </section>
 
-      <section className="rounded-2xl border border-white/15 bg-[#16181c] p-4">
-        <h3 className="mb-2 text-[20px] font-extrabold text-white">
-          What’s happening
-        </h3>
-        <div className="space-y-1">
-          {demoTrends.map((trend) => (
+      {/* What's Happening Card */}
+      <section className="mx-4 overflow-hidden rounded-2xl border border-border bg-surface">
+        <div className="px-4 py-3">
+          <h3 className="text-xl font-extrabold text-text-primary">
+            What's happening
+          </h3>
+        </div>
+        <div>
+          {demoTrends.map((trend, index) => (
             <button
-              key={trend.title}
-              className="block w-full cursor-pointer rounded-xl px-2 py-3 text-left transition hover:bg-white/5"
+              key={index}
+              className="block w-full cursor-pointer px-4 py-3 text-left transition-colors duration-base hover:bg-surface-hover"
             >
-              <p className="text-[13px] text-white/60">{trend.category}</p>
-              <p className="mt-0.5 text-[17px] leading-5 font-bold text-white">
+              <div className="text-xs text-text-secondary">
+                {trend.category}
+              </div>
+              <div className="mt-0.5 text-base font-bold text-text-primary">
                 {trend.title}
-              </p>
+              </div>
+              <div className="mt-0.5 text-xs text-text-secondary">
+                {trend.posts} posts
+              </div>
             </button>
           ))}
         </div>
-        <button className="mt-2 cursor-pointer rounded-full px-3 py-1.5 text-[15px] text-[#1d9bf0] transition hover:bg-white/5">
+        <button className="block w-full cursor-pointer px-4 py-3 text-left text-base text-accent transition-colors duration-base hover:bg-surface-hover">
           Show more
         </button>
       </section>
+
+      {/* Footer Links */}
+      <div className="px-4 py-2">
+        <div className="flex flex-wrap gap-x-3 gap-y-1 text-xs text-text-secondary">
+          <a href="#" className="hover:underline">Terms of Service</a>
+          <a href="#" className="hover:underline">Privacy Policy</a>
+          <a href="#" className="hover:underline">Cookie Policy</a>
+          <a href="#" className="hover:underline">Accessibility</a>
+          <a href="#" className="hover:underline">Ads info</a>
+          <a href="#" className="hover:underline">More</a>
+          <span>© 2026 Social Network</span>
+        </div>
+      </div>
     </aside>
   );
 }

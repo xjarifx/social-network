@@ -1,11 +1,11 @@
 import { useLocation, useNavigate } from "react-router-dom";
-import { Home, Bell, User, CreditCard } from "lucide-react";
+import { Home, Bell, User, Search } from "lucide-react";
 import { cn } from "../lib/utils";
 
 const navItems = [
   { icon: Home, label: "Home", to: "/" },
-  { icon: Bell, label: "Alerts", to: "/notifications" },
-  { icon: CreditCard, label: "Subscription", to: "/billing" },
+  { icon: Search, label: "Explore", to: "/search" },
+  { icon: Bell, label: "Notifications", to: "/notifications" },
   { icon: User, label: "Profile", to: "/profile" },
 ];
 
@@ -14,8 +14,8 @@ export function MobileNav() {
   const location = useLocation();
 
   return (
-    <div className="fixed right-4 bottom-4 left-4 z-40 lg:hidden">
-      <div className="mx-auto flex max-w-105 items-center justify-around rounded-2xl border border-[#1a73e8]/35 bg-black px-2 py-2 shadow-[0_0_0_1px_rgba(26,115,232,.12)]">
+    <div className="fixed bottom-0 left-0 right-0 z-40 border-t border-border bg-background/90 backdrop-blur-md lg:hidden">
+      <div className="flex items-center justify-around px-2">
         {navItems.map((item) => {
           const isActive = location.pathname === item.to;
           return (
@@ -23,14 +23,20 @@ export function MobileNav() {
               key={item.to}
               onClick={() => navigate(item.to)}
               className={cn(
-                "relative flex h-10 w-10 cursor-pointer items-center justify-center rounded-xl transition",
+                "relative flex flex-1 cursor-pointer items-center justify-center py-3 transition-colors duration-base",
                 isActive
-                  ? "bg-[#1a73e8]/25 text-[#4da3ff]"
-                  : "text-white hover:bg-[#1a73e8]/15",
+                  ? "text-text-primary"
+                  : "text-text-secondary"
               )}
               title={item.label}
             >
-              <item.icon className="h-5 w-5" />
+              <item.icon 
+                className="h-[26px] w-[26px]" 
+                strokeWidth={isActive ? 2.5 : 2}
+              />
+              {isActive && (
+                <div className="absolute top-0 left-0 right-0 h-1 bg-accent" />
+              )}
             </button>
           );
         })}

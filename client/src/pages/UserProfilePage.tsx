@@ -213,7 +213,7 @@ export default function UserProfilePage() {
           ) : (
             <>
               <div className="flex items-end gap-5">
-                <div className="flex h-20 w-20 shrink-0 items-center justify-center rounded-2xl border-4 border-white/20 bg-[#e8f0fe] text-[20px] font-medium text-[#1a73e8] shadow-lg">
+                <div className="flex h-20 w-20 shrink-0 items-center justify-center rounded-full border-2 border-accent bg-accent text-xl font-semibold text-white shadow-lg">
                   {profile?.firstName?.[0] || ""}
                   {profile?.lastName?.[0] || ""}
                 </div>

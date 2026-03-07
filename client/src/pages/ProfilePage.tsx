@@ -15,20 +15,14 @@ import type { PostProps } from "../components";
 import { useComments } from "../hooks";
 import { transformPost } from "../utils";
 import { Button } from "../components/ui/button";
-import { Input } from "../components/ui/input";
 
 export default function ProfilePage() {
   const { user } = useAuth();
   const navigate = useNavigate();
   const [profile, setProfile] = useState<User | null>(null);
-  const [firstName, setFirstName] = useState("");
-  const [lastName, setLastName] = useState("");
   const [followers, setFollowers] = useState<Follower[]>([]);
   const [following, setFollowing] = useState<Follower[]>([]);
   const [blocked, setBlocked] = useState<BlockedUser[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [isSaving, setIsSaving] = useState(false);
-  const [error, setError] = useState<string | null>(null);
   const [posts, setPosts] = useState<PostProps[]>([]);
   const [postsLoading, setPostsLoading] = useState(true);
   const [postsError, setPostsError] = useState<string | null>(null);
@@ -64,15 +58,10 @@ export default function ProfilePage() {
   useEffect(() => {
     const loadProfile = async () => {
       try {
-        setIsLoading(true);
         const current = await usersAPI.getCurrentProfile();
         setProfile(current);
-        setFirstName(current.firstName || "");
-        setLastName(current.lastName || "");
       } catch (err) {
-        setError(err instanceof Error ? err.message : "Failed to load profile");
-      } finally {
-        setIsLoading(false);
+        console.error("Failed to load profile:", err);
       }
     };
     loadProfile();
@@ -114,20 +103,6 @@ export default function ProfilePage() {
         console.error("Failed to load followers/following:", err),
       );
   }, [user?.id]);
-
-  const handleSave = async () => {
-    try {
-      setIsSaving(true);
-      setError(null);
-      const updated = await usersAPI.updateProfile({ firstName, lastName });
-      setProfile(updated);
-      toast.success("Profile updated successfully!");
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to update profile");
-    } finally {
-      setIsSaving(false);
-    }
-  };
 
   const handleLike = useCallback(
     async (postId: string) => {
@@ -222,132 +197,71 @@ export default function ProfilePage() {
   return (
     <div>
       {/* Profile Hero Card */}
-      <div className="border-y border-white/15 bg-black">
+      <div className="border-b border-border bg-background">
         {/* Profile Info */}
         <div className="px-6 py-5">
-          <div className="flex items-end gap-5">
-            <div className="flex h-20 w-20 shrink-0 items-center justify-center rounded-2xl border-4 border-white/20 bg-[#1a73e8] text-[24px] font-medium text-white shadow-lg">
-              {user?.firstName?.[0]}
-              {user?.lastName?.[0]}
+          <div className="flex items-start justify-between">
+            <div className="flex items-end gap-5">
+              <div className="flex h-20 w-20 shrink-0 items-center justify-center rounded-full border-2 border-accent bg-accent text-2xl font-semibold text-white shadow-card">
+                {user?.firstName?.[0]}
+                {user?.lastName?.[0]}
+              </div>
+              <div className="min-w-0 pb-1">
+                <h2 className="flex items-center gap-2 text-xl font-bold text-text-primary">
+                  {profile?.firstName} {profile?.lastName}
+                  <ProBadge isPro={profile?.plan === "PRO"} />
+                </h2>
+                <p className="text-sm text-text-secondary">@{profile?.username}</p>
+              </div>
             </div>
-            <div className="min-w-0 pb-1">
-              <h2 className="flex items-center gap-2 text-[20px] font-medium text-white">
-                {profile?.firstName} {profile?.lastName}
-                <ProBadge isPro={profile?.plan === "PRO"} />
-              </h2>
-              <p className="text-[13px] text-white/65">@{profile?.username}</p>
-            </div>
+            
+            <Button
+              variant="outline"
+              onClick={() => navigate("/profile/edit")}
+              className="shrink-0"
+            >
+              Edit profile
+            </Button>
           </div>
 
           {/* Stats Row */}
           <div className="mt-5 flex gap-2">
             <button
               onClick={() => navigate("/followers")}
-              className="flex-1 cursor-pointer border border-white/15 bg-white/5 px-4 py-3 text-center transition hover:bg-white/10"
+              className="flex-1 cursor-pointer rounded-xl border border-border bg-surface px-4 py-3 text-center transition-colors duration-base hover:bg-surface-hover"
             >
-              <p className="text-[20px] font-medium text-white">
+              <p className="text-xl font-bold text-text-primary">
                 {followers.length}
               </p>
-              <p className="text-[12px] text-white/65">Followers</p>
+              <p className="text-xs text-text-secondary">Followers</p>
             </button>
             <button
               onClick={() => navigate("/following")}
-              className="flex-1 cursor-pointer border border-white/15 bg-white/5 px-4 py-3 text-center transition hover:bg-white/10"
+              className="flex-1 cursor-pointer rounded-xl border border-border bg-surface px-4 py-3 text-center transition-colors duration-base hover:bg-surface-hover"
             >
-              <p className="text-[20px] font-medium text-white">
+              <p className="text-xl font-bold text-text-primary">
                 {following.length}
               </p>
-              <p className="text-[12px] text-white/65">Following</p>
+              <p className="text-xs text-text-secondary">Following</p>
             </button>
             <button
               onClick={() => navigate("/blocks")}
-              className="flex-1 cursor-pointer border border-white/15 bg-white/5 px-4 py-3 text-center transition hover:bg-white/10"
+              className="flex-1 cursor-pointer rounded-xl border border-border bg-surface px-4 py-3 text-center transition-colors duration-base hover:bg-surface-hover"
             >
-              <p className="text-[20px] font-medium text-white">
+              <p className="text-xl font-bold text-text-primary">
                 {blocked.length}
               </p>
-              <p className="text-[12px] text-white/65">Blocked</p>
+              <p className="text-xs text-text-secondary">Blocked</p>
             </button>
           </div>
         </div>
       </div>
 
-      {/* Edit Profile Card */}
-      <div className="border-b border-white/15 bg-black p-6">
-        <h3 className="text-[15px] font-medium text-white">Edit profile</h3>
-
-        <div className="mt-4 space-y-4">
-          {error && (
-            <div className="rounded-xl border border-[#ea4335]/30 bg-[#fce8e6] px-4 py-3 text-[13px] text-[#c5221f]">
-              {error}
-            </div>
-          )}
-
-          {isLoading ? (
-            <p className="text-[13px] text-white/65">Loading profile...</p>
-          ) : (
-            <>
-              <div className="grid gap-4 sm:grid-cols-2">
-                <div>
-                  <label className="mb-1.5 block text-[12px] font-medium text-white/65">
-                    Username
-                  </label>
-                  <Input
-                    value={profile?.username ?? ""}
-                    disabled
-                    className="h-11 rounded-xl border-white/20 bg-white/5 text-white placeholder:text-white/45"
-                  />
-                </div>
-                <div>
-                  <label className="mb-1.5 block text-[12px] font-medium text-white/65">
-                    Email
-                  </label>
-                  <Input
-                    value={profile?.email ?? ""}
-                    disabled
-                    className="h-11 rounded-xl border-white/20 bg-white/5 text-white placeholder:text-white/45"
-                  />
-                </div>
-              </div>
-
-              <div className="grid gap-4 sm:grid-cols-2">
-                <div>
-                  <label className="mb-1.5 block text-[12px] font-medium text-white/65">
-                    First name
-                  </label>
-                  <Input
-                    value={firstName}
-                    onChange={(e) => setFirstName(e.target.value)}
-                    className="h-11 rounded-xl border-white/20 bg-white/5 text-white placeholder:text-white/45"
-                  />
-                </div>
-                <div>
-                  <label className="mb-1.5 block text-[12px] font-medium text-white/65">
-                    Last name
-                  </label>
-                  <Input
-                    value={lastName}
-                    onChange={(e) => setLastName(e.target.value)}
-                    className="h-11 rounded-xl border-white/20 bg-white/5 text-white placeholder:text-white/45"
-                  />
-                </div>
-              </div>
-
-              <Button
-                onClick={handleSave}
-                disabled={isSaving}
-                className="rounded-xl"
-              >
-                {isSaving ? "Saving..." : "Save changes"}
-              </Button>
-            </>
-          )}
-        </div>
-      </div>
-
       {/* Posts Section */}
       <div>
-        <h3 className="p-4 text-[15px] font-medium text-white">Your posts</h3>
+        <h3 className="border-b border-border bg-background/90 backdrop-blur-sm p-4 text-base font-bold text-text-primary sticky top-0 z-10">
+          Your posts
+        </h3>
         {postsError && (
           <div className="mb-4 rounded-xl border border-[#ea4335]/30 bg-[#fce8e6] px-4 py-3 text-[13px] text-[#c5221f]">
             {postsError}

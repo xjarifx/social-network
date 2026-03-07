@@ -14,17 +14,17 @@ export function CharacterCounter({
 
   return (
     <div className={className}>
-      <div className="h-1 w-full overflow-hidden rounded-full bg-white/15">
+      <div className="h-1 w-full overflow-hidden rounded-full bg-border">
         <div
-          className={`h-full transition-all ${
-            isOverLimit ? "bg-red-500" : "bg-[#1d9bf0]"
+          className={`h-full transition-all duration-base ${
+            isOverLimit ? "bg-danger" : "bg-accent"
           }`}
           style={{ width: `${progressPercent}%` }}
         />
       </div>
       <p
         className={`mt-1 text-[11px] ${
-          isOverLimit ? "text-red-400" : "text-white/60"
+          isOverLimit ? "text-red-400" : "text-text-muted"
         }`}
       >
         {current}/{limit} characters

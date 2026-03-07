@@ -8,12 +8,15 @@ import {
   Edit,
   Trash2,
   Lock,
+  Repeat2,
+  BarChart3,
+  Bookmark,
 } from "lucide-react";
 import { Link } from "react-router-dom";
+import { motion, AnimatePresence } from "framer-motion";
 import { blocksAPI, followsAPI } from "../services/api";
 import { useAuth } from "../context/auth-context";
 import { ProBadge } from "./ProBadge";
-import { Avatar, ActionButton } from "./common";
 import {
   DropdownMenu,
   DropdownMenuTrigger,
@@ -164,147 +167,222 @@ function PostCardComponent({
   const showPrivateBadge = visibility === "PRIVATE" && user?.id === authorId;
 
   return (
-    <article className="group relative overflow-hidden border border-white/15 bg-black text-white transition-shadow hover:shadow-[0_1px_3px_0_rgba(0,0,0,.5),0_4px_8px_3px_rgba(0,0,0,.35)]">
-      {/* Three-dot menu in top right */}
-      {showPostMenu && (
-        <div className="absolute top-3 right-3 z-10">
-          <DropdownMenu open={isMenuOpen} onOpenChange={setIsMenuOpen}>
-            <DropdownMenuTrigger asChild>
-              <button
-                className="cursor-pointer rounded-xl p-1.5 text-white/70 opacity-0 transition group-hover:opacity-100 hover:bg-white/10"
-                aria-label="Post actions"
-              >
-                <MoreHorizontal className="h-4 w-4" />
-              </button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              {user?.id === authorId ? (
-                <>
-                  <DropdownMenuItem onClick={handleEdit}>
-                    <Edit className="h-4 w-4" />
-                    Edit
-                  </DropdownMenuItem>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem
-                    onClick={handleDelete}
-                    className="text-[#ea4335]"
-                    disabled={isActionLoading}
-                  >
-                    <Trash2 className="h-4 w-4" />
-                    Delete
-                  </DropdownMenuItem>
-                </>
-              ) : canActOnUser ? (
-                <>
-                  <DropdownMenuItem onClick={handleFollow}>
-                    <UserPlus className="h-4 w-4" />
-                    {isFollowing ? "Unfollow" : "Follow"}
-                  </DropdownMenuItem>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem
-                    onClick={handleBlock}
-                    className="text-[#ea4335]"
-                    disabled={isActionLoading}
-                  >
-                    <Shield className="h-4 w-4" />
-                    Block
-                  </DropdownMenuItem>
-                </>
-              ) : (
-                <DropdownMenuItem disabled>No actions</DropdownMenuItem>
-              )}
-            </DropdownMenuContent>
-          </DropdownMenu>
+    <motion.article 
+      className="group relative border-b border-border bg-background px-4 py-3 cursor-pointer"
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.2 }}
+      whileHover={{ backgroundColor: "rgba(255, 255, 255, 0.03)" }}
+    >
+      <div className="flex gap-3">
+        {/* Avatar */}
+        <div className="flex-shrink-0">
+          <div className="flex h-10 w-10 items-center justify-center rounded-full border-2 border-accent bg-accent text-sm font-semibold text-white">
+            {initials || "U"}
+          </div>
         </div>
-      )}
 
-      <div className="p-5 pt-6">
-        {/* Header Row */}
-        <div className="flex items-start gap-4">
-          {/* Large square avatar with rounded corners */}
-          <Avatar initials={initials} size="lg" />
-
-          <div className="min-w-0 flex-1">
-            {/* Author + Timestamp on same line */}
-            <div className="flex flex-wrap items-center gap-2">
+        {/* Content */}
+        <div className="min-w-0 flex-1">
+          {/* Header */}
+          <div className="flex items-start justify-between gap-2">
+            <div className="flex min-w-0 flex-wrap items-center gap-1">
               {authorId && user?.id !== authorId ? (
-                <Link to={`/users/${authorId}`}>
-                  <span className="inline-flex items-center gap-1 text-[14px] font-medium text-white hover:underline">
+                <Link to={`/users/${authorId}`} className="hover:underline">
+                  <span className="inline-flex items-center gap-1 text-base font-bold text-text-primary">
                     {author.name}
                     <ProBadge isPro={authorPlan === "PRO"} />
                   </span>
                 </Link>
               ) : (
-                <span className="inline-flex items-center gap-1 text-[14px] font-medium text-white">
+                <span className="inline-flex items-center gap-1 text-base font-bold text-text-primary">
                   {author.name}
                   <ProBadge isPro={authorPlan === "PRO"} />
                 </span>
               )}
-              <span className="text-[12px] text-white/60">
+              <span className="text-base text-text-secondary">
                 @{author.handle}
               </span>
-              <span className="text-[12px] text-white/60">&middot;</span>
-              <span className="text-[12px] text-white/60">{timestamp}</span>
+              <span className="text-text-secondary">·</span>
+              <span className="text-base text-text-secondary">{timestamp}</span>
               {showPrivateBadge && (
-                <span className="inline-flex items-center gap-1 rounded-full bg-white/10 px-2 py-0.5 text-[11px] font-medium text-white/80">
+                <span className="inline-flex items-center gap-1 rounded-full bg-surface px-2 py-0.5 text-xs font-medium text-text-secondary">
                   <Lock className="h-3 w-3" />
                   Private
                 </span>
               )}
             </div>
 
-            {/* Content — directly under name, indented with avatar */}
-            <div className="mt-2">
-              {content.trim().length > 0 && (
-                <p className="text-[14px] leading-5.5 whitespace-pre-wrap text-white">
-                  {content}
-                </p>
-              )}
-
-              {image && (
-                <div
-                  className={
-                    content.trim().length > 0
-                      ? "mt-3 overflow-hidden rounded-xl"
-                      : "overflow-hidden rounded-xl"
-                  }
-                >
-                  {isVideoMedia ? (
-                    <video
-                      src={image}
-                      controls
-                      className="h-auto max-h-96 w-full object-cover"
-                    />
+            {/* Three-dot menu */}
+            {showPostMenu && (
+              <DropdownMenu open={isMenuOpen} onOpenChange={setIsMenuOpen}>
+                <DropdownMenuTrigger asChild>
+                  <button
+                    className="flex h-[34px] w-[34px] cursor-pointer items-center justify-center rounded-full text-text-secondary opacity-0 transition-all duration-base group-hover:opacity-100 hover:bg-accent/10 hover:text-accent"
+                    aria-label="Post actions"
+                  >
+                    <MoreHorizontal className="h-5 w-5" />
+                  </button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="bg-background border-border">
+                  {user?.id === authorId ? (
+                    <>
+                      <DropdownMenuItem onClick={handleEdit} className="text-text-primary">
+                        <Edit className="h-4 w-4" />
+                        Edit
+                      </DropdownMenuItem>
+                      <DropdownMenuSeparator className="bg-border" />
+                      <DropdownMenuItem
+                        onClick={handleDelete}
+                        className="text-red-500"
+                        disabled={isActionLoading}
+                      >
+                        <Trash2 className="h-4 w-4" />
+                        Delete
+                      </DropdownMenuItem>
+                    </>
+                  ) : canActOnUser ? (
+                    <>
+                      <DropdownMenuItem onClick={handleFollow} className="text-text-primary">
+                        <UserPlus className="h-4 w-4" />
+                        {isFollowing ? "Unfollow" : "Follow"}
+                      </DropdownMenuItem>
+                      <DropdownMenuSeparator className="bg-border" />
+                      <DropdownMenuItem
+                        onClick={handleBlock}
+                        className="text-red-500"
+                        disabled={isActionLoading}
+                      >
+                        <Shield className="h-4 w-4" />
+                        Block
+                      </DropdownMenuItem>
+                    </>
                   ) : (
-                    <img
-                      src={image}
-                      alt="Post"
-                      className="h-auto max-h-96 w-full object-cover"
-                    />
+                    <DropdownMenuItem disabled className="text-text-secondary">No actions</DropdownMenuItem>
                   )}
-                </div>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            )}
+          </div>
+
+          {/* Post Content */}
+          {content.trim().length > 0 && (
+            <div className="mt-1">
+              <p className="whitespace-pre-wrap text-base text-text-primary">
+                {content}
+              </p>
+            </div>
+          )}
+
+          {/* Media */}
+          {image && (
+            <div className="mt-3 overflow-hidden rounded-2xl border border-border">
+              {isVideoMedia ? (
+                <video
+                  src={image}
+                  controls
+                  className="h-auto max-h-[500px] w-full object-cover"
+                />
+              ) : (
+                <img
+                  src={image}
+                  alt="Post media"
+                  className="h-auto max-h-[500px] w-full object-cover"
+                />
               )}
             </div>
+          )}
 
-            {/* Actions — chip style */}
-            <div className="mt-3 flex items-center gap-2">
-              <ActionButton
-                icon={Heart}
-                count={likeCount}
-                isActive={isLiked}
-                onClick={handleLike}
-              />
-              <ActionButton
-                icon={MessageCircle}
-                count={replies}
-                onClick={() => onReply?.(id)}
-                activeColor="text-white/80"
-              />
-            </div>
+          {/* Action Buttons */}
+          <div className="mt-3 flex max-w-md items-center justify-between">
+            <button
+              onClick={() => onReply?.(id)}
+              className="group/btn flex items-center gap-1 transition-colors duration-base"
+            >
+              <motion.div 
+                className="flex h-[34px] w-[34px] items-center justify-center rounded-full transition-colors duration-base group-hover/btn:bg-accent/10"
+                whileTap={{ scale: 0.9 }}
+              >
+                <MessageCircle className="h-[18px] w-[18px] text-text-secondary transition-colors duration-base group-hover/btn:text-accent" />
+              </motion.div>
+              {replies > 0 && (
+                <span className="text-xs text-text-secondary transition-colors duration-base group-hover/btn:text-accent">
+                  {replies}
+                </span>
+              )}
+            </button>
+
+            <button className="group/btn flex items-center gap-1 transition-colors duration-base">
+              <motion.div 
+                className="flex h-[34px] w-[34px] items-center justify-center rounded-full transition-colors duration-base group-hover/btn:bg-green-500/10"
+                whileTap={{ scale: 0.9 }}
+              >
+                <Repeat2 className="h-[18px] w-[18px] text-text-secondary transition-colors duration-base group-hover/btn:text-green-500" />
+              </motion.div>
+            </button>
+
+            <button
+              onClick={handleLike}
+              className="group/btn flex items-center gap-1 transition-colors duration-base"
+            >
+              <motion.div 
+                className="flex h-[34px] w-[34px] items-center justify-center rounded-full transition-colors duration-base group-hover/btn:bg-pink-500/10"
+                whileTap={{ scale: 0.9 }}
+              >
+                <motion.div
+                  animate={isLiked ? { scale: [1, 1.2, 1] } : {}}
+                  transition={{ duration: 0.3 }}
+                >
+                  <Heart 
+                    className={`h-[18px] w-[18px] transition-all duration-base ${
+                      isLiked 
+                        ? "fill-pink-500 text-pink-500" 
+                        : "text-text-secondary group-hover/btn:text-pink-500"
+                    }`}
+                  />
+                </motion.div>
+              </motion.div>
+              <AnimatePresence mode="wait">
+                {likeCount > 0 && (
+                  <motion.span 
+                    key={likeCount}
+                    initial={{ scale: 0.8, opacity: 0 }}
+                    animate={{ scale: 1, opacity: 1 }}
+                    exit={{ scale: 0.8, opacity: 0 }}
+                    transition={{ duration: 0.15 }}
+                    className={`text-xs transition-colors duration-base ${
+                      isLiked 
+                        ? "text-pink-500" 
+                        : "text-text-secondary group-hover/btn:text-pink-500"
+                    }`}
+                  >
+                    {likeCount}
+                  </motion.span>
+                )}
+              </AnimatePresence>
+            </button>
+
+            <button className="group/btn flex items-center gap-1 transition-colors duration-base">
+              <motion.div 
+                className="flex h-[34px] w-[34px] items-center justify-center rounded-full transition-colors duration-base group-hover/btn:bg-accent/10"
+                whileTap={{ scale: 0.9 }}
+              >
+                <BarChart3 className="h-[18px] w-[18px] text-text-secondary transition-colors duration-base group-hover/btn:text-accent" />
+              </motion.div>
+            </button>
+
+            <button className="group/btn flex items-center gap-1 transition-colors duration-base">
+              <motion.div 
+                className="flex h-[34px] w-[34px] items-center justify-center rounded-full transition-colors duration-base group-hover/btn:bg-accent/10"
+                whileTap={{ scale: 0.9 }}
+              >
+                <Bookmark className="h-[18px] w-[18px] text-text-secondary transition-colors duration-base group-hover/btn:text-accent" />
+              </motion.div>
+            </button>
           </div>
         </div>
       </div>
-    </article>
+    </motion.article>
   );
 }
 

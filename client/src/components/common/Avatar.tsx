@@ -13,9 +13,9 @@ const sizeClasses = {
 };
 
 const variantClasses = {
-  default: "bg-white/10 text-white",
-  primary: "bg-[#1a73e8] text-white",
-  secondary: "bg-[#e8f0fe] text-[#1a73e8]",
+  default: "bg-surface text-text-primary border-2 border-accent",
+  primary: "bg-accent text-white border-2 border-accent",
+  secondary: "bg-surface text-accent border-2 border-accent",
 };
 
 export function Avatar({
@@ -26,7 +26,7 @@ export function Avatar({
 }: AvatarProps) {
   return (
     <div
-      className={`flex shrink-0 items-center justify-center rounded-2xl font-medium ${sizeClasses[size]} ${variantClasses[variant]} ${className}`}
+      className={`flex shrink-0 items-center justify-center rounded-full font-medium ${sizeClasses[size]} ${variantClasses[variant]} ${className}`}
     >
       {initials}
     </div>

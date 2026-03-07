@@ -17,14 +17,14 @@ export function StatsCard({ stats, className = "" }: StatsCardProps) {
           key={index}
           onClick={stat.onClick}
           disabled={!stat.onClick}
-          className={`flex-1 border border-white/15 bg-white/5 px-4 py-3 text-center transition ${
+          className={`flex-1 border border-border bg-surface px-4 py-3 text-center transition-colors duration-base ${
             stat.onClick
-              ? "cursor-pointer hover:bg-white/10"
+              ? "cursor-pointer hover:bg-surface-hover"
               : "cursor-default"
           }`}
         >
-          <p className="text-[20px] font-medium text-white">{stat.value}</p>
-          <p className="text-[12px] text-white/65">{stat.label}</p>
+          <p className="text-xl font-medium text-text-primary">{stat.value}</p>
+          <p className="text-xs text-text-secondary">{stat.label}</p>
         </button>
       ))}
     </div>

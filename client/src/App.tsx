@@ -14,6 +14,7 @@ const LoginPage = lazy(() => import("./pages/LoginPage"));
 const RegisterPage = lazy(() => import("./pages/RegisterPage"));
 const HomePage = lazy(() => import("./pages/HomePage"));
 const ProfilePage = lazy(() => import("./pages/ProfilePage"));
+const EditProfilePage = lazy(() => import("./pages/EditProfilePage"));
 const UserProfilePage = lazy(() => import("./pages/UserProfilePage"));
 const NotificationsPage = lazy(() => import("./pages/NotificationsPage"));
 const BillingPage = lazy(() => import("./pages/BillingPage"));
@@ -52,18 +53,20 @@ function AppLayout({ children }: { children: React.ReactNode }) {
   }, []);
 
   return (
-    <div className="min-h-screen bg-black text-white">
-      <div className="mx-auto w-full max-w-7xl px-0 sm:px-6 lg:px-8">
-        <div className="lg:flex lg:items-start lg:gap-4 xl:gap-6">
-          <TopNav onOpenPostComposer={() => setIsPostComposerOpen(true)} />
-          <div className="min-h-screen min-w-0 flex-1 pt-16 pb-20 lg:pt-0 lg:pb-8">
-            <div className="mx-auto min-h-screen w-full max-w-150 border-x border-white/15">
-              <main className="w-full">{children}</main>
-            </div>
-          </div>
-          <RightSidebar />
+    <div className="min-h-screen bg-background text-text-primary">
+      <div className="mx-auto flex w-full max-w-[1280px] justify-center">
+        {/* Left Sidebar */}
+        <TopNav onOpenPostComposer={() => setIsPostComposerOpen(true)} />
+        
+        {/* Center Feed */}
+        <div className="min-h-screen min-w-0 flex-1 border-x border-border pt-16 pb-20 lg:max-w-[600px] lg:pt-0 lg:pb-0">
+          <main className="w-full">{children}</main>
         </div>
+        
+        {/* Right Sidebar */}
+        <RightSidebar />
       </div>
+      
       <PostComposerModal
         open={isPostComposerOpen}
         onOpenChange={setIsPostComposerOpen}
@@ -126,6 +129,19 @@ function AppRoutes() {
             <AppLayout>
               <Suspense fallback={<PageFallback />}>
                 <ProfilePage />
+              </Suspense>
+            </AppLayout>
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/profile/edit"
+        element={
+          <ProtectedRoute>
+            <AppLayout>
+              <Suspense fallback={<PageFallback />}>
+                <EditProfilePage />
               </Suspense>
             </AppLayout>
           </ProtectedRoute>

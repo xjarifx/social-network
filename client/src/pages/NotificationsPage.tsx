@@ -68,7 +68,7 @@ export default function NotificationsPage() {
       {error && <ErrorMessage message={error} />}
 
       {isLoading ? (
-        <LoadingSkeleton variant="notification" count={3} />
+        <LoadingSkeleton variant="list" count={3} />
       ) : notifications.length === 0 ? (
         <EmptyState
           icon={Bell}

@@ -36,14 +36,14 @@ export function PostComposerModal({
   const isNearLimit = remainingChars <= 10 && remainingChars > 0;
   const progressPercent = Math.min((currentLength / charLimit) * 100, 100);
 
-  let countColor = "#5f6368";
-  let progressColor = "#1a73e8";
+  let countColor = "text-text-secondary";
+  let progressColor = "bg-accent";
   if (isOverLimit) {
-    countColor = "#d33b27";
-    progressColor = "#d33b27";
+    countColor = "text-danger";
+    progressColor = "bg-danger";
   } else if (isNearLimit) {
-    countColor = "#f57c00";
-    progressColor = "#f57c00";
+    countColor = "text-warning";
+    progressColor = "bg-warning";
   }
 
   useEffect(() => {
@@ -130,7 +130,7 @@ export function PostComposerModal({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl border-white/15 bg-black text-white">
+      <DialogContent className="max-w-2xl border-border bg-background text-text-primary">
         <DialogHeader>
           <DialogTitle>Create post</DialogTitle>
         </DialogHeader>
@@ -140,7 +140,7 @@ export function PostComposerModal({
             value={content}
             onChange={(event) => setContent(event.target.value)}
             placeholder="What's on your mind?"
-            className={`min-h-36 resize-none rounded-xl border-white/15 bg-white/5 text-[15px] text-white caret-white shadow-none placeholder:text-white/45 focus-visible:ring-1 ${isOverLimit ? "focus-visible:ring-[#d33b27]" : "focus-visible:ring-[#1a73e8]"}`}
+            className={`min-h-36 resize-none ${isOverLimit ? "focus:border-danger" : ""}`}
             autoFocus
           />
 
@@ -151,7 +151,7 @@ export function PostComposerModal({
                 onChange={(event) =>
                   setVisibility(event.target.value as "PUBLIC" | "PRIVATE")
                 }
-                className="h-9 min-w-27.5 rounded-xl border border-white/20 bg-black px-3 text-[13px] text-white focus:ring-1 focus:ring-[#1a73e8] focus:outline-none"
+                className="h-10 min-w-27.5 rounded-lg border-2 border-border bg-surface-hover px-3 text-sm text-text-primary transition-all duration-150 hover:border-border-hover focus:border-accent focus:outline-none"
               >
                 <option value="PUBLIC">Public</option>
                 <option value="PRIVATE">Private</option>
@@ -159,7 +159,7 @@ export function PostComposerModal({
               <button
                 type="button"
                 onClick={() => fileInputRef.current?.click()}
-                className="flex h-9 shrink-0 items-center gap-2 rounded-full border border-white/20 bg-white/5 px-3 text-[13px] text-white/90 transition hover:bg-white/10"
+                className="flex h-10 shrink-0 items-center gap-2 rounded-lg border-2 border-border bg-surface-hover px-4 text-sm text-text-primary transition-all duration-150 hover:border-border-hover hover:bg-surface"
                 aria-label="Upload media"
                 title="Upload media"
               >
@@ -175,14 +175,14 @@ export function PostComposerModal({
               />
             </div>
             {visibility === "PRIVATE" && (
-              <p className="mt-2 text-[11px] text-white/55">
+              <p className="mt-2 text-xs text-text-muted">
                 Only you can see this post
               </p>
             )}
           </div>
 
           {mediaPreviewUrl && (
-            <div className="rounded-xl border border-white/20 bg-black p-3">
+            <div className="rounded-xl border-2 border-border bg-surface p-3">
               {mediaFile?.type.startsWith("video/") ? (
                 <video
                   src={mediaPreviewUrl}
@@ -196,12 +196,12 @@ export function PostComposerModal({
                   className="max-h-80 w-full rounded-lg object-contain"
                 />
               )}
-              <div className="mt-3 flex items-center justify-between text-[12px] text-white/70">
+              <div className="mt-3 flex items-center justify-between text-sm text-text-secondary">
                 <span>{mediaFile?.name}</span>
                 <button
                   type="button"
                   onClick={handleRemoveMedia}
-                  className="rounded-lg px-3 py-1 text-[#1a73e8] hover:bg-white/10"
+                  className="rounded-lg px-3 py-1 text-accent transition-colors duration-150 hover:bg-surface-hover"
                 >
                   Remove media
                 </button>
@@ -210,16 +210,13 @@ export function PostComposerModal({
           )}
 
           <div className="space-y-2">
-            <div className="h-1.5 overflow-hidden rounded-full bg-white/15">
+            <div className="h-1.5 overflow-hidden rounded-full bg-border">
               <div
-                className="h-full transition-all duration-200"
-                style={{
-                  width: `${progressPercent}%`,
-                  backgroundColor: progressColor,
-                }}
+                className={`h-full transition-all duration-200 ${progressColor}`}
+                style={{ width: `${progressPercent}%` }}
               />
             </div>
-            <div className="text-[13px]" style={{ color: countColor }}>
+            <div className={`text-sm ${countColor}`}>
               {currentLength}/{charLimit} characters
               {isOverLimit && (
                 <span className="ml-2 font-medium">
@@ -230,7 +227,7 @@ export function PostComposerModal({
           </div>
 
           {error && (
-            <div className="rounded-xl border border-[#ea4335]/30 bg-[#fce8e6] px-4 py-3 text-[13px] text-[#c5221f]">
+            <div className="rounded-xl border border-danger/30 bg-danger/10 px-4 py-3 text-sm text-danger">
               {error}
             </div>
           )}
@@ -242,7 +239,6 @@ export function PostComposerModal({
             <Button
               onClick={handleSubmit}
               disabled={!canSubmit || isSubmitting || isOverLimit}
-              className="h-10 rounded-full bg-white px-6 text-black hover:bg-[#f2f2f2]"
               title={
                 isOverLimit
                   ? `Post exceeds ${charLimit} character limit`
