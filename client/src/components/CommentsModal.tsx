@@ -248,8 +248,8 @@ export function CommentsModal({
 
   return (
     <Dialog onOpenChange={(open: boolean) => !open && onClose()} open>
-      <DialogContent className="max-h-[90vh] max-w-2xl overflow-hidden border-border bg-background text-text-primary p-0">
-        <div className="flex flex-col max-h-[90vh]">
+      <DialogContent className="max-h-[75vh] max-w-2xl overflow-hidden border-border bg-background text-text-primary p-0 my-8">
+        <div className="flex flex-col max-h-[75vh]">
           <DialogHeader className="px-6 pt-6 pb-4 shrink-0">
             <DialogTitle>Post</DialogTitle>
           </DialogHeader>

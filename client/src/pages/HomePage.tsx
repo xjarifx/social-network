@@ -517,7 +517,7 @@ export default function HomePage() {
       <div className="relative min-h-0 flex-1 overflow-hidden">
         <div
           ref={forYouScrollRef}
-          className={`scrollbar-thin absolute inset-0 overflow-y-auto ${
+          className={`scrollbar-thin absolute inset-0 overflow-y-auto pb-24 lg:pb-0 ${
             activeTab === "forYou" ? "block" : "hidden"
           }`}
         >
@@ -544,7 +544,7 @@ export default function HomePage() {
         </div>
         <div
           ref={followingScrollRef}
-          className={`scrollbar-thin absolute inset-0 overflow-y-auto ${
+          className={`scrollbar-thin absolute inset-0 overflow-y-auto pb-24 lg:pb-0 ${
             activeTab === "following" ? "block" : "hidden"
           }`}
         >

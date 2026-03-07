@@ -60,7 +60,7 @@ function AppLayout({ children }: { children: React.ReactNode }) {
         <TopNav onOpenPostComposer={() => setIsPostComposerOpen(true)} />
         
         {/* Center Feed */}
-        <div className="min-h-screen min-w-0 flex-1 border-x border-border pt-16 pb-20 lg:max-w-[600px] lg:pt-0 lg:pb-0">
+        <div className="min-h-screen min-w-0 flex-1 border-x border-border pt-16 pb-24 lg:max-w-[600px] lg:pt-0 lg:pb-0">
           <main className="w-full">{children}</main>
         </div>
         
