@@ -81,7 +81,7 @@ router.get("/me", generalLimiter, authenticate, getCurrentProfile);
  *             schema:
  *               $ref: '#/components/schemas/Error'
  */
-router.get("/search", generalLimiter, search);
+router.get("/search", generalLimiter, authenticate, search);
 
 /**
  * @openapi

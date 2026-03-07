@@ -135,6 +135,28 @@ export const getUserTimeline = async (
     throw { status: 404, error: "User not found" };
   }
 
+  // Check if there's a block relationship between viewer and profile owner
+  if (viewerId && viewerId !== userId) {
+    const blockExists = await prisma.block.findFirst({
+      where: {
+        OR: [
+          { blockerId: viewerId, blockedId: userId }, // Viewer blocked this user
+          { blockerId: userId, blockedId: viewerId }, // This user blocked viewer
+        ],
+      },
+    });
+
+    if (blockExists) {
+      // Return empty timeline if there's a block relationship
+      return {
+        posts: [],
+        total: 0,
+        limit,
+        offset,
+      };
+    }
+  }
+
   // Get user's posts with pagination
   const posts = await prisma.post.findMany({
     where: {
@@ -252,7 +274,7 @@ export const updateUserProfile = async (
   return updatedUser;
 };
 
-export const searchUsers = async (query: Record<string, unknown>) => {
+export const searchUsers = async (query: Record<string, unknown>, currentUserId?: string) => {
   const validation = searchUsersSchema.safeParse({ query });
   if (!validation.success) {
     throw { status: 400, error: validation.error.format() };
@@ -262,32 +284,42 @@ export const searchUsers = async (query: Record<string, unknown>) => {
   const limit = parseInt(limitStr as string);
   const offset = parseInt(offsetStr as string);
 
+  // Build the where clause
+  const whereClause: any = {
+    OR: [
+      {
+        firstName: {
+          contains: q,
+          mode: "insensitive",
+        },
+      },
+      {
+        lastName: {
+          contains: q,
+          mode: "insensitive",
+        },
+      },
+      {
+        username: {
+          contains: q,
+          mode: "insensitive",
+        },
+      },
+    ],
+    deletedAt: null,
+  };
+
+  // Exclude current user from search results
+  if (currentUserId) {
+    whereClause.id = {
+      not: currentUserId,
+    };
+  }
+
   // Search for users by full name (firstName and lastName combined)
   // Use case-insensitive partial matching
   const users = await prisma.user.findMany({
-    where: {
-      OR: [
-        {
-          firstName: {
-            contains: q,
-            mode: "insensitive",
-          },
-        },
-        {
-          lastName: {
-            contains: q,
-            mode: "insensitive",
-          },
-        },
-        {
-          username: {
-            contains: q,
-            mode: "insensitive",
-          },
-        },
-      ],
-      deletedAt: null,
-    },
+    where: whereClause,
     select: {
       id: true,
       username: true,
@@ -305,29 +337,7 @@ export const searchUsers = async (query: Record<string, unknown>) => {
   });
 
   const total = await prisma.user.count({
-    where: {
-      OR: [
-        {
-          firstName: {
-            contains: q,
-            mode: "insensitive",
-          },
-        },
-        {
-          lastName: {
-            contains: q,
-            mode: "insensitive",
-          },
-        },
-        {
-          username: {
-            contains: q,
-            mode: "insensitive",
-          },
-        },
-      ],
-      deletedAt: null,
-    },
+    where: whereClause,
   });
 
   return {

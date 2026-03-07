@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState, useRef, useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { usersAPI, followsAPI, likesAPI } from "../services/api";
+import { usersAPI, followsAPI, likesAPI, blocksAPI } from "../services/api";
 import type { User, Follower } from "../services/api";
 import { useAuth } from "../context/auth-context";
 import { useBlocks } from "../context/BlockContext";
@@ -10,6 +10,7 @@ import { useComments } from "../hooks";
 import { transformPost } from "../utils";
 import { Button } from "../components/ui/button";
 import { toast } from "sonner";
+import { ShieldOff } from "lucide-react";
 
 export default function UserProfilePage() {
   const { userId } = useParams();
@@ -27,6 +28,7 @@ export default function UserProfilePage() {
   const [postsLoading, setPostsLoading] = useState(true);
   const [postsError, setPostsError] = useState<string | null>(null);
   const [isBlockActionLoading, setIsBlockActionLoading] = useState(false);
+  const [blockedByThem, setBlockedByThem] = useState(false);
   const hasInitializedFollowState = useRef(false);
 
   const comments = useComments();
@@ -68,6 +70,20 @@ export default function UserProfilePage() {
       )
       .finally(() => setIsLoading(false));
   }, [userId]);
+
+  // Check block status
+  useEffect(() => {
+    if (!userId || !user?.id) return;
+    
+    blocksAPI
+      .checkBlockStatus(userId)
+      .then((status) => {
+        setBlockedByThem(status.blockedByThem);
+      })
+      .catch((err) => {
+        console.error("Failed to check block status:", err);
+      });
+  }, [userId, user?.id]);
 
   useEffect(() => {
     if (!userId) return;
@@ -258,11 +274,32 @@ export default function UserProfilePage() {
             </div>
           )}
 
-          {isLoading ? (
+          {blockedByThem && !isLoading && (
+            <div className="mb-4 rounded-xl border border-border bg-surface px-6 py-8 text-center">
+              <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-text-secondary/10">
+                <ShieldOff className="h-8 w-8 text-text-secondary" />
+              </div>
+              <h3 className="mb-2 text-lg font-bold text-text-primary">
+                You've been blocked
+              </h3>
+              <p className="text-sm text-text-secondary">
+                @{profile?.username} has blocked you. You cannot view their profile or interact with them.
+              </p>
+              <Button
+                variant="outline"
+                onClick={() => navigate(-1)}
+                className="mt-4"
+              >
+                Go Back
+              </Button>
+            </div>
+          )}
+
+          {!blockedByThem && isLoading ? (
             <div className="py-6">
               <p className="text-sm text-text-muted">Loading user...</p>
             </div>
-          ) : (
+          ) : !blockedByThem && (
             <>
               <div className="flex items-start justify-between">
                 <div className="flex items-end gap-5">
@@ -329,28 +366,30 @@ export default function UserProfilePage() {
       </div>
 
       {/* Posts */}
-      <div>
-        {isBlocked(profile?.username || "") && (
-          <div className="mb-4 rounded-xl border border-border bg-surface px-4 py-3 text-sm text-text-muted text-center">
-            You have blocked this user. Their posts are hidden.
-          </div>
-        )}
-        {postsError && (
-          <div className="mb-4 rounded-xl border border-danger/30 bg-danger-muted px-4 py-3 text-sm text-danger">
-            {postsError}
-          </div>
-        )}
-        {!isBlocked(profile?.username || "") && (
-          <Feed
-            posts={postsWithFollowState}
-            isLoading={postsLoading}
-            showPostMenu={false}
-            onLike={handleLike}
-            onReply={comments.toggleComments}
-            onFollowToggle={handleFollowTogglePost}
-          />
-        )}
-      </div>
+      {!blockedByThem && (
+        <div>
+          {isBlocked(profile?.username || "") && (
+            <div className="mb-4 rounded-xl border border-border bg-surface px-4 py-3 text-sm text-text-muted text-center">
+              You have blocked this user. Their posts are hidden.
+            </div>
+          )}
+          {postsError && (
+            <div className="mb-4 rounded-xl border border-danger/30 bg-danger-muted px-4 py-3 text-sm text-danger">
+              {postsError}
+            </div>
+          )}
+          {!isBlocked(profile?.username || "") && (
+            <Feed
+              posts={postsWithFollowState}
+              isLoading={postsLoading}
+              showPostMenu={false}
+              onLike={handleLike}
+              onReply={comments.toggleComments}
+              onFollowToggle={handleFollowTogglePost}
+            />
+          )}
+        </div>
+      )}
 
       {comments.openCommentsPostId && selectedPost && (
         <CommentsModal

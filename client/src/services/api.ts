@@ -683,6 +683,14 @@ export const blocksAPI = {
     };
   },
 
+  checkBlockStatus: async (userId: string): Promise<{
+    isBlocked: boolean;
+    blockedByMe: boolean;
+    blockedByThem: boolean;
+  }> => {
+    return apiRequest(`/blocks/check/${userId}`);
+  },
+
   blockUser: async (username: string): Promise<BlockedUser> => {
     return apiRequest(`/blocks`, {
       method: "POST",

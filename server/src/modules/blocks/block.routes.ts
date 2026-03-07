@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { authenticate } from "../../middleware/authenticate.middleware";
 import { generalLimiter } from "../../middleware/rateLimit.middleware";
-import { block, getBlocked, unblock } from "./block.controller";
+import { block, getBlocked, unblock, checkBlockStatus } from "./block.controller";
 
 const router = Router();
 
@@ -120,5 +120,44 @@ router.delete("/", generalLimiter, authenticate, unblock);
  *               $ref: '#/components/schemas/Error'
  */
 router.get("/", generalLimiter, authenticate, getBlocked);
+
+/**
+ * @openapi
+ * /blocks/check/{userId}:
+ *   get:
+ *     tags: [Blocks]
+ *     summary: Check block status with a user
+ *     description: Check if there's a block relationship between the authenticated user and another user.
+ *     security:
+ *       - BearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: userId
+ *         required: true
+ *         schema:
+ *           type: string
+ *           format: uuid
+ *     responses:
+ *       200:
+ *         description: Block status information
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 isBlocked:
+ *                   type: boolean
+ *                 blockedByMe:
+ *                   type: boolean
+ *                 blockedByThem:
+ *                   type: boolean
+ *       401:
+ *         description: Unauthorized
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ */
+router.get("/check/:userId", generalLimiter, authenticate, checkBlockStatus);
 
 export default router;

@@ -1,5 +1,6 @@
 import type { Request, Response } from "express";
 import { blockUser, getBlockedUsers, unblockUser } from "./block.service";
+import { prisma } from "../../lib/prisma";
 
 export const block = async (req: Request, res: Response): Promise<void> => {
   try {
@@ -92,5 +93,56 @@ export const getBlocked = async (
   } catch (error) {
     console.error("Get blocked users error:", error);
     res.status(500).json({ error: "Failed to get blocked users" });
+  }
+};
+
+export const checkBlockStatus = async (
+  req: Request,
+  res: Response,
+): Promise<void> => {
+  try {
+    const userId: string = req.userId as string;
+    const targetUserId: string = req.params.userId;
+
+    if (!userId) {
+      res.status(401).json({ error: "Unauthorized" });
+      return;
+    }
+
+    if (!targetUserId) {
+      res.status(400).json({ error: "Target user ID is required" });
+      return;
+    }
+
+    const blockRelationship = await prisma.block.findFirst({
+      where: {
+        OR: [
+          { blockerId: userId, blockedId: targetUserId },
+          { blockerId: targetUserId, blockedId: userId },
+        ],
+      },
+      select: {
+        blockerId: true,
+        blockedId: true,
+      },
+    });
+
+    if (!blockRelationship) {
+      res.status(200).json({
+        isBlocked: false,
+        blockedByMe: false,
+        blockedByThem: false,
+      });
+      return;
+    }
+
+    res.status(200).json({
+      isBlocked: true,
+      blockedByMe: blockRelationship.blockerId === userId,
+      blockedByThem: blockRelationship.blockedId === userId,
+    });
+  } catch (error) {
+    console.error("Check block status error:", error);
+    res.status(500).json({ error: "Failed to check block status" });
   }
 };

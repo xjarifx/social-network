@@ -68,11 +68,35 @@ export const getFeed = async (
     return cached;
   }
 
-  // Get posts from users that the current user follows, excluding their own posts
+  // Get users who have blocked the current user OR users the current user has blocked
+  const blockedRelationships = await prisma.block.findMany({
+    where: {
+      OR: [
+        { blockerId: userId }, // Users I blocked
+        { blockedId: userId }, // Users who blocked me
+      ],
+    },
+    select: {
+      blockerId: true,
+      blockedId: true,
+    },
+  });
+
+  const blockedUserIds = new Set<string>();
+  blockedRelationships.forEach((block) => {
+    if (block.blockerId === userId) {
+      blockedUserIds.add(block.blockedId);
+    } else {
+      blockedUserIds.add(block.blockerId);
+    }
+  });
+
+  // Get posts from users that the current user follows, excluding their own posts and blocked users
   const posts = await prisma.post.findMany({
     where: {
       authorId: {
         not: userId,
+        notIn: Array.from(blockedUserIds),
       },
       visibility: "PUBLIC",
       author: {
@@ -124,6 +148,29 @@ export const getForYouFeed = async (
     return cached;
   }
 
+  // Get users who have blocked the current user OR users the current user has blocked
+  const blockedRelationships = await prisma.block.findMany({
+    where: {
+      OR: [
+        { blockerId: userId }, // Users I blocked
+        { blockedId: userId }, // Users who blocked me
+      ],
+    },
+    select: {
+      blockerId: true,
+      blockedId: true,
+    },
+  });
+
+  const blockedUserIds = new Set<string>();
+  blockedRelationships.forEach((block) => {
+    if (block.blockerId === userId) {
+      blockedUserIds.add(block.blockedId);
+    } else {
+      blockedUserIds.add(block.blockerId);
+    }
+  });
+
   const directFollowing = await prisma.follower.findMany({
     where: { followerId: userId },
     select: { followingId: true },
@@ -149,7 +196,7 @@ export const getForYouFeed = async (
 
   const secondDegreeIds = Array.from(
     new Set(secondDegree.map((follow) => follow.followingId)),
-  ).filter((id) => id !== userId && !directFollowingSet.has(id));
+  ).filter((id) => id !== userId && !directFollowingSet.has(id) && !blockedUserIds.has(id));
 
   if (secondDegreeIds.length === 0) {
     return [];
@@ -159,6 +206,7 @@ export const getForYouFeed = async (
     where: {
       authorId: {
         in: secondDegreeIds,
+        notIn: Array.from(blockedUserIds),
       },
       visibility: "PUBLIC",
     },

@@ -107,7 +107,8 @@ export const updateProfile = async (
 
 export const search = async (req: Request, res: Response): Promise<void> => {
   try {
-    const result = await searchUsers(req.query);
+    const userId = req.userId as string | undefined;
+    const result = await searchUsers(req.query, userId);
     res.status(200).json(result);
   } catch (error: unknown) {
     const err = error as { status?: number; error?: unknown };

@@ -38,6 +38,20 @@ export const followUser = async (
     throw { status: 404, error: "User not found" };
   }
 
+  // Check if there's a block relationship
+  const blockExists = await prisma.block.findFirst({
+    where: {
+      OR: [
+        { blockerId: followerId, blockedId: followingId }, // I blocked them
+        { blockerId: followingId, blockedId: followerId }, // They blocked me
+      ],
+    },
+  });
+
+  if (blockExists) {
+    throw { status: 403, error: "Cannot follow this user due to block relationship" };
+  }
+
   const existing = await prisma.follower.findFirst({
     where: {
       followerId,

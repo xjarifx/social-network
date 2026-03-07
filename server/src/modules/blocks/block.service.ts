@@ -27,6 +27,16 @@ export const blockUser = async (userId: string, username: string) => {
     throw new Error("User already blocked");
   }
 
+  // Remove any follow relationships in both directions
+  await prisma.follower.deleteMany({
+    where: {
+      OR: [
+        { followerId: userId, followingId: userToBlock.id },
+        { followerId: userToBlock.id, followingId: userId },
+      ],
+    },
+  });
+
   const applyBlock = await prisma.block.create({
     data: {
       blockerId: userId,
