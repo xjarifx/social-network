@@ -2,6 +2,7 @@ import { lazy, Suspense, useEffect, useState } from "react";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { Toaster } from "sonner";
 import { AuthProvider } from "./context/AuthContext";
+import { BlockProvider } from "./context/BlockContext";
 import { useAuth } from "./context/auth-context";
 import { TopNav } from "./components/TopNav";
 import { RightSidebar } from "./components/RightSidebar";
@@ -277,7 +278,9 @@ function App() {
       future={{ v7_startTransition: true, v7_relativeSplatPath: true }}
     >
       <AuthProvider>
-        <AppRoutes />
+        <BlockProvider>
+          <AppRoutes />
+        </BlockProvider>
       </AuthProvider>
       <Toaster position="top-right" theme="dark" />
     </BrowserRouter>

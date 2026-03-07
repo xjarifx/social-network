@@ -11,9 +11,11 @@ import {
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { blocksAPI, followsAPI } from "../services/api";
+import { followsAPI } from "../services/api";
 import { useAuth } from "../context/auth-context";
+import { useBlocks } from "../context/BlockContext";
 import { ProBadge } from "./ProBadge";
+import { toast } from "sonner";
 import {
   DropdownMenu,
   DropdownMenuTrigger,
@@ -71,6 +73,7 @@ function PostCardComponent({
   onDelete,
 }: PostProps) {
   const { user } = useAuth();
+  const { blockUser } = useBlocks();
   const [isLiked, setIsLiked] = useState(liked);
   const [likeCount, setLikeCount] = useState(likes);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -123,14 +126,16 @@ function PostCardComponent({
     if (!canActOnUser || !author.handle) return;
     try {
       setIsActionLoading(true);
-      await blocksAPI.blockUser(author.handle);
+      await blockUser(author.handle);
       setIsMenuOpen(false);
+      toast.success("User blocked successfully");
     } catch (err) {
       console.error("Failed to block user:", err);
+      toast.error("Failed to block user");
     } finally {
       setIsActionLoading(false);
     }
-  }, [canActOnUser, author.handle]);
+  }, [canActOnUser, author.handle, blockUser]);
 
   const handleDelete = useCallback(async () => {
     if (!onDelete) return;

@@ -1,17 +1,21 @@
 import { useEffect, useMemo, useState, useRef, useCallback } from "react";
-import { useParams } from "react-router-dom";
-import { usersAPI, followsAPI, blocksAPI, likesAPI } from "../services/api";
+import { useParams, useNavigate } from "react-router-dom";
+import { usersAPI, followsAPI, likesAPI } from "../services/api";
 import type { User, Follower } from "../services/api";
 import { useAuth } from "../context/auth-context";
+import { useBlocks } from "../context/BlockContext";
 import { Feed, CommentsModal, ProBadge } from "../components";
 import type { PostProps } from "../components";
 import { useComments } from "../hooks";
 import { transformPost } from "../utils";
 import { Button } from "../components/ui/button";
+import { toast } from "sonner";
 
-function UserProfilePage() {
+export default function UserProfilePage() {
   const { userId } = useParams();
+  const navigate = useNavigate();
   const { user } = useAuth();
+  const { blockedUsers, isBlocked, blockUser, unblockUser } = useBlocks();
   const [profile, setProfile] = useState<User | null>(null);
   const [following, setFollowing] = useState<Follower[]>([]);
   const [followers, setFollowers] = useState<Follower[]>([]);
@@ -22,7 +26,7 @@ function UserProfilePage() {
   const [posts, setPosts] = useState<PostProps[]>([]);
   const [postsLoading, setPostsLoading] = useState(true);
   const [postsError, setPostsError] = useState<string | null>(null);
-  const [isBlocking, setIsBlocking] = useState(false);
+  const [isBlockActionLoading, setIsBlockActionLoading] = useState(false);
   const hasInitializedFollowState = useRef(false);
 
   const comments = useComments();
@@ -123,6 +127,7 @@ function UserProfilePage() {
         setIsFollowing(false);
         setFollowing((prev) => prev.filter((item) => item.user?.id !== userId));
         await followsAPI.unfollowUser(user.id, userId);
+        toast.success("Unfollowed successfully");
       } else {
         setIsFollowing(true);
         const tempFollower = {
@@ -140,23 +145,55 @@ function UserProfilePage() {
         setFollowing((prev) =>
           prev.map((item) => (item.id === tempFollower.id ? response : item)),
         );
+        toast.success("Followed successfully");
       }
     } catch (err) {
       setIsFollowing(wasFollowing);
       setFollowing(originalFollowing);
       console.error("Failed to follow/unfollow:", err);
+      toast.error("Failed to update follow status");
     }
   };
 
-  const handleBlock = async () => {
+  const handleBlockToggle = async () => {
     if (!profile?.username) return;
+    
+    const currentlyBlocked = isBlocked(profile.username);
+    
     try {
-      setIsBlocking(true);
-      await blocksAPI.blockUser(profile.username);
+      setIsBlockActionLoading(true);
+      
+      if (currentlyBlocked) {
+        // Unblock
+        await unblockUser(profile.username);
+        toast.success("User unblocked");
+        
+        // Reload posts
+        if (userId) {
+          const response = await usersAPI.getUserPosts(userId, 20, 0);
+          setPosts(response.posts.map((p) => transformPost(p, user?.id)));
+        }
+      } else {
+        // Block
+        // If following, unfollow first
+        if (isFollowing && user?.id && userId) {
+          setIsFollowing(false);
+          setFollowing((prev) => prev.filter((item) => item.user?.id !== userId));
+          await followsAPI.unfollowUser(user.id, userId);
+        }
+        
+        await blockUser(profile.username);
+        
+        // Hide posts from blocked user
+        setPosts([]);
+        
+        toast.success("User blocked");
+      }
     } catch (err) {
-      console.error("Failed to block user:", err);
+      console.error("Failed to block/unblock user:", err);
+      toast.error(err instanceof Error ? err.message : "Failed to update block status");
     } finally {
-      setIsBlocking(false);
+      setIsBlockActionLoading(false);
     }
   };
 
@@ -216,14 +253,14 @@ function UserProfilePage() {
       <div className="border-b border-border bg-background">
         <div className="px-6 py-5">
           {error && (
-            <div className="mb-4 rounded-xl border border-[#ea4335]/30 bg-[#fce8e6] px-4 py-3 text-[13px] text-[#c5221f]">
+            <div className="mb-4 rounded-xl border border-danger/30 bg-danger-muted px-4 py-3 text-sm text-danger">
               {error}
             </div>
           )}
 
           {isLoading ? (
             <div className="py-6">
-              <p className="text-[13px] text-text-muted">Loading user...</p>
+              <p className="text-sm text-text-muted">Loading user...</p>
             </div>
           ) : (
             <>
@@ -243,22 +280,23 @@ function UserProfilePage() {
                     </p>
                   </div>
                 </div>
-
+                
                 {canFollow && (
                   <div className="flex shrink-0 items-center gap-2">
                     <Button
                       variant={isFollowing ? "secondary" : "default"}
                       onClick={handleFollowToggle}
+                      disabled={isBlocked(profile?.username || "")}
                     >
                       {isFollowing ? "Following" : "Follow"}
                     </Button>
                     <Button
-                      variant="outline"
-                      onClick={handleBlock}
-                      disabled={isBlocking}
-                      className="text-danger hover:text-danger"
+                      variant={isBlocked(profile?.username || "") ? "secondary" : "outline"}
+                      onClick={handleBlockToggle}
+                      disabled={isBlockActionLoading}
+                      className={isBlocked(profile?.username || "") ? "" : "text-danger hover:text-danger"}
                     >
-                      {isBlocking ? "..." : "Block"}
+                      {isBlockActionLoading ? "..." : isBlocked(profile?.username || "") ? "Blocked" : "Block"}
                     </Button>
                   </div>
                 )}
@@ -292,19 +330,26 @@ function UserProfilePage() {
 
       {/* Posts */}
       <div>
+        {isBlocked(profile?.username || "") && (
+          <div className="mb-4 rounded-xl border border-border bg-surface px-4 py-3 text-sm text-text-muted text-center">
+            You have blocked this user. Their posts are hidden.
+          </div>
+        )}
         {postsError && (
-          <div className="mb-4 rounded-xl border border-[#ea4335]/30 bg-[#fce8e6] px-4 py-3 text-[13px] text-[#c5221f]">
+          <div className="mb-4 rounded-xl border border-danger/30 bg-danger-muted px-4 py-3 text-sm text-danger">
             {postsError}
           </div>
         )}
-        <Feed
-          posts={postsWithFollowState}
-          isLoading={postsLoading}
-          showPostMenu={false}
-          onLike={handleLike}
-          onReply={comments.toggleComments}
-          onFollowToggle={handleFollowTogglePost}
-        />
+        {!isBlocked(profile?.username || "") && (
+          <Feed
+            posts={postsWithFollowState}
+            isLoading={postsLoading}
+            showPostMenu={false}
+            onLike={handleLike}
+            onReply={comments.toggleComments}
+            onFollowToggle={handleFollowTogglePost}
+          />
+        )}
       </div>
 
       {comments.openCommentsPostId && selectedPost && (

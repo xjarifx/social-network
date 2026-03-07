@@ -4,6 +4,7 @@ import { postsAPI, likesAPI, followsAPI } from "../services/api";
 import { Feed, CommentsModal } from "../components";
 import type { PostProps } from "../components";
 import { useAuth } from "../context/auth-context";
+import { useBlocks } from "../context/BlockContext";
 import { useComments, useDraft } from "../hooks";
 import { transformPost } from "../utils";
 import { Button } from "../components/ui/button";
@@ -12,6 +13,7 @@ type FeedTab = "following" | "forYou";
 
 export default function HomePage() {
   const { user } = useAuth();
+  const { blockedUsers, isBlocked } = useBlocks();
   const pageSize = 20;
   const [followingPosts, setFollowingPosts] = useState<PostProps[]>([]);
   const [forYouPosts, setForYouPosts] = useState<PostProps[]>([]);
@@ -123,19 +125,23 @@ export default function HomePage() {
 
   const followingPostsWithFollowState = useMemo(() => {
     const followingSet = new Set(followingIds);
-    return followingPosts.map((post) => ({
-      ...post,
-      isFollowing: post.authorId ? followingSet.has(post.authorId) : false,
-    }));
-  }, [followingPosts, followingIds]);
+    return followingPosts
+      .filter((post) => !isBlocked(post.author.handle))
+      .map((post) => ({
+        ...post,
+        isFollowing: post.authorId ? followingSet.has(post.authorId) : false,
+      }));
+  }, [followingPosts, followingIds, isBlocked]);
 
   const forYouPostsWithFollowState = useMemo(() => {
     const followingSet = new Set(followingIds);
-    return forYouPosts.map((post) => ({
-      ...post,
-      isFollowing: post.authorId ? followingSet.has(post.authorId) : false,
-    }));
-  }, [forYouPosts, followingIds]);
+    return forYouPosts
+      .filter((post) => !isBlocked(post.author.handle))
+      .map((post) => ({
+        ...post,
+        isFollowing: post.authorId ? followingSet.has(post.authorId) : false,
+      }));
+  }, [forYouPosts, followingIds, isBlocked]);
 
   const combinedPosts = useMemo(
     () => [...forYouPosts, ...followingPosts],
@@ -454,9 +460,21 @@ export default function HomePage() {
     const handlePostCreated = () => {
       void refreshFeeds();
     };
+    const handleUserBlocked = () => {
+      void refreshFeeds();
+    };
+    const handleUserUnblocked = () => {
+      void refreshFeeds();
+    };
+    
     window.addEventListener("post-created", handlePostCreated);
+    window.addEventListener("user-blocked", handleUserBlocked);
+    window.addEventListener("user-unblocked", handleUserUnblocked);
+    
     return () => {
       window.removeEventListener("post-created", handlePostCreated);
+      window.removeEventListener("user-blocked", handleUserBlocked);
+      window.removeEventListener("user-unblocked", handleUserUnblocked);
     };
   }, [refreshFeeds]);
 

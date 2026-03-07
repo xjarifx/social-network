@@ -4,12 +4,12 @@ import { toast } from "sonner";
 import {
   usersAPI,
   followsAPI,
-  blocksAPI,
   likesAPI,
   postsAPI,
 } from "../services/api";
-import type { User, Follower, BlockedUser } from "../services/api";
+import type { User, Follower } from "../services/api";
 import { useAuth } from "../context/auth-context";
+import { useBlocks } from "../context/BlockContext";
 import { Feed, CommentsModal, EditPostModal, ProBadge } from "../components";
 import type { PostProps } from "../components";
 import { useComments } from "../hooks";
@@ -18,11 +18,11 @@ import { Button } from "../components/ui/button";
 
 export default function ProfilePage() {
   const { user } = useAuth();
+  const { blockedUsers } = useBlocks();
   const navigate = useNavigate();
   const [profile, setProfile] = useState<User | null>(null);
   const [followers, setFollowers] = useState<Follower[]>([]);
   const [following, setFollowing] = useState<Follower[]>([]);
-  const [blocked, setBlocked] = useState<BlockedUser[]>([]);
   const [posts, setPosts] = useState<PostProps[]>([]);
   const [postsLoading, setPostsLoading] = useState(true);
   const [postsError, setPostsError] = useState<string | null>(null);
@@ -92,12 +92,10 @@ export default function ProfilePage() {
     Promise.all([
       followsAPI.getUserFollowers(user.id),
       followsAPI.getUserFollowing(user.id),
-      blocksAPI.list(),
     ])
-      .then(([f, g, b]) => {
+      .then(([f, g]) => {
         setFollowers(Array.isArray(f) ? f : []);
         setFollowing(Array.isArray(g) ? g : []);
-        setBlocked(Array.isArray(b) ? b : (b?.blocked ?? []));
       })
       .catch((err) =>
         console.error("Failed to load followers/following:", err),
@@ -249,7 +247,7 @@ export default function ProfilePage() {
               className="flex-1 cursor-pointer rounded-xl border border-border bg-surface px-4 py-3 text-center transition-colors duration-base hover:bg-surface-hover"
             >
               <p className="text-xl font-bold text-text-primary">
-                {blocked.length}
+                {blockedUsers.length}
               </p>
               <p className="text-xs text-text-secondary">Blocked</p>
             </button>
