@@ -39,11 +39,11 @@ export function PostComposerModal({
   let countColor = "text-text-secondary";
   let progressColor = "bg-blue-500";
   if (isOverLimit) {
-    countColor = "text-danger";
-    progressColor = "bg-danger";
+    countColor = "text-red-500";
+    progressColor = "bg-red-500";
   } else if (isNearLimit) {
-    countColor = "text-warning";
-    progressColor = "bg-warning";
+    countColor = "text-yellow-500";
+    progressColor = "bg-yellow-500";
   }
 
   useEffect(() => {
@@ -210,17 +210,17 @@ export function PostComposerModal({
           )}
 
           <div className="space-y-2">
-            <div className="h-1.5 overflow-hidden rounded-full bg-border">
+            <div className="h-1.5 w-full overflow-hidden rounded-full bg-border">
               <div
-                className={`h-full transition-all duration-200 ${progressColor}`}
+                className={`h-full transition-[width,background-color] duration-150 ease-out ${progressColor}`}
                 style={{ width: `${progressPercent}%` }}
               />
             </div>
-            <div className={`text-sm ${countColor}`}>
+            <div className={`text-sm transition-colors duration-150 ${countColor}`}>
               {currentLength}/{charLimit} characters
               {isOverLimit && (
                 <span className="ml-2 font-medium">
-                  ({remainingChars} over limit)
+                  ({Math.abs(remainingChars)} over limit)
                 </span>
               )}
             </div>
