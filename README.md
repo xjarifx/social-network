@@ -1,5 +1,7 @@
 # Social Network Platform
 
+🚀 **Live Preview:** [https://social-network-ten-ruby.vercel.app](https://social-network-ten-ruby.vercel.app)
+
 A full-stack social media application built with React, TypeScript, Node.js, Express, PostgreSQL, and Redis.
 
 ## Features
@@ -37,7 +39,7 @@ A full-stack social media application built with React, TypeScript, Node.js, Exp
 - **Redis** - Caching
 - **JWT** - Authentication
 - **Stripe** - Payments
-- **Cloudinary** - Media storage
+- **ImageKit** - Media storage
 - **Swagger** - API documentation
 
 ## Project Structure
@@ -83,7 +85,7 @@ A full-stack social media application built with React, TypeScript, Node.js, Exp
 - PostgreSQL 14+
 - Redis 6+
 - Stripe account (for billing features)
-- Cloudinary account (for media uploads)
+- ImageKit account (for media uploads)
 
 ### Installation
 
@@ -108,95 +110,158 @@ A full-stack social media application built with React, TypeScript, Node.js, Exp
 
    **Server** (`server/.env`):
    ```env
-   # Environment switch: development | production
-   # Change this to "production" when deploying
-   APP_ENV=development
+   # ============================================
+   # ENVIRONMENT CONFIGURATION
+   # ============================================
+   # Individual resource switches - set to true/false for each resource
+   # true = use PROD value, false = use DEV value
 
-   # Server Port
-   PORT_DEV=3000
-   PORT_PROD=3000
+   # ============================================
+   # SERVER CONFIGURATION
+   # ============================================
+   PORT=3000
+   CACHE_ENABLED=true
 
-   # Database URLs
-   DATABASE_URL_DEV=postgresql://user:password@localhost:5432/social_network_local
+   # ============================================
+   # DATABASE CONFIGURATION
+   # ============================================
+   USE_PROD_DATABASE=false
+
+   # Production Database
    DATABASE_URL_PROD=postgresql://user:password@production-host:5432/social_network_prod
 
-   # Redis URLs
-   REDIS_URL_DEV=redis://:password@localhost:6379
+   # Development Database
+   DATABASE_URL_DEV=postgresql://postgres:password@localhost:5432/social_network_local
+
+   # ============================================
+   # REDIS/CACHE CONFIGURATION
+   # ============================================
+   USE_PROD_REDIS=false
+
+   # Production Redis
    REDIS_URL_PROD=redis://:password@production-host:6379
 
-   # Frontend URLs (for CORS)
-   FRONTEND_URL_DEV=http://localhost:5173
+   # Development Redis
+   REDIS_URL_DEV=redis://:password@localhost:6379
+
+   # ============================================
+   # FRONTEND CONFIGURATION
+   # ============================================
+   USE_PROD_FRONTEND=false
+
+   # Production Frontend URL
    FRONTEND_URL_PROD=https://your-frontend-domain.com
 
-   # Backend URLs
-   BACKEND_URL_DEV=http://localhost:3000
+   # Development Frontend URL
+   FRONTEND_URL_DEV=http://localhost:5173
+
+   # ============================================
+   # BACKEND CONFIGURATION
+   # ============================================
+   USE_PROD_BACKEND=false
+
+   # Production Backend URL
    BACKEND_URL_PROD=https://your-api-domain.com
 
-   # JWT Secrets
-   JWT_SECRET=your_jwt_secret_change_this
+   # Development Backend URL
+   BACKEND_URL_DEV=http://localhost:3000
+
+   # ============================================
+   # IMAGEKIT CONFIGURATION
+   # ============================================
+   USE_PROD_IMAGEKIT=true
+
+   # Production ImageKit
+   IMAGEKIT_PUBLIC_KEY_PROD=your_public_key
+   IMAGEKIT_PRIVATE_KEY_PROD=your_private_key
+   IMAGEKIT_URL_ENDPOINT_PROD=https://ik.imagekit.io/your_imagekit_id
+
+   # ============================================
+   # JWT AUTHENTICATION
+   # ============================================
+   USE_PROD_JWT=false
+
+   # Production JWT Secrets
+   JWT_SECRET_PROD=your_jwt_secret_change_this
+   REFRESH_TOKEN_SECRET_PROD=your_refresh_secret_change_this
+
+   # Development JWT Secrets
+   JWT_SECRET_DEV=dev_jwt_secret
+   REFRESH_TOKEN_SECRET_DEV=dev_refresh_secret
+
+   # JWT Configuration
    JWT_EXPIRES_IN=5m
-   REFRESH_TOKEN_SECRET=your_refresh_secret_change_this
    REFRESH_TOKEN_EXPIRES_IN=30d
 
-   # Cloudinary
-   CLOUDINARY_CLOUD_NAME=your_cloud_name
-   CLOUDINARY_API_KEY=your_api_key
-   CLOUDINARY_API_SECRET=your_api_secret
+   # ============================================
+   # STRIPE PAYMENT CONFIGURATION
+   # ============================================
+   USE_PROD_STRIPE=true
 
-   # Stripe
-   STRIPE_SECRET_KEY=sk_test_your_key
-   STRIPE_PUBLIC_KEY=pk_test_your_key
-   STRIPE_WEBHOOK_SECRET=whsec_your_secret
+   # Production Stripe Keys
+   STRIPE_SECRET_KEY_PROD=sk_live_your_key
+   STRIPE_PUBLIC_KEY_PROD=pk_live_your_key
+   STRIPE_WEBHOOK_SECRET_PROD=whsec_your_secret
+
+   # Development Stripe Keys
+   STRIPE_SECRET_KEY_DEV=sk_test_your_key
+   STRIPE_PUBLIC_KEY_DEV=pk_test_your_key
+   STRIPE_WEBHOOK_SECRET_DEV=whsec_your_dev_secret
+
+   # Stripe Product Configuration
    STRIPE_PRO_PRICE_ID=price_your_price_id
    STRIPE_PRO_PRICE_CENTS=999
    STRIPE_PRO_CURRENCY=usd
-   STRIPE_SUCCESS_URL_DEV=http://localhost:5173/billing/success
-   STRIPE_SUCCESS_URL_PROD=https://your-frontend-domain.com/billing/success
-   STRIPE_CANCEL_URL_DEV=http://localhost:5173/billing/cancel
-   STRIPE_CANCEL_URL_PROD=https://your-frontend-domain.com/billing/cancel
-
-   # Cache
-   CACHE_ENABLED=true
    ```
 
-   **To switch between environments:**
-   - For development: Set `APP_ENV=development`
-   - For production: Set `APP_ENV=production`
-   
-   The server will automatically use the correct URLs and configurations based on this setting.
+   **Environment Switching:**
+   - Each resource has its own switch (e.g., `USE_PROD_DATABASE`, `USE_PROD_REDIS`)
+   - Set to `true` to use production values, `false` for development
+   - Mix and match as needed (e.g., use prod database with local Redis)
+   - All environment-specific URLs are in the same `.env` file
 
    **Client** (`client/.env`):
    ```env
-   # Environment switch: development | production
-   # Change this to "production" when deploying
-   VITE_APP_ENV=development
+   # ============================================
+   # API CONFIGURATION
+   # ============================================
+   USE_PROD_API=false
 
-   # API URLs
-   VITE_API_URL_DEV=http://localhost:3000/api/v1
+   # Production API URL
    VITE_API_URL_PROD=https://your-api-domain.com/api/v1
 
-   # Stripe public key
-   VITE_STRIPE_PUBLIC_KEY=pk_test_your_key
+   # Development API URL
+   VITE_API_URL_DEV=http://localhost:3000/api/v1
+
+   # ============================================
+   # STRIPE CONFIGURATION
+   # ============================================
+   USE_PROD_STRIPE=true
+
+   # Production Stripe Public Key
+   VITE_STRIPE_PUBLIC_KEY_PROD=pk_live_your_key
+
+   # Development Stripe Public Key
+   VITE_STRIPE_PUBLIC_KEY_DEV=pk_test_your_key
    ```
 
-   **To switch between environments:**
-   - For development: Set `VITE_APP_ENV=development`
-   - For production: Set `VITE_APP_ENV=production`
-   
-   The app will automatically use the correct API URL based on this setting.
+   **Environment Switching:**
+   - Set `USE_PROD_API=true` to use production API
+   - Set `USE_PROD_STRIPE=true` to use production Stripe keys
+   - Both URLs are configured in the same `.env` file
 
 4. **Set up the database**
    ```bash
    cd server
    
    # Generate Prisma client
-   npx prisma generate
+   npm run prisma:generate
    
    # Run migrations
-   npx prisma migrate dev
+   npm run db:migrate
    
    # Seed database (optional)
-   npm run seed
+   npm run db:seed
    ```
 
 5. **Start development servers**
@@ -228,7 +293,8 @@ cd server
 npm run dev          # Start development server
 npm run build        # Build for production
 npm start            # Start production server
-npm run seed         # Seed database with sample data
+npm run db:seed      # Seed database with sample data
+npm run db:studio    # Open Prisma Studio (DB GUI)
 ```
 
 ### Client Commands
@@ -249,9 +315,10 @@ npm test             # Run tests
 cd server
 
 npx prisma studio              # Open Prisma Studio (DB GUI)
-npx prisma migrate dev         # Create and apply migration
-npx prisma migrate reset       # Reset database
-npx prisma generate            # Generate Prisma client
+npm run db:migrate             # Create and apply migration
+npm run db:push                # Push schema changes without migration
+npm run db:deploy              # Deploy migrations to production
+npm run prisma:generate        # Generate Prisma client
 ```
 
 ## API Documentation
@@ -293,74 +360,90 @@ npm test
 
 1. Push code to GitHub
 2. Import project in Vercel
-3. Set environment variables:
-   - `VITE_APP_ENV=production`
+3. Set root directory to `client`
+4. Set environment variables:
+   - `USE_PROD_API=true`
    - `VITE_API_URL_PROD=https://your-api-domain.com/api/v1`
-   - `VITE_STRIPE_PUBLIC_KEY=pk_live_your_key`
-4. Deploy
+   - `USE_PROD_STRIPE=true`
+   - `VITE_STRIPE_PUBLIC_KEY_PROD=pk_live_your_key`
+5. Deploy
 
 ### Backend (Render/Railway/Heroku)
 
 1. Push code to GitHub
 2. Create new web service
-3. Set environment variables (see `.env.example`)
-4. Set build command: `cd server && npm install && npm run build`
-5. Set start command: `cd server && npm start`
-6. Deploy
+3. Set root directory to `server`
+4. Set environment variables (see `.env.example`)
+   - Set all `USE_PROD_*` switches to `true`
+   - Configure production URLs and credentials
+5. Set build command: `npm install && npm run build`
+6. Set start command: `npm start`
+7. Deploy
 
 ### Database (Aiven/Supabase/Neon)
 
 1. Create PostgreSQL database
-2. Update `DATABASE_URL` in server environment
-3. Run migrations: `npx prisma migrate deploy`
+2. Update `DATABASE_URL_PROD` in server environment
+3. Set `USE_PROD_DATABASE=true`
+4. Run migrations: `npm run db:deploy`
 
-### Redis (Upstash/Redis Cloud)
+### Redis (Upstash/Redis Cloud/Aiven)
 
 1. Create Redis instance
-2. Update `REDIS_URL` in server environment
+2. Update `REDIS_URL_PROD` in server environment
+3. Set `USE_PROD_REDIS=true`
 
 ## Environment Variables
 
-### Required Server Variables
+### Server Environment Variables
+
+The server uses individual resource switches for flexible environment configuration:
 
 | Variable | Description | Example |
 |----------|-------------|---------|
-| `APP_ENV` | Environment switch | `development` or `production` |
-| `PORT_DEV` | Development server port | `3000` |
-| `PORT_PROD` | Production server port | `3000` |
+| `USE_PROD_DATABASE` | Use production database | `true` or `false` |
+| `USE_PROD_REDIS` | Use production Redis | `true` or `false` |
+| `USE_PROD_FRONTEND` | Use production frontend URL | `true` or `false` |
+| `USE_PROD_BACKEND` | Use production backend URL | `true` or `false` |
+| `USE_PROD_IMAGEKIT` | Use production ImageKit | `true` or `false` |
+| `USE_PROD_JWT` | Use production JWT secrets | `true` or `false` |
+| `USE_PROD_STRIPE` | Use production Stripe keys | `true` or `false` |
 | `DATABASE_URL_DEV` | Development database URL | `postgresql://user:pass@localhost:5432/db` |
 | `DATABASE_URL_PROD` | Production database URL | `postgresql://user:pass@host:5432/db` |
 | `REDIS_URL_DEV` | Development Redis URL | `redis://:pass@localhost:6379` |
 | `REDIS_URL_PROD` | Production Redis URL | `redis://:pass@host:6379` |
 | `FRONTEND_URL_DEV` | Development frontend URL | `http://localhost:5173` |
 | `FRONTEND_URL_PROD` | Production frontend URL | `https://your-frontend.com` |
-| `JWT_SECRET` | JWT signing secret | `random_string` |
-| `REFRESH_TOKEN_SECRET` | Refresh token secret | `random_string` |
-| `CLOUDINARY_CLOUD_NAME` | Cloudinary cloud name | `your_cloud` |
-| `CLOUDINARY_API_KEY` | Cloudinary API key | `123456789` |
-| `CLOUDINARY_API_SECRET` | Cloudinary API secret | `secret` |
-| `STRIPE_SECRET_KEY` | Stripe secret key | `sk_test_...` |
-| `STRIPE_SUCCESS_URL_DEV` | Dev success redirect | `http://localhost:5173/billing/success` |
-| `STRIPE_SUCCESS_URL_PROD` | Prod success redirect | `https://your-frontend.com/billing/success` |
+| `JWT_SECRET_DEV` | Development JWT secret | `dev_secret` |
+| `JWT_SECRET_PROD` | Production JWT secret | `prod_secret` |
+| `IMAGEKIT_PUBLIC_KEY_PROD` | ImageKit public key | `public_xxx` |
+| `IMAGEKIT_PRIVATE_KEY_PROD` | ImageKit private key | `private_xxx` |
+| `IMAGEKIT_URL_ENDPOINT_PROD` | ImageKit URL endpoint | `https://ik.imagekit.io/your_id` |
+| `STRIPE_SECRET_KEY_PROD` | Stripe secret key | `sk_live_...` |
+| `STRIPE_PUBLIC_KEY_PROD` | Stripe public key | `pk_live_...` |
+| `STRIPE_PRO_PRICE_ID` | Stripe price ID | `price_xxx` |
 
 **Environment Switching:**
-- Simply change `APP_ENV` to switch between development and production
-- All environment-specific URLs are configured in the same `.env` file
-- The server automatically selects the correct configuration on startup
+- Each resource has its own switch (e.g., `USE_PROD_DATABASE`)
+- Set to `true` to use production values, `false` for development
+- Mix and match as needed (e.g., use prod database with local Redis)
+- All URLs are configured in the same `.env` file
 
-### Required Client Variables
+### Client Environment Variables
 
 | Variable | Description | Example |
 |----------|-------------|---------|
-| `VITE_APP_ENV` | Environment switch | `development` or `production` |
+| `USE_PROD_API` | Use production API | `true` or `false` |
+| `USE_PROD_STRIPE` | Use production Stripe | `true` or `false` |
 | `VITE_API_URL_DEV` | Development API URL | `http://localhost:3000/api/v1` |
 | `VITE_API_URL_PROD` | Production API URL | `https://your-api.com/api/v1` |
-| `VITE_STRIPE_PUBLIC_KEY` | Stripe public key | `pk_test_...` |
+| `VITE_STRIPE_PUBLIC_KEY_DEV` | Dev Stripe public key | `pk_test_...` |
+| `VITE_STRIPE_PUBLIC_KEY_PROD` | Prod Stripe public key | `pk_live_...` |
 
 **Environment Switching:**
-- Simply change `VITE_APP_ENV` to switch between development and production
-- No need to change other variables when switching environments
-- Both API URLs are configured in the same `.env` file
+- Set `USE_PROD_API=true` to use production API
+- Set `USE_PROD_STRIPE=true` to use production Stripe keys
+- Both URLs are configured in the same `.env` file
 
 ## Features in Detail
 
@@ -411,9 +494,10 @@ npm test
 ### CORS Errors
 
 If you see CORS errors:
-1. Ensure `FRONTEND_URL` is set in `server/.env`
-2. Restart the server completely
-3. Check server logs for CORS configuration
+1. Ensure `FRONTEND_URL_DEV` or `FRONTEND_URL_PROD` is set in `server/.env`
+2. Set the appropriate `USE_PROD_FRONTEND` switch
+3. Restart the server completely
+4. Check server logs for CORS configuration
 
 ### Database Connection Issues
 
