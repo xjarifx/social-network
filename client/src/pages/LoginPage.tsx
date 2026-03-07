@@ -54,6 +54,22 @@ export default function LoginPage() {
     }
   };
 
+  const handleTestLogin = async (accountNumber: 1 | 2) => {
+    const testEmail = `test${accountNumber}@example.com`;
+    const testPassword = "Password123!";
+    
+    setFormData({ email: testEmail, password: testPassword });
+    setFieldErrors({});
+    
+    try {
+      clearError();
+      await login(testEmail, testPassword);
+      navigate("/");
+    } catch (err) {
+      console.error("Test login failed:", err);
+    }
+  };
+
   return (
     <div className="flex min-h-screen bg-black text-white">
       {/* Left Panel — Brand / Illustration */}
@@ -179,6 +195,33 @@ export default function LoginPage() {
               </Button>
             </div>
           </form>
+
+          {/* Test Account Quick Login */}
+          <div className="mt-8 border-t border-white/10 pt-6">
+            <p className="mb-4 text-center text-[14px] font-medium text-white/70">
+              Quick test login
+            </p>
+            <div className="flex gap-3">
+              <Button
+                type="button"
+                onClick={() => handleTestLogin(1)}
+                disabled={isLoading}
+                variant="outline"
+                className="h-11 flex-1 rounded-xl border-[#1d9bf0]/50 bg-[#1d9bf0]/10 text-[14px] font-medium text-[#1d9bf0] hover:border-[#1d9bf0] hover:bg-[#1d9bf0]/20"
+              >
+                Test Account 1 (Free)
+              </Button>
+              <Button
+                type="button"
+                onClick={() => handleTestLogin(2)}
+                disabled={isLoading}
+                variant="outline"
+                className="h-11 flex-1 rounded-xl border-[#f91880]/50 bg-[#f91880]/10 text-[14px] font-medium text-[#f91880] hover:border-[#f91880] hover:bg-[#f91880]/20"
+              >
+                Test Account 2 (Pro)
+              </Button>
+            </div>
+          </div>
 
           <p className="mt-10 text-[11px] text-white/50">
             By signing in, you agree to our Terms of Service and Privacy Policy

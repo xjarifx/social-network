@@ -317,9 +317,38 @@ async function main() {
   await prisma.user.deleteMany();
 
   const passwordHash = await bcrypt.hash("Password123!", 10);
-  const TARGET_USERS = 20; // Reduced from 100
+  
+  // Create 2 consistent test accounts
+  console.log("👥 Creating test accounts...");
+  const testAccounts = [
+    {
+      username: "testuser1",
+      email: "test1@example.com",
+      firstName: "Test",
+      lastName: "User One",
+      password: passwordHash,
+      plan: Plan.FREE,
+    },
+    {
+      username: "testuser2",
+      email: "test2@example.com",
+      firstName: "Test",
+      lastName: "User Two",
+      password: passwordHash,
+      plan: Plan.PRO,
+      planStatus: "active",
+      planStartedAt: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000),
+    },
+  ];
 
-  console.log(`👥 Creating ${TARGET_USERS} users...`);
+  await prisma.user.createMany({
+    data: testAccounts,
+  });
+  console.log("✅ Created 2 test accounts (test1@example.com / test2@example.com)");
+
+  const TARGET_USERS = 20; // Additional random users
+
+  console.log(`👥 Creating ${TARGET_USERS} random users...`);
   const usersData = [] as Array<{
     username: string;
     email: string;
@@ -364,7 +393,7 @@ async function main() {
   }
 
   const users = await prisma.user.findMany();
-  console.log(`✅ Created ${users.length} users`);
+  console.log(`✅ Created ${users.length} total users (including 2 test accounts)`);
 
   console.log("📝 Creating posts...");
   const postsData = [] as Array<{
