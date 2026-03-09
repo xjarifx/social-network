@@ -192,9 +192,12 @@ export default function HomePage() {
           prev.map((p) => (p.id === postId ? updater(p) : p)),
         );
       };
+
       try {
+        // Use the current liked state from the post to determine action
         if (post.liked) {
           await likesAPI.unlikePost(postId);
+          // Update parent state after successful API call
           updatePostsById((p) => ({
             ...p,
             liked: false,
@@ -202,10 +205,13 @@ export default function HomePage() {
           }));
         } else {
           await likesAPI.likePost(postId);
+          // Update parent state after successful API call
           updatePostsById((p) => ({ ...p, liked: true, likes: p.likes + 1 }));
         }
       } catch (err) {
         console.error("Failed to toggle like:", err);
+        // Re-throw so PostCard can handle rollback
+        throw err;
       }
     },
     [combinedPosts, user?.id],

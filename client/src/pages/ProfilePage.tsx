@@ -127,6 +127,7 @@ export default function ProfilePage() {
         }
       } catch (err) {
         console.error("Failed to toggle like:", err);
+        throw err;
       }
     },
     [posts, user?.id],
