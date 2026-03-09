@@ -410,7 +410,7 @@ export default function HomePage() {
             </div>
           )}
 
-          <div className="mt-2 h-1 w-full overflow-hidden rounded-full bg-border">
+          <div className="bg-border mt-2 h-1 w-full overflow-hidden rounded-full">
             <div
               className={`h-full transition-all ${
                 isOverCharLimit ? "bg-red-500" : "bg-blue-500"
@@ -472,11 +472,11 @@ export default function HomePage() {
     const handleUserUnblocked = () => {
       void refreshFeeds();
     };
-    
+
     window.addEventListener("post-created", handlePostCreated);
     window.addEventListener("user-blocked", handleUserBlocked);
     window.addEventListener("user-unblocked", handleUserUnblocked);
-    
+
     return () => {
       window.removeEventListener("post-created", handlePostCreated);
       window.removeEventListener("user-blocked", handleUserBlocked);
@@ -523,7 +523,7 @@ export default function HomePage() {
       <div className="relative min-h-0 flex-1 overflow-hidden">
         <div
           ref={forYouScrollRef}
-          className={`scrollbar-thin absolute inset-0 overflow-y-auto pb-24 lg:pb-0 ${
+          className={`scrollbar-none absolute inset-0 overflow-y-auto pb-24 lg:pb-0 ${
             activeTab === "forYou" ? "block" : "hidden"
           }`}
         >
@@ -550,7 +550,7 @@ export default function HomePage() {
         </div>
         <div
           ref={followingScrollRef}
-          className={`scrollbar-thin absolute inset-0 overflow-y-auto pb-24 lg:pb-0 ${
+          className={`scrollbar-none absolute inset-0 overflow-y-auto pb-24 lg:pb-0 ${
             activeTab === "following" ? "block" : "hidden"
           }`}
         >
